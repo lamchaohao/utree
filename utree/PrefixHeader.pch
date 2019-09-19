@@ -1,0 +1,46 @@
+//
+//  PrefixHeader.pch
+//  utree
+//
+//  Created by 科研部 on 2019/8/16.
+//  Copyright © 2019 科研部. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+#import "MyLayout.h"
+#import "AutoScaleFrameHM/AutoScaleFrameMain.h"
+#import "ZBWidget/ThemeConfig.h"
+#import "ZBWidget/UIColor+ColorChange.h"
+#import <PYPhotoBrowser.h>
+//#import <SDWebImage/SDWebImage.h>
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#define iconRowHeight 74
+
+/**
+ *  普通cell高度
+ */
+#define nomalRowHeight 44
+
+/**
+ *  Code圈
+ */
+#define circleCellMargin 15  //间距
+#define circleCelliconWH 40  //头像高度、宽度
+#define circleCellWidth [UIScreen mainScreen].bounds.size.width - 2 * circleCellMargin  //cell的宽度
+#define circleCellNameattributes @{NSFontAttributeName : [UIFont systemFontOfSize:17]}  //昵称att
+#define circleCellNameFont [UIFont systemFontOfSize:17]                                 //昵称字号
+#define circleCellTimeattributes @{NSFontAttributeName : [UIFont systemFontOfSize:14]}  //时间att
+#define circleCellTimeFont [UIFont systemFontOfSize:14]                                 //时间字号
+#define circleCellTextattributes @{NSFontAttributeName : [UIFont systemFontOfSize:15]}  //正文att
+#define circleCellTextFont [UIFont systemFontOfSize:15]                                 //正文字号
+#define circleCellPhotosWH (circleCellWidth - 2 * (circleCellMargin + circleCellPhotosMargin)) / 3                                                                                   //图片的宽高
+#define circleCellPhotosMargin 5                                                        //图片间距
+#define circleCellToolBarHeight 36                                                      //cell工具条高度
+#define circleCellToolBarTintColor [UIColor colorWithHexString:@"#ffffff"]              //工具条图标、字体颜色
+#define circleCellToolBarTittleFont [UIFont systemFontOfSize:14]                        //工具条btn字号
+
+
+#endif /* PrefixHeader_pch */
