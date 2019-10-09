@@ -77,14 +77,14 @@ static NSString *CellID = @"staticCell";
 //header高度
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return ScreenHeight*0.275;
+    return ScreenHeight*0.32;
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     MyRelativeLayout *topLayout = [MyRelativeLayout new];
     
-    topLayout.frame = CGRectMake(0, 0, ScreenWidth, ScreenHeight*0.275);
+    topLayout.frame = CGRectMake(0, 0, ScreenWidth, ScreenHeight*0.32);
     topLayout.backgroundColor=[UIColor whiteColor];
     
     UIImageView *headView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"app_icon"]];

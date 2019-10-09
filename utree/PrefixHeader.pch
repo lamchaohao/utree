@@ -9,11 +9,13 @@
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 #import "MyLayout.h"
+#import "CFTool.h"
 #import "AutoScaleFrameHM/AutoScaleFrameMain.h"
 #import "ZBWidget/ThemeConfig.h"
 #import "ZBWidget/UIColor+ColorChange.h"
-#import <PYPhotoBrowser.h>
-//#import <SDWebImage/SDWebImage.h>
+#import "PYPhotoBrowser.h"
+#import "SDWebImage.h"
+#import "MJRefresh.h"
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
 
@@ -38,9 +40,11 @@
 #define circleCellTextFont [UIFont systemFontOfSize:15]                                 //正文字号
 #define circleCellPhotosWH (circleCellWidth - 2 * (circleCellMargin + circleCellPhotosMargin)) / 3                                                                                   //图片的宽高
 #define circleCellPhotosMargin 5                                                        //图片间距
-#define circleCellToolBarHeight 36                                                      //cell工具条高度
+#define circleCellToolBarHeight 36                                                  //cell工具条高度
 #define circleCellToolBarTintColor [UIColor colorWithHexString:@"#ffffff"]              //工具条图标、字体颜色
 #define circleCellToolBarTittleFont [UIFont systemFontOfSize:14]                        //工具条btn字号
+
+#define circleCellToolBarMargin 10 //cell工具条边距
 
 
 #endif /* PrefixHeader_pch */

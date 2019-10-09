@@ -61,7 +61,7 @@
         _photosView.myTop=4;
         
         MyLinearLayout *toolbarLayout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Horz];
-        toolbarLayout.frame = CGRectMake(0, 8, ScreenWidth-32, 36);
+        toolbarLayout.frame = CGRectMake(0, 8, ScreenWidth-32, circleCellToolBarHeight);
         toolbarLayout.myTop=5;
         toolbarLayout.myBottom=5;
 //        toolbarLayout.gravity = MyGravity_Vert_Center|MyGravity_Vert_Between;

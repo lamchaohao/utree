@@ -19,6 +19,7 @@
 static NSString *CellID = @"societyCell";
 
 @implementation ClassSocietyHomeVC
+static const CGFloat MJDuration = 4.0;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -36,19 +37,44 @@ static NSString *CellID = @"societyCell";
         [momentVM setMomentModel:moment] ;
         [_momentViewModels addObject:momentVM];
     }
-    [self.tableView reloadData];
+//    [self.tableView reloadData];
     //    [self.tableView.mj_header endRefreshing];
+    // 2.模拟4秒后刷新表格UI（真实开发中，可以移除这段gcd代码）
+    __weak UITableView *tableView = self.tableView;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MJDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 刷新表格
+        [tableView reloadData];
+        NSLog(@"%s",__func__);
+        // 拿到当前的下拉刷新控件，结束刷新状态
+        [tableView.mj_header endRefreshing];
+    });
     
 }
 
 -(void)initTableView
 {
     
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight-iPhone_Bottom_NavH) style:UITableViewStylePlain];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight-iPhone_Top_NavH-iPhone_Bottom_NavH) style:UITableViewStylePlain];
     [_tableView registerClass:[MomentCell class] forCellReuseIdentifier:CellID];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
+    // Set the callback（一Once you enter the refresh status，then call the action of target，that is call [self loadNewData]）
+    MJRefreshGifHeader *header = [MJRefreshGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
     
+    // Set the ordinary state of animated images
+    NSString *gifPath = [[NSBundle mainBundle] pathForResource:@"header_refresh_dot" ofType:@"gif"];
+    NSData *gifData = [NSData dataWithContentsOfFile:gifPath];
+    UIImage *image = [UIImage sd_imageWithGIFData:gifData];
+    [header setImages:[NSArray arrayWithObject:image] forState:MJRefreshStateIdle];
+    [header setImages:[NSArray arrayWithObject:image] forState:MJRefreshStatePulling];
+    [header setImages:[NSArray arrayWithObject:image] forState:MJRefreshStateRefreshing];
+    // Hide the time
+    header.lastUpdatedTimeLabel.hidden = YES;
+    // Hide the status
+    header.stateLabel.hidden = YES;
+    self.tableView.mj_header = header;
+    [self.tableView.mj_header beginRefreshing];
+
     [self.view addSubview:_tableView];
 }
 

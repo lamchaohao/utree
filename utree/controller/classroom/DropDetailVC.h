@@ -7,10 +7,13 @@
 //
 
 #import "ViewController.h"
+#import "DropLevelProgressView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DropDetailVC : ViewController
+
+@property(nonatomic,strong)DropLevelProgressView *uiProgress;
 
 @end
 

@@ -15,7 +15,6 @@
 #import "AutoScaleFrameMain.h"
 #import "AttendanceVC.h"
 #import "RandomVC.h"
-#import "ListStudentVC.h"
 #import "LeftDrawerView.h"
 #import "MenuExpandView.h"
 
@@ -26,6 +25,7 @@
 
 @property (strong, nonatomic)ClassStudentsVC *personVC;
 @property (strong, nonatomic)ClassGroupVC *groupVC;
+@property (strong, nonatomic)UIView *maskView;
 @property (strong, nonatomic)UIButton *mainMenuBtn;
 @property (strong, nonatomic)UIButton *attendanceBtn;
 @property (strong, nonatomic)UIButton *sortBtn;
@@ -193,6 +193,17 @@
     _showListBtn.frame=CGRectMake(0, 0, 54, 54);
     [self layoutMenuButton];
     
+    
+    _maskView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
+    _maskView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.4];
+//    _maskView
+    _maskView.userInteractionEnabled = YES;
+
+    UITapGestureRecognizer * tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gestureEvent:)];
+    [_maskView addGestureRecognizer:tapGesture];
+    [tapGesture setNumberOfTapsRequired:1];
+    
+    [self.view addSubview:_maskView];
     [self.view addSubview:_attendanceBtn];
     [self.view addSubview:_sortBtn];
     [self.view addSubview:_randomBtn];
@@ -208,9 +219,15 @@
 //    [[[UIApplication sharedApplication]keyWindow]addSubview:drawerView];
 //
 //}
+#pragma mark 处理点击菜单外的屏幕
+-(void)gestureEvent:(UITapGestureRecognizer *)gesture
+{
+    [self hideExtendButton];
+}
 
 -(void)hideExtendButton
 {
+    [_maskView setHidden:YES];
     [_attendanceBtn setHidden:true];
     [_sortBtn setHidden:true];
     [_randomBtn setHidden:true];
@@ -220,6 +237,7 @@
 -(void)showMenu:(UIButton *)sender
 {
     bool hid = ![_attendanceBtn isHidden];
+    [_maskView setHidden:hid];
     [_attendanceBtn setHidden:hid];
     [_sortBtn setHidden:hid];
     [_randomBtn setHidden:hid];
@@ -243,9 +261,8 @@
 -(void)showRandomDialog:(UIButton *)sender
 {
     RandomVC *randomVC= [[RandomVC alloc]init];
-    
-    randomVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    [self presentViewController:randomVC animated:YES completion:nil];
+    randomVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:randomVC animated:NO completion:nil];
     [self hideExtendButton];
 }
 
@@ -305,9 +322,13 @@
         CGPoint newCenter = CGPointMake(recognizer.view.center.x+ translation.x,
                                         recognizer.view.center.y + translation.y);
         newCenter.y = MIN(ScreenHeight-30, newCenter.y);
-        newCenter.y = MAX(iPhone_Top_NavH-SegmentTitleViewHeight, newCenter.y);
+        newCenter.y = MAX(iPhone_Top_NavH, newCenter.y);//iPhone_Top_NavH-SegmentTitleViewHeight
         newCenter.x = MAX(30, newCenter.x);
         newCenter.x = MIN(ScreenWidth-30,newCenter.x);
+        if (newCenter.y>ScreenHeight-iPhone_Top_NavH-iPhone_Bottom_NavH-iPhone_StatuBarHeight) {
+            
+            newCenter.y =ScreenHeight-iPhone_Top_NavH-iPhone_Bottom_NavH-iPhone_StatuBarHeight;
+        }
         recognizer.view.center = newCenter;
         [recognizer setTranslation:CGPointZero inView:self.mainMenuBtn];
         

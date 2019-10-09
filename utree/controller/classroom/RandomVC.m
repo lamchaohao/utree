@@ -27,13 +27,13 @@
 {
     MyRelativeLayout *rootLayout = [MyRelativeLayout new];
     self.view = rootLayout;
-    rootLayout.backgroundColor=[UIColor blackColor];
+    
     MyFrameLayout *myTopLL = [MyFrameLayout new];
     myTopLL.myHorzMargin = 0;
     myTopLL.backgroundColor=[UIColor redColor];
     
     UIView *bgView = [[UIView alloc] init];
-    bgView.frame = CGRectMake(19.3,110.4,ScreenWidth,490.8);
+    bgView.frame = CGRectMake(0,0,ScreenWidth,490.8);
     bgView.backgroundColor = [UIColor myColorWithHexString:@"#FAFAFA"];
     bgView.layer.cornerRadius = 11;
     [self.view addSubview:bgView];
@@ -56,7 +56,7 @@
     [_titleLabel setWrapContentSize:YES];
     
     UIView *topBackView = [[UIView alloc] init];
-    topBackView.frame = CGRectMake(19.3,110.4,ScreenWidth-40,55.2);
+    topBackView.frame = CGRectMake(0,0,ScreenWidth-40,55.2);
     topBackView.backgroundColor = [UIColor whiteColor];
     topBackView.layer.cornerRadius = 11;
     topBackView.myWidth=ScreenWidth-40;
@@ -131,7 +131,7 @@
 
 -(void)closedialog:(UIButton *)sender
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:NO completion:nil];
 }
 
 -(void)minusCount:(UIButton *)sender
@@ -167,4 +167,7 @@
     [_countLabel removeFromSuperview];
     [_titleLabel setText:@"随机抽选"];
 }
+
+
+
 @end

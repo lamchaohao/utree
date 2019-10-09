@@ -15,8 +15,8 @@
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         
         
-        self.backgroundView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"class_bg_unselected"]];
-        //        self.backgroundColor = [UIColor grayColor];
+//        self.backgroundView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"class_bg_unselected"]];
+        self.backgroundColor = [UIColor whiteColor];
         self.layer.masksToBounds = YES;
         self.layer.cornerRadius = 8.0;
         self.layer.shadowOpacity=0.6f;

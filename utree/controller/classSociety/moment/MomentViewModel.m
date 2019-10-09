@@ -79,7 +79,7 @@
     CGFloat toolBarX = 0;
     CGFloat toolBarY = CGRectGetMaxY(self.momentsBodyFrame);
     CGFloat toolBarW = circleCellWidth;
-    CGFloat toolBarH = circleCellToolBarHeight;
+    CGFloat toolBarH = circleCellToolBarHeight+circleCellMargin;
     self.momentsToolBarFrame = CGRectMake(toolBarX, toolBarY, toolBarW, toolBarH);
     //点赞
     CGFloat likeX = 0;

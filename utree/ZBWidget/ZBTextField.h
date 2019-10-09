@@ -11,6 +11,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ZBTextField : UITextField
+@property(nonatomic,assign)CGFloat leftMargin;
+@property(nonatomic,assign)CGFloat textMargin;
+
+-(instancetype)initWitheLeftMargin:(CGFloat)x andTextMargin:(CGFloat)textMargin;
 
 @end
 

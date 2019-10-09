@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GroupMenuView : UIView
+@interface GroupMenuView : UIViewController
 @property(nonatomic,strong)UITableView *tableView;
 @end
 

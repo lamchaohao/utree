@@ -11,12 +11,10 @@
 #import "MMPopupCategory.h"
 #import "MMPopupDefine.h"
 #import <Masonry/Masonry.h>
-
 @interface MMAlertView()
 
 @property (nonatomic, strong) UILabel     *titleLabel;
 @property (nonatomic, strong) UILabel     *detailLabel;
-@property (nonatomic, strong) UITextField *inputView;
 @property (nonatomic, strong) UIView      *buttonView;
 
 @property (nonatomic, strong) NSArray     *actionItems;
@@ -131,22 +129,23 @@
         
         if ( self.inputHandler )
         {
-            self.inputView = [UITextField new];
-            [self addSubview:self.inputView];
-            [self.inputView mas_makeConstraints:^(MASConstraintMaker *make) {
+            self.editView = [[ZBTextField alloc]initWitheLeftMargin:0 andTextMargin:0];
+            [self addSubview:self.editView];
+            [self.editView mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.top.equalTo(lastAttribute).offset(10);
-                make.left.right.equalTo(self).insets(UIEdgeInsetsMake(0, config.innerMargin, 0, config.innerMargin));
+                make.left.right.equalTo(self).insets(UIEdgeInsetsMake(0, config.innerMargin, 0, config.innerMargin)); 
                 make.height.mas_equalTo(40);
             }];
-            self.inputView.backgroundColor = self.backgroundColor;
-            self.inputView.layer.borderWidth = MM_SPLIT_WIDTH;
-            self.inputView.layer.borderColor = config.splitColor.CGColor;
-            self.inputView.leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 5, 5)];
-            self.inputView.leftViewMode = UITextFieldViewModeAlways;
-            self.inputView.clearButtonMode = UITextFieldViewModeWhileEditing;
-            self.inputView.placeholder = inputPlaceholder;
+            self.editView.backgroundColor = self.backgroundColor;
+            self.editView.borderStyle=UITextBorderStyleNone;
+//            self.editView.layer.borderWidth = MM_SPLIT_WIDTH;
+//            self.editView.layer.borderColor = config.splitColor.CGColor;
+            self.editView.leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 5, 5)];
+            self.editView.leftViewMode = UITextFieldViewModeAlways;
+            self.editView.clearButtonMode = UITextFieldViewModeWhileEditing;
+            self.editView.placeholder = inputPlaceholder;
             
-            lastAttribute = self.inputView.mas_bottom;
+            lastAttribute = self.editView.mas_bottom;
         }
         
         self.buttonView = [UIView new];
@@ -253,7 +252,7 @@
     
     if ( self.withKeyboard && (btn.tag==1) )
     {
-        if ( self.inputView.text.length > 0 )
+        if ( self.editView.text.length > 0 )
         {
             [self hide];
         }
@@ -265,7 +264,7 @@
     
     if ( self.inputHandler && (btn.tag>0) )
     {
-        self.inputHandler(self.inputView.text);
+        self.inputHandler(self.editView.text);
     }
     else
     {
@@ -283,12 +282,12 @@
         return;
     }
     
-    if ( n.object != self.inputView )
+    if ( n.object != self.editView )
     {
         return;
     }
     
-    UITextField *textField = self.inputView;
+    UITextField *textField = self.editView;
     
     NSString *toBeString = textField.text;
     
@@ -305,12 +304,12 @@
 
 - (void)showKeyboard
 {
-    [self.inputView becomeFirstResponder];
+    [self.editView becomeFirstResponder];
 }
 
 - (void)hideKeyboard
 {
-    [self.inputView resignFirstResponder];
+    [self.editView resignFirstResponder];
 }
 
 @end
@@ -342,7 +341,7 @@
     
     if ( self )
     {
-        self.width          = 275.0f;
+        self.width          = 338.0f;
         self.buttonHeight   = 50.0f;
         self.innerMargin    = 25.0f;
         self.cornerRadius   = 5.0f;

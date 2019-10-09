@@ -31,7 +31,10 @@
     
     [_headView setImage:[UIImage imageNamed:@"head_boy"]];
     [_headView sizeToFit];
-    
+    _headView.layer.cornerRadius=28 ;//裁成圆角
+    _headView.layer.masksToBounds=YES;//隐藏裁剪掉的部分
+    _headView.layer.borderWidth = 1.5f;//边框宽度
+    _headView.layer.borderColor = [UIColor myColorWithHexString:PrimaryColor].CGColor;//边框颜色
     
     _nameLabel = [UILabel new];
     [_nameLabel setText:@"what"];
@@ -81,8 +84,7 @@
 
 - (void)setStudentModel:(UTStudent *)studentModel
 {
-    
-    [_headView setImage: [UIImage imageWithData:studentModel.thumbnailImageData]];
+    [_headView sd_setImageWithURL:[NSURL URLWithString:studentModel.headImgURL]];
     self.nameLabel.text =studentModel.studentName;
     
     if (_nameLabel == nil) {

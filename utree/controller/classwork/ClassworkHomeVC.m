@@ -9,6 +9,7 @@
 #import "ClassworkHomeVC.h"
 #import "FSScrollContentView.h"
 #import "Notice/NoticeVC.h"
+#import "PostMenuVC.h"
 @interface ClassworkHomeVC ()<FSPageContentViewDelegate,FSSegmentTitleViewDelegate>
 
 @property (nonatomic, strong) FSPageContentView *pageContentView;
@@ -16,6 +17,8 @@
 @property(nonatomic,strong)NoticeVC *noticeVC;
 @property(nonatomic,strong)NoticeVC *homeworkVC;
 @property(nonatomic,strong)NoticeVC *gradeVC;
+@property (strong, nonatomic)UIButton *mainMenuBtn;
+
 @end
 
 @implementation ClassworkHomeVC
@@ -26,6 +29,7 @@
     self.view.backgroundColor=[UIColor whiteColor];
     [self initTabItem];
     [self initScrollView];
+    [self initPostButton];
 }
 
 -(void)initTabItem
@@ -67,6 +71,53 @@
 {
     self.titleView.selectIndex = endIndex;
     //    self.title = @[@"个人",@"小组"][endIndex];
+}
+
+-(void)initPostButton
+{
+    _mainMenuBtn=[[UIButton alloc]initWithFrame:CGRectMake(ScreenWidth*0.85, ScreenHeight*0.7, 54, 54)];
+    [_mainMenuBtn setImage:[UIImage imageNamed:@"ic_edit_work"] forState:UIControlStateNormal];
+    
+    [_mainMenuBtn sizeToFit];
+    [_mainMenuBtn addTarget:self action:@selector(showMenu:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIPanGestureRecognizer *panGes= [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panScroll:)];
+    
+    [_mainMenuBtn addGestureRecognizer:panGes];
+    [self.view addSubview:_mainMenuBtn];
+}
+
+- (void)panScroll:(UIPanGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateChanged) {//设置拖动范围
+        CGPoint translation = [recognizer locationInView:self.mainMenuBtn];
+        CGPoint newCenter = CGPointMake(recognizer.view.center.x+ translation.x,
+                                        recognizer.view.center.y + translation.y);
+        newCenter.y = MIN(ScreenHeight-30, newCenter.y);
+        newCenter.y = MAX(iPhone_Top_NavH, newCenter.y);//iPhone_Top_NavH-SegmentTitleViewHeight
+        newCenter.x = MAX(30, newCenter.x);
+        newCenter.x = MIN(ScreenWidth-30,newCenter.x);
+        if (newCenter.y>ScreenHeight-iPhone_Top_NavH-iPhone_Bottom_NavH-iPhone_StatuBarHeight) {
+            
+            newCenter.y =ScreenHeight-iPhone_Top_NavH-iPhone_Bottom_NavH-iPhone_StatuBarHeight;
+        }
+        recognizer.view.center = newCenter;
+        [recognizer setTranslation:CGPointZero inView:self.mainMenuBtn];
+
+    }
+    
+    if (recognizer.state == UIGestureRecognizerStateEnded) {//可以在这里做一些复位处理
+        
+    }
+}
+
+-(void)showMenu:(id)sender
+{
+    PostMenuVC *menuVC = [[PostMenuVC alloc]init];
+    menuVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+//    [self presentViewController:menuVC animated:NO completion:nil];
+    [self.navigationController pushViewController:menuVC animated:NO];
+
+
 }
 
 @end

@@ -46,7 +46,7 @@ static NSString *cellID = @"collectionID";
      */
     CGFloat barHeight = self.tabBarController.tabBar.frame.size.height;
     
-    _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth*0.8,ScreenWidth) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth*0.8,ScreenWidth*0.88) collectionViewLayout:layout];
     _collectionView.delegate = self;
     _collectionView.dataSource = self;
     _collectionView.backgroundColor = [UIColor_ColorChange colorWithHexString:@"#F7F7F7"];
@@ -59,8 +59,6 @@ static NSString *cellID = @"collectionID";
      注册item和区头视图、区尾视图
      */
     [_collectionView registerClass:[AwardItemCell class] forCellWithReuseIdentifier:cellID];
-//    [_collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"MyCollectionViewHeaderView"];
-//    [_collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"MyCollectionViewFooterView"];
     [self.view addSubview:_collectionView];
 }
 

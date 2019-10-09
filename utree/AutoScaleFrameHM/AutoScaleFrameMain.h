@@ -54,7 +54,9 @@
 
 //框架内 - 计算高度(除去顶部导航、底部安全高度)
 #define Screen_Calculate_Hight (iS_IPhoneX_All ? [UIScreen mainScreen].bounds.size.height - iPhone_Top_NavH -iPhone_Bottom_NavH : [UIScreen mainScreen].bounds.size.height)
-#define iPhone_StatuBarHeight 24
+
+/** 设置默认 iPhone X 状态栏 安全高度 */
+#define iPhone_StatuBarHeight (iS_IPhoneX_All ? 44  : 20)
 /** 设置默认 iPhone X 导航栏 安全高度 */
 #define iPhone_SNavH (iS_IPhoneX_All ? 24  : 0)
 

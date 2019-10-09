@@ -18,7 +18,7 @@
 
 @implementation MineHomeVC
 
-static NSString *CellID = @"staticCell";
+static NSString *CellID = @"mineStaticCell";
 
 
 - (void)viewDidLoad {
@@ -35,11 +35,11 @@ static NSString *CellID = @"staticCell";
 
 -(void)initStaticTableView
 {
-    _icons = [[NSArray alloc]initWithObjects:@"mine_icon_account",@"mine_icon_teach_class",@"mine_icon_qr_scan",@"mine_icon_help",@"mine_icon_setting", nil] ;
+    //mine_icon_publish @"我的发布"
+    self.icons = [[NSArray alloc]initWithObjects:@"mine_icon_account",@"mine_icon_teach_class",@"mine_icon_publish",@"mine_icon_qr_scan",@"mine_icon_help",@"mine_icon_setting", nil] ;
     
-    _itemNames = [[NSArray alloc]initWithObjects:@"带领班级",@"任教班级",@"扫一扫",@"帮助中心",@"设置", nil] ;
+    self.itemNames = [[NSArray alloc]initWithObjects:@"带领班级",@"任教班级",@"我的发布",@"扫一扫",@"帮助中心",@"设置", nil] ;
     
-//    UITableView *tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, ScreenHeight*0.275, ScreenWidth, 62*(_itemNames.count+1)+ScreenHeight*0.275) style:UITableViewStylePlain];
     UITableView *tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) style:UITableViewStyleGrouped];
     [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:CellID];
     [tableView setDelegate:self];
@@ -74,7 +74,7 @@ static NSString *CellID = @"staticCell";
             [self.navigationController pushViewController:teachClass animated:YES];
         }
             break;
-        case 4:
+        case 5:
         {
             SettingVC *settingVC = [[SettingVC alloc]init];
             //注意是UIViewController调用hidesBottomBarWhenPushed而不是UINavigationController
@@ -101,7 +101,7 @@ static NSString *CellID = @"staticCell";
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 5;
+    return self.icons.count;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView

@@ -17,9 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
 //@property (nonatomic, weak) id<PhoneBookViewControllerDelegate> delegate;
 
 /** 通讯录数据 <NSString,NSMutableArray>*/
-@property (nonatomic, strong) NSMutableDictionary   *dataSource;
+//@property (nonatomic, strong) NSMutableDictionary   *dataSource;
 /** 首字母数组 <NSString>*/
 @property (nonatomic, strong) NSMutableArray  *sectionTitleArray;
+@property (nonatomic, strong) NSMutableArray  *sortStudentList;
 
 @property(nonatomic,strong)UITableView *tableView;
 

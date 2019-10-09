@@ -35,8 +35,6 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     
-    [super viewWillDisappear:animated];
-    
     if (!_showNavWhenDisappear) {
         [self.navigationController setNavigationBarHidden:YES animated:animated];
         
@@ -49,8 +47,7 @@
         [navBar setTitleTextAttributes:dict];
         /** 设置导航栏背景图片 */
         [navBar setBackgroundImage:navImg forBarMetrics:UIBarMetricsDefault];
-        
-        
+
         /** 设置返回箭头颜色 */
         self.navigationController.navigationBar.tintColor = [UIColor_ColorChange blackColor];
         
@@ -59,7 +56,7 @@
 //        
 //        [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(0, -60) forBarMetrics:UIBarMetricsDefault];
     }
-    
+    [super viewWillDisappear:animated];
 }
 
 -(void)pushIntoWithoutNavChange:(UIViewController *)viewController
