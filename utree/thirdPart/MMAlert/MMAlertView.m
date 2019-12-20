@@ -18,13 +18,30 @@
 @property (nonatomic, strong) UIView      *buttonView;
 
 @property (nonatomic, strong) NSArray     *actionItems;
-
+@property (nonatomic, strong)NSString *textToBeEdit;
 @property (nonatomic, copy) MMPopupInputHandler inputHandler;
 
 @end
 
 @implementation MMAlertView
 
+- (instancetype) initWithInputTitle:(NSString *)title
+     textTobeEdit:(NSString *)text
+placeholder:(NSString *)inputPlaceholder
+                            handler:(MMPopupInputHandler)inputHandler
+{
+    MMAlertViewConfig *config = [MMAlertViewConfig globalConfig];
+    
+    NSArray *items =@[
+                      MMItemMake(config.defaultTextCancel, MMItemTypeHighlight, nil),
+                      MMItemMake(config.defaultTextConfirm, MMItemTypeHighlight, nil)
+                      ];
+    self = [self initWithTitle:title detail:@"" items:items inputPlaceholder:inputPlaceholder inputHandler:inputHandler];
+    if (self) {
+        self.textToBeEdit=text;
+    }
+    return self;
+}
 - (instancetype) initWithInputTitle:(NSString *)title
                              detail:(NSString *)detail
                         placeholder:(NSString *)inputPlaceholder
@@ -138,13 +155,17 @@
             }];
             self.editView.backgroundColor = self.backgroundColor;
             self.editView.borderStyle=UITextBorderStyleNone;
+            //大写
+            [self.editView setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+            //自动联想
+            [self.editView setAutocorrectionType:UITextAutocorrectionTypeNo];
 //            self.editView.layer.borderWidth = MM_SPLIT_WIDTH;
 //            self.editView.layer.borderColor = config.splitColor.CGColor;
             self.editView.leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 5, 5)];
             self.editView.leftViewMode = UITextFieldViewModeAlways;
             self.editView.clearButtonMode = UITextFieldViewModeWhileEditing;
             self.editView.placeholder = inputPlaceholder;
-            
+            self.editView.text=self.textToBeEdit;
             lastAttribute = self.editView.mas_bottom;
         }
         

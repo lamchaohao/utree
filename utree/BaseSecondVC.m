@@ -7,7 +7,7 @@
 //
 
 #import "BaseSecondVC.h"
-
+#import "AppDelegate.h"
 @interface BaseSecondVC ()
 
 @end
@@ -16,52 +16,52 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _showNavWhenDisappear = YES;
-    UINavigationBar *navBar = [UINavigationBar appearance];
-    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
-    NSDictionary *dict = @{
-                           NSForegroundColorAttributeName : [UIColor_ColorChange blackColor]
-                           };
-    [navBar setTitleTextAttributes:dict];
+    _showNavigationBarImageWhenDisappear = NO;
     
-    [self.navigationController setNavigationBarHidden:NO];
-//    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(0, -60) forBarMetrics:UIBarMetricsDefault];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    /** 设置返回箭头颜色 */
+    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
+    //改变UITabBarItem字体颜色 //UITextAttributeTextColor
+    AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
+    appDelegate.rootTabbarCtr.tabBar.tintColor = [UIColor blackColor];
+    
+    UINavigationBar *navBar =self.navigationController.navigationBar;
+    //[UINavigationBar appearance];
+    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+    NSDictionary *dict = @{
+                         NSForegroundColorAttributeName : [UIColor blackColor]
+                         };
+    [navBar setTitleTextAttributes:dict];
+    
+    if (_diasblePopGesture) {
+        if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+             self.navigationController.interactivePopGestureRecognizer.enabled = NO;
+        }
+    }
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
+    
+   //禁止页面左侧滑动返回，注意，如果仅仅需要禁止此单个页面返回，还需要在viewWillDisapper下开放侧滑权限
+   // 禁用返回手势
    
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    
-    if (!_showNavWhenDisappear) {
-        [self.navigationController setNavigationBarHidden:YES animated:animated];
-        
-        UINavigationBar *navBar = [UINavigationBar appearance];
-        UIImage *navImg =[UIImage imageNamed:@"topbar_bg"];
-        navImg = [navImg resizableImageWithCapInsets:UIEdgeInsetsZero resizingMode:UIImageResizingModeStretch];
-        NSDictionary *dict = @{
-                               NSForegroundColorAttributeName : [UIColor whiteColor]
-                               };
-        [navBar setTitleTextAttributes:dict];
-        /** 设置导航栏背景图片 */
-        [navBar setBackgroundImage:navImg forBarMetrics:UIBarMetricsDefault];
-
-        /** 设置返回箭头颜色 */
-        self.navigationController.navigationBar.tintColor = [UIColor_ColorChange blackColor];
-        
-         /** 设置取消导航栏返回按钮的字 */
-//        self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:self.navigationItem.backBarButtonItem.style target:nil action:nil];
-//        
-//        [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(0, -60) forBarMetrics:UIBarMetricsDefault];
-    }
+- (void)viewWillDisappear:(BOOL)animated
+{
     [super viewWillDisappear:animated];
+    // 开启返回手势
+    if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+    }
+    
 }
+
 
 -(void)pushIntoWithoutNavChange:(UIViewController *)viewController
 {
-    _showNavWhenDisappear =  YES;
+    _showNavigationBarImageWhenDisappear =  NO;
     [self.navigationController pushViewController:viewController animated:YES];
 }
 

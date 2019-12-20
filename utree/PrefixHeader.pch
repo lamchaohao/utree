@@ -10,12 +10,16 @@
 #define PrefixHeader_pch
 #import "MyLayout.h"
 #import "CFTool.h"
-#import "AutoScaleFrameHM/AutoScaleFrameMain.h"
+#import "NSBundle+Resource.h"
+#import "AutoScaleFrameMain.h"
 #import "ZBWidget/ThemeConfig.h"
 #import "ZBWidget/UIColor+ColorChange.h"
 #import "PYPhotoBrowser.h"
 #import "SDWebImage.h"
 #import "MJRefresh.h"
+#import "JSBadgeView.h"
+#import "MJExtension.h"
+#import "UIView+Toast.h"
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
 
@@ -30,6 +34,7 @@
  *  Code圈
  */
 #define circleCellMargin 15  //间距
+#define circleContentTextMargin 6
 #define circleCelliconWH 40  //头像高度、宽度
 #define circleCellWidth [UIScreen mainScreen].bounds.size.width - 2 * circleCellMargin  //cell的宽度
 #define circleCellNameattributes @{NSFontAttributeName : [UIFont systemFontOfSize:17]}  //昵称att
@@ -45,6 +50,17 @@
 #define circleCellToolBarTittleFont [UIFont systemFontOfSize:14]                        //工具条btn字号
 
 #define circleCellToolBarMargin 10 //cell工具条边距
+
+//通知Key
+#define ClazzChangedNotifycationName @"CLASS_HAVE_CHANGED"
+#define GroupPlanChangedNotifyName @"GROUP_PLAN_CHANGED"
+#define PostWorkNotifyName @"POST_CLASSWORK_SUCCESS"
+#define MIMC_ReceiveMsgNotifyName @"mimc_receive_msg"
+
+
+#define OSS_ENDPOINT @"https://oss-cn-shenzhen.aliyuncs.com/"
+#define OSS_BUCKETNAME @"humanoid-file"
+#define OSS_PATH_PREFIX @"https://humanoid-file.oss-cn-shenzhen.aliyuncs.com/"
 
 
 #endif /* PrefixHeader_pch */

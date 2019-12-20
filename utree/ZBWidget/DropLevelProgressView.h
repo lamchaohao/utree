@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DropLevelProgressView : UIView
-- (instancetype)initWithFrame:(CGRect)frame andProgress:(CGFloat)progress;
+
+- (void)setProgress:(CGFloat)progress andMaxValue:(CGFloat)maxValue;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -28,6 +28,10 @@ typedef void(^MMPopupInputHandler)(NSString *text);
 - (instancetype) initWithTitle:(NSString*)title
                         detail:(NSString*)detail
                          items:(NSArray*)items;
+- (instancetype) initWithInputTitle:(NSString *)title
+     textTobeEdit:(NSString *)text
+placeholder:(NSString *)inputPlaceholder
+                            handler:(MMPopupInputHandler)inputHandler;
 @end
 
 

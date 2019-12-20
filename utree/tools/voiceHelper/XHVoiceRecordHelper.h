@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 typedef BOOL(^XHPrepareRecorderCompletion)();
 typedef void(^XHStartRecorderCompletion)();
@@ -27,6 +28,7 @@ typedef void(^XHPeakPowerForChannel)(float peakPowerForChannel);
 @property (nonatomic, copy) NSString *recordDuration;
 @property (nonatomic) float maxRecordTime; // 默认 60秒为最大
 @property (nonatomic, readonly) NSTimeInterval currentTimeInterval;
+@property (nonatomic, strong) AVAudioRecorder *recorder;
 
 - (void)prepareRecordingWithPath:(NSString *)path prepareRecorderCompletion:(XHPrepareRecorderCompletion)prepareRecorderCompletion;
 - (void)startRecordingWithStartRecorderCompletion:(XHStartRecorderCompletion)startRecorderCompletion;

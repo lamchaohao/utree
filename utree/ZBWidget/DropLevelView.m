@@ -8,20 +8,25 @@
 
 #import "DropLevelView.h"
 
+@interface DropLevelView()
+
+@property(nonatomic,strong)UILabel *scoreLabel;
+
+@end
+
 @implementation DropLevelView
 
-- (instancetype)initWithFrame:(CGRect)frame andScore:(int)dropScore;
+- (instancetype)initWithFrame:(CGRect)frame;
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [self createViewAndScore:dropScore];
-        
+        [self createViewAndScore];
     }
     return self;
     
 }
 
--(void)createViewAndScore:(int)score
+-(void)createViewAndScore
 {
     
     UILabel *titleLab = [[UILabel alloc]initWithFrame:CGRectMake(35, 0, 49, 22)];
@@ -45,19 +50,24 @@
     levelScoreBg.backgroundColor = [UIColor myColorWithHexString:@"#34C3F4"];
     levelScoreBg.layer.cornerRadius = 12;
     
-    UILabel *scoreLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 15, 85, 24)];
-    scoreLabel.textAlignment = NSTextAlignmentRight;
-    scoreLabel.textColor = [UIColor whiteColor];
-    scoreLabel.font = [UIFont systemFontOfSize:12];
-    scoreLabel.text = @"258/290";
+    self.scoreLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 15, 85, 24)];
+    self.scoreLabel.textAlignment = NSTextAlignmentRight;
+    self.scoreLabel.textColor = [UIColor whiteColor];
+    self.scoreLabel.font = [UIFont systemFontOfSize:12];
+    self.scoreLabel.text = @"258/290";
     
     [self addSubview:titleLab];
     [self addSubview:levelScoreBg];
     [self addSubview:dropImg];
     [self addSubview:lvLab];
-    [self addSubview:scoreLabel];
+    [self addSubview:self.scoreLabel];
     
     
+}
+
+-(void)setScoreLabelText:(NSString *)text
+{
+    [self.scoreLabel setText:text];
 }
 
 

@@ -89,7 +89,7 @@
         }
 
         UTStudent *stu= [[UTStudent alloc]initWithStuName:catName andScore:35+start*10+start];
-        stu.headImgURL = imgs[rand()%imgs.count];
+        stu.fileDo.path = imgs[rand()%imgs.count];
         
         [stuList addObject:stu];
     }

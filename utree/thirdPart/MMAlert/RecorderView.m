@@ -12,7 +12,6 @@
 #import "XHAudioPlayerHelper.h"
 @interface RecorderView ()<LVRecordToolDelegate,XHAudioPlayerHelperDelegate>
 @property(nonatomic,strong)XHVoiceRecordHelper *recordHelper;
-@property(nonatomic,strong)NSURL *recordFileUrl;
 @end
 @implementation RecorderView
 
@@ -138,7 +137,6 @@
      
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *filePath = [path stringByAppendingPathComponent:@"utree_record.aac"];
-    self.recordFileUrl = [NSURL fileURLWithPath:filePath];
     [self.recordHelper prepareRecordingWithPath:filePath prepareRecorderCompletion:^BOOL{
         NSLog(@"%s",__func__);
         [self startRecordReal];

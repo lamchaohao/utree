@@ -7,7 +7,6 @@
 //
 
 #import "XHVoiceRecordHelper.h"
-#import <AVFoundation/AVFoundation.h>
 #import "XHMacro.h"
 
 @interface XHVoiceRecordHelper () <AVAudioRecorderDelegate> {
@@ -22,8 +21,6 @@
 
 @property (nonatomic, copy, readwrite) NSString *recordPath;
 @property (nonatomic, readwrite) NSTimeInterval currentTimeInterval;
-
-@property (nonatomic, strong) AVAudioRecorder *recorder;
 
 @end
 

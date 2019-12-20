@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DropLevelView : UIView
-- (instancetype)initWithFrame:(CGRect)frame andScore:(int)dropScore;
+
+-(void)setScoreLabelText:(NSString *)text;
 
 @end
 

@@ -117,4 +117,6 @@ typedef enum : NSUInteger {
                                     directionType:(PreviousDateDirectionType)directionType;
 
 
++(NSInteger)getDaysFrom:(NSDate *)serverDate To:(NSDate *)endDate;
+
 @end
