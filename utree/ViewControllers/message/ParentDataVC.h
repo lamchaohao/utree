@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "BaseSecondVC.h"
+#import "UTParent.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ParentDataVC : BaseSecondVC
+
+- (instancetype)initWithParent:(UTParent *)parent;
 
 @end
 

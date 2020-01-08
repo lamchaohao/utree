@@ -11,6 +11,7 @@
 #import "UTMessageFrame.h"
 #import "JSONUtil.h"
 #import "DBManager.h"
+#import "UTDateConvertTool.h"
 
 @interface ChatMessageDC () <UploadFileListener>
 {
@@ -50,12 +51,18 @@ static NSString *previousTime = nil;
         NSMutableArray *recentMsgs = resultDic[@"result"];
         NSArray* reversedArray = [[recentMsgs reverseObjectEnumerator] allObjects];
         for (UTMessage *message in reversedArray) {
-               UTMessageFrame *messageFrame = [[UTMessageFrame alloc]init];
-               NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([ [NSDate date] timeIntervalSince1970]*1000)];//当前毫秒数
-               [message minuteOffSetStart:previousTime end:tempTime];
-               [messageFrame setMessage:message];
-               messageFrame.showTime = message.showDateLabel;
-               [self.dataSource addObject:messageFrame];
+            if (message.from==UTMessageFromMe) {
+               message.headPicUrl=self.accountDic[Key_Head_Pic];
+            }else{
+                message.headPicUrl=self.fromAccountDic[Key_Head_Pic];
+            }
+            UTMessageFrame *messageFrame = [[UTMessageFrame alloc]init];
+            NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([ [NSDate date] timeIntervalSince1970]*1000)];//当前毫秒数
+            [message minuteOffSetStart:previousTime end:tempTime];
+            
+            [messageFrame setMessage:message];
+            messageFrame.showTime = message.showDateLabel;
+            [self.dataSource addObject:messageFrame];
            }
         callback(self.dataSource.count);
     }];
@@ -67,17 +74,27 @@ static NSString *previousTime = nil;
     [self.dbManager queryMessageWithAccount:_fromAccountDic[Key_Account_Id] limit:15 offset:(int)self.dataSource.count withResult:^(NSDictionary * _Nonnull resultDic) {
          NSMutableArray *recentMsgs = resultDic[@"result"];
         NSArray* reversedArray = [[recentMsgs reverseObjectEnumerator] allObjects];
+        NSMutableArray *container = [[NSMutableArray alloc]init];
+        NSMutableArray *oldData = [[NSMutableArray alloc]init];
+        [oldData addObjectsFromArray:self.dataSource];
         for (UTMessage *message in reversedArray) {
             UTMessageFrame *messageFrame = [[UTMessageFrame alloc]init];
-            
+            if (message.from==UTMessageFromMe) {
+               message.headPicUrl=self.accountDic[Key_Head_Pic];
+            }else{
+                message.headPicUrl=self.fromAccountDic[Key_Head_Pic];
+            }
             NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([ [NSDate date] timeIntervalSince1970]*1000)];//当前毫秒数
             [message minuteOffSetStart:previousTime end:tempTime];
             [messageFrame setMessage:message];
             messageFrame.showTime = message.showDateLabel;
-            [self.dataSource addObject:messageFrame];
-            if (callback) {
-                callback(self.dataSource.count);
-            }
+            [container addObject:messageFrame];
+        }
+        [self.dataSource removeAllObjects];
+        [self.dataSource addObjectsFromArray:container];
+        [self.dataSource addObjectsFromArray:oldData];
+        if (callback) {
+            callback(container.count);
         }
     }];
     
@@ -176,11 +193,10 @@ static NSString *previousTime = nil;
     [message setWithDict:dataDic];
     message.type = UTMessageTypeText;
     message.from = UTMessageFromMe;
-    NSDate *datenow = [NSDate date];
-    NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([datenow timeIntervalSince1970]*1000)];//当前毫秒数
+    NSString *tempTime = [NSString stringWithFormat:@"%ld", [UTDateConvertTool getNowTimestamp]];//当前毫秒数
     message.timeStamp = tempTime;
     [message minuteOffSetStart:previousTime end:tempTime];
-    
+    message.headPicUrl=self.accountDic[Key_Head_Pic];
     if (message.showDateLabel) {
         previousTime = tempTime;
     }
@@ -194,11 +210,11 @@ static NSString *previousTime = nil;
     [message setWithDict:dataDic];
     message.type = UTMessageTypeText;
     message.from = UTMessageFromOther;
-    NSDate *datenow = [NSDate date];
-    NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([datenow timeIntervalSince1970]*1000)];//当前毫秒数
+    
+    NSString *tempTime = [NSString stringWithFormat:@"%ld", [UTDateConvertTool getNowTimestamp]];//当前毫秒数
     message.timeStamp = tempTime;
     [message minuteOffSetStart:previousTime end:tempTime];
-    
+    message.headPicUrl=self.fromAccountDic[Key_Head_Pic];
     if (message.showDateLabel) {
         previousTime = tempTime;
     }

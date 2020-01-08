@@ -47,8 +47,10 @@
 //    put.uploadingFileURL = [NSURL fileURLWithPath:filePath];//filePath
     put.uploadingData = fileData; // 直接上传NSData
     put.uploadProgress = ^(int64_t bytesSent, int64_t totalByteSent, int64_t totalBytesExpectedToSend) {
-        [self.listener onUploadProgress:totalByteSent/totalBytesExpectedToSend fileName:fileKey fileIndex:index];
-        NSLog(@"%lld, %lld, %lld", bytesSent, totalByteSent, totalBytesExpectedToSend);
+        CGFloat prog= totalByteSent*100/totalBytesExpectedToSend;
+        prog/=100;
+        [self.listener onUploadProgress:prog fileName:fileKey fileIndex:index];
+        NSLog(@"s=%lld, ts=%lld, t=%lld,p=%f", bytesSent, totalByteSent, totalBytesExpectedToSend,prog);
     };
     OSSTask * putTask = [client putObject:put];
     [putTask continueWithBlock:^id(OSSTask *task) {
@@ -80,7 +82,7 @@
             [self.listener onUploadProgress:prog fileName:fileKey fileIndex:index];
         }
         
-        NSLog(@"%lld, %lld, %lld", bytesSent, totalByteSent, totalBytesExpectedToSend);
+        NSLog(@"s=%lld, ts=%lld, t=%lld", bytesSent, totalByteSent, totalBytesExpectedToSend);
     };
     OSSTask * putTask = [client putObject:put];
     [putTask continueWithBlock:^id(OSSTask *task) {

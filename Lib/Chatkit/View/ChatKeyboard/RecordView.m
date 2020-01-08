@@ -126,7 +126,8 @@
         NSLog(@"%s",__func__);
         return YES;
     }];
-    
+    _recordImageView.image = [UIImage imageNamed:@"yuyin"];
+    _yinjieImageView.hidden=NO;
     self.hidden = NO;
     _timer = [NSTimer scheduledTimerWithTimeInterval:0.2
                                               target:self

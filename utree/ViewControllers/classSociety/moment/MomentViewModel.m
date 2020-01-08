@@ -70,14 +70,14 @@
     
     if (self.momentModel.video) {
         CGFloat videoY= CGRectGetMaxY(self.momentsBodyFrame) + circleCellMargin;
-        CGFloat videoW = 9*20;
-        CGFloat videoH = 16*20;
+        CGFloat videoH = 9*20;
+        CGFloat videoW = 16*20;
         if (self.momentModel.video.videoHeight<self.momentModel.video.videoWidth) {
            //横屏
-           self.bodyVideoFrame =CGRectMake(0, videoY, videoH, videoW);
+           self.bodyVideoFrame =CGRectMake(0, videoY, videoW, videoH);
         }else{
-            //竖屏
-            self.bodyVideoFrame =CGRectMake(0, videoY, videoW, videoH);
+            //竖屏,为了cell的高度更新不要太频繁，所以设置为正方形,MomentDetail里的宽高与此不同
+            self.bodyVideoFrame =CGRectMake(0, videoY, videoH, videoH);
         }
         
         CGFloat bodyH = CGRectGetMaxY(self.bodyVideoFrame);

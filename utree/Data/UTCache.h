@@ -34,6 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(NSArray *)readComments;
 
++(void)saveAwardItems:(NSArray *)array;
+
++(NSArray *)readAwardItemsJson;
+
++(void)saveStudentsData:(NSArray *)array inClassId:(NSString *)classId;
+
++(NSMutableArray *)readStudentsDataInClassId:(NSString *)classId;
+
 @end
 
 NS_ASSUME_NONNULL_END

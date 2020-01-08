@@ -7,9 +7,11 @@
 //
 
 #import "PhoneNumStateVC.h"
+#import "UTCache.h"
+#import "ChangePhoneVC.h"
 
 @interface PhoneNumStateVC ()
-
+@property(nonatomic,strong)NSString *accountPhoneNum;
 @end
 
 @implementation PhoneNumStateVC
@@ -17,6 +19,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"手机";
+    [self loadData];
     [self createView];
 }
 
@@ -38,7 +41,8 @@
     phoneNumLabel.myTop=60;
     phoneNumLabel.myCenterX=0;
     [phoneNumLabel setWrapContentSize:YES];
-    [phoneNumLabel setText:@"当前绑定的手机号:137****112"];
+    NSString *phoneStr = [NSString stringWithFormat:@"当前绑定的手机号:%@",self.accountPhoneNum];
+    [phoneNumLabel setText:phoneStr];
     
     UIButton *editPhoneBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 458, ScreenWidth*0.8285, ScreenWidth*0.174)];
     [editPhoneBtn setTitle:@"修改手机号码" forState:UIControlStateNormal];
@@ -46,7 +50,7 @@
     [editPhoneBtn setBackgroundImage:[UIImage imageNamed:@"bg_round_conner"] forState:UIControlStateNormal];
     editPhoneBtn.myLeft=editPhoneBtn.myRight=25;
     editPhoneBtn.myTop=95;
-    
+    [editPhoneBtn addTarget:self action:@selector(onEditPhoneBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:phoneImg];
 //     [self.view addSubview:rootLayout];
     [self.view addSubview:phoneNumLabel];
@@ -54,6 +58,26 @@
     
    
     
+}
+
+-(void)onEditPhoneBtnClick:(id)send
+{
+    ChangePhoneVC *changePhoneVC = [[ChangePhoneVC alloc]init];
+           //注意是UIViewController调用hidesBottomBarWhenPushed而不是UINavigationController
+    [self pushIntoWithoutNavChange:changePhoneVC];
+}
+
+
+- (void)loadData
+{
+    
+    NSString *phone = [[UTCache readProfile] objectForKey:@"phone"];
+    NSRange range =NSMakeRange(0, 2);
+    if (phone.length>10) {
+       range = NSMakeRange(3, 4);
+    }
+    self.accountPhoneNum = [phone stringByReplacingCharactersInRange:range withString:@"****"];
+   
 }
 
 

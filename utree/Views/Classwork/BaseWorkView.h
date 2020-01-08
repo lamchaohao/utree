@@ -17,10 +17,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface BaseWorkView : UIView
-
-
+@property(nonatomic,strong)NSString *headViewPath;
+@property(nonatomic,strong)UIView *headView;
+@property(nonatomic,strong)NSString *headViewMessage;
 @property(nonatomic,assign)id<UTViewDelegate> utViewDelegate;
 
+- (void)viewWillDisappear:(BOOL)animated;
+
+- (void)viewWillAppear:(BOOL)animated;
 @end
 
 NS_ASSUME_NONNULL_END

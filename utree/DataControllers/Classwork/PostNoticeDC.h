@@ -8,23 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "BaseDataController.h"
+#import "UploadFileDC.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol PostNoticeFileListener <NSObject>
 
-- (void)onFileUploadProgress:(CGFloat)progress filePath:(NSString *)filePath fileIndex:(NSInteger)index;
-
--(void)onFileUploadResult:(BOOL)success filePath:(NSString *)filePath fileIndex:(NSInteger)index md5Value:(NSString *)md5Str;
-
-@end
-
-@interface PostNoticeDC : BaseDataController
-
-@property(nonatomic,assign)id<PostNoticeFileListener> uploadListener;
-
--(void)uploadFile:(NSString *)filePath mediaType:(NSString *)mType fileIndex:(NSInteger)fileIndex;
-
--(void)uploadFileData:(NSData *)data fileName:(NSString *)fileName mediaType:(NSString *)mType fileIndex:(NSInteger)fileIndex;
+@interface PostNoticeDC : UploadFileDC
 
 -(void)publishNoticeToServerWithTopic:(NSString *)topic content:(NSString *)cont enclosureDic:(NSDictionary *)dic WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 

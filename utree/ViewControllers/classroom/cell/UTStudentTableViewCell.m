@@ -78,6 +78,7 @@
     self.imageView.layer.borderWidth = 1.5f;//边框宽度
     self.imageView.layer.borderColor = [UIColor whiteColor].CGColor;//边框颜色
     self.imageView.myCenterY=0;
+    self.imageView.contentMode=UIViewContentModeScaleAspectFill;
 }
 
 -(void)setDataToView:(UTStudent *)student
@@ -107,7 +108,9 @@
     self.imageView.layer.cornerRadius=24 ;//裁成圆角
     self.imageView.layer.masksToBounds=YES;//隐藏裁剪掉的部分
     self.imageView.myCenterY=0;
-
+    self.imageView.clipsToBounds=YES;
+    self.imageView.contentMode=UIViewContentModeScaleAspectFill;
+    
 }
 
 @end

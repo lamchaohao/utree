@@ -9,11 +9,15 @@
 #import "PasswordVC.h"
 #import "ZBTextField.h"
 #import "ZBVerifyCodeButton.h"
+#import "ModifyPswDC.h"
+#import "MMAlertView.h"
+
 @interface PasswordVC ()
 @property(nonatomic,strong)ZBTextField *verifyCodeInput;
 @property(nonatomic,strong)ZBTextField *passwordInput;
 // 获取验证码按钮
 @property (nonatomic, weak) ZBVerifyCodeButton *codeBtn;
+@property (nonatomic, strong)ModifyPswDC *dataController;
 @end
 
 @implementation PasswordVC
@@ -21,6 +25,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"修改密码";
+    self.dataController = [[ModifyPswDC alloc]init];
     [self createView];
     
 }
@@ -92,7 +97,7 @@
     btnLogin.myLeft=btnLogin.myRight=25;
     btnLogin.myCenterX=0;
     [btnLogin setBackgroundImage:[UIImage imageNamed:@"bg_round_conner"] forState:UIControlStateNormal];
-    
+    [btnLogin addTarget:self action:@selector(onConfirmBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [rootLayout addSubview:titleLabel];
     [rootLayout addSubview:titleTipLabel];
     [rootLayout addSubview:_verifyCodeInput];
@@ -101,10 +106,46 @@
     
 }
 
+-(void)onConfirmBtnClick:(id)sender
+{
+    NSString *phone = [[UTCache readProfile] objectForKey:@"phone"];
+    NSString *verifyCode = self.verifyCodeInput.text;
+    NSString *psw = self.passwordInput.text;
+    [self.dataController requestUpdatePassword:phone newPassword:psw code:verifyCode WithSuccess:^(UTResult * _Nonnull result) {
+        [self showViewAfterResetPassword];
+    } failure:^(UTResult * _Nonnull result) {
+        [self showToastView:result.failureResult];
+    }];
+}
+
 
 -(void)codeBtnVerification:(UIButton *)sender
 {
-    [self.codeBtn timeFailBeginFrom:60]; // 倒计时60s
+    NSString *phone = [[UTCache readProfile] objectForKey:@"phone"];
+    [self.dataController requestVerifyCode:phone usage:USAGE_SETPWD WithSuccess:^(UTResult * _Nonnull result) {
+        [self.codeBtn timeFailBeginFrom:60]; // 倒计时60s
+        [self showToastView:@"短信验证码发送,请查收"];
+    } failure:^(UTResult * _Nonnull result) {
+        [self showToastView:result.failureResult];
+    }];
+    
+}
+
+-(void)showViewAfterResetPassword
+{
+    MMPopupCompletionBlock completeBlock = ^(MMPopupView *popupView, BOOL finished){
+        [self.navigationController popViewControllerAnimated:YES];
+    };
+    MMAlertView *alertView = [[MMAlertView alloc]initWithConfirmTitle:@"修改密码成功" detail:@"请记住您的密码"];
+    [alertView showWithBlock:completeBlock];
+}
+
+
+//点击输入框外 收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [self.passwordInput resignFirstResponder];
+    [self.verifyCodeInput resignFirstResponder];
 }
 
 @end

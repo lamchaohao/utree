@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)NSNumber *likeCount;
 @property(nonatomic,strong)NSNumber *commentCount;
 @property(nonatomic,strong)NSArray *picList;
+@property(nonatomic,strong)NSMutableArray *thumnails;
 @end
 
 NS_ASSUME_NONNULL_END

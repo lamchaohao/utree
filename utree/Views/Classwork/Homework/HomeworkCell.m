@@ -91,19 +91,21 @@
     [_detailLabel setFont:circleCellTextFont];
     _detailLabel.numberOfLines=0;
     _detailLabel.lineBreakMode = NSLineBreakByWordWrapping;//换行模式，与上面的计算保持一致。
-
-    _audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_audioButton setBackgroundImage:[UIImage imageNamed:@"bg_audio_record"] forState:UIControlStateNormal];
-    [_audioButton setTitle:@"120'" forState:UIControlStateNormal];
-    [_audioButton setTitleColor:[UIColor myColorWithHexString:@"#028CC3"] forState:UIControlStateNormal];
-    _audioButton.frame = CGRectMake(0,0,163,40);
+    
+    _audioButton = [[UTAudioButton alloc]initWithFrame:CGRectMake(0,0,163,40)];
     _audioButton.myLeft=0;
-    _audioButton.myTop=circleContentTextMargin;
-
- 
-    [_audioButton setImage:[UIImage imageNamed:@"ic_voice_wave"] forState:UIControlStateNormal];
-    [_audioButton setTitleEdgeInsets:UIEdgeInsetsMake(0, _audioButton.imageView.image.size.width-20, 0, 0)];
-    [_audioButton setImageEdgeInsets:UIEdgeInsetsMake(0, -46, 0, 0)];
+//    _audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [_audioButton setBackgroundImage:[UIImage imageNamed:@"bg_audio_record"] forState:UIControlStateNormal];
+//    [_audioButton setTitle:@"120'" forState:UIControlStateNormal];
+//    [_audioButton setTitleColor:[UIColor myColorWithHexString:@"#028CC3"] forState:UIControlStateNormal];
+//    _audioButton.frame = CGRectMake(0,0,163,40);
+//    _audioButton.myLeft=0;
+//    _audioButton.myTop=circleContentTextMargin;
+//
+//
+//    [_audioButton setImage:[UIImage imageNamed:@"ic_voice_wave"] forState:UIControlStateNormal];
+//    [_audioButton setTitleEdgeInsets:UIEdgeInsetsMake(0, _audioButton.imageView.image.size.width-20, 0, 0)];
+//    [_audioButton setImageEdgeInsets:UIEdgeInsetsMake(0, -46, 0, 0)];
     
     
     // 图片
@@ -272,7 +274,7 @@
 -(void)playAudio:(id)sender
 {
     if ([self.mediaDelegate respondsToSelector:@selector(playAudioClick:)]) {
-        [self.mediaDelegate playAudioClick:self.taskViewModel.taskModel.audio];
+        [self.mediaDelegate playAudioClick:self];
     }
 }
 

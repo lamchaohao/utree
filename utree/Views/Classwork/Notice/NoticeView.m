@@ -24,6 +24,7 @@
 @property (nonatomic,strong) NSMutableArray *noticeArray;      //数据模型
 @property (nonatomic,strong) NSMutableArray *noticeFrameArray; //ViewModel(包含cell子控件的Frame)
 @property(nonatomic,assign)BOOL isMySelf;
+@property (nonatomic,strong)NoticeCell *focusCell;
 @end
 
 @implementation NoticeView
@@ -34,6 +35,7 @@ static NSString *CellID = @"noticeCellID";
 {
     self = [super initWithFrame:frame];
     if (self) {
+        self.headViewPath=@"pic_no_notice";
         _isMySelf = isSelf;
         [self setupViews];
     }
@@ -54,7 +56,7 @@ static NSString *CellID = @"noticeCellID";
 -(void)initTableView
 {
     
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.bounds.size.height-iPhone_Bottom_NavH) style:UITableViewStylePlain];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.bounds.size.height-iPhone_Bottom_NavH) style:UITableViewStyleGrouped];
     [_tableView registerClass:[NoticeCell class] forCellReuseIdentifier:CellID];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
@@ -63,7 +65,7 @@ static NSString *CellID = @"noticeCellID";
     
     _tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, iPhone_Bottom_NavH, 0.0f);
     [self addSubview:_tableView];
-    
+    self.headViewMessage = @"暂无通知";
     _tableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNoticeDataAtFirstTime)];
     
     self.tableView.mj_footer = [MJRefreshBackFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
@@ -129,9 +131,14 @@ static NSString *CellID = @"noticeCellID";
             noticeVM.notice = notice;
             [self.noticeFrameArray addObject:noticeVM];
         }
+        if (self.noticeArray.count==0) {
+            self.tableView.tableHeaderView = self.headView;
+        }else{
+            self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+
+        }
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
-        
     } failure:^(UTResult * _Nonnull result) {
         [self makeToast:result.failureResult];
         [self.tableView.mj_header endRefreshing];
@@ -152,8 +159,17 @@ static NSString *CellID = @"noticeCellID";
                  noticeVM.notice = notice;
                  [self.noticeFrameArray addObject:noticeVM];
              }
+            if (self.noticeArray.count==0) {
+                self.tableView.tableHeaderView = self.headView;
+            }else{
+                self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+            }
              [self.tableView reloadData];
-             [self.tableView.mj_footer endRefreshing];
+            if (wrapNoticeModel.list.count>0) {
+                [self.tableView.mj_footer endRefreshing];
+            }else{
+                [self.tableView.mj_footer endRefreshingWithNoMoreData];
+            }
         } failure:^(UTResult * _Nonnull result) {
              [self makeToast:result.failureResult];
              [self.tableView.mj_footer endRefreshing];
@@ -163,10 +179,15 @@ static NSString *CellID = @"noticeCellID";
 }
 
 
-- (void)playAudioClick:(FileObject *)audioFile
+- (void)playAudioClick:(NoticeCell*)cell
 {
-//    [playerHelper managerAudioWithFileName:self.audioPath toPlay:YES];
-    [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:audioFile.path atIndex:1 ];
+    [XMAVAudioPlayer sharePlayer].delegate = self;
+    if (self.focusCell) {
+        //如果之前有在播放，先停止
+        [self.focusCell.audioButton stopPlay];
+    }
+    self.focusCell = cell;
+    [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:cell.noticeViewModel.notice.audio.path atIndex:1 ];
 }
 
 - (void)openWebView:(NSString *)webUrl
@@ -180,22 +201,41 @@ static NSString *CellID = @"noticeCellID";
 
 - (void)audioPlayerStateDidChanged:(VoiceMessageState)audioPlayerState forIndex:(NSUInteger)index
 {
-    switch (audioPlayerState) {
-        case VoiceMessageStateNormal:
-            NSLog(@"未播放状态");
-            break;
-        case VoiceMessageStateDownloading:
-            NSLog(@"正在下载中");//正在下载中
-            break;
-        case VoiceMessageStatePlaying://正在播放
-            NSLog(@"正在播放");
-            break;
-        case VoiceMessageStateCancel:
-            NSLog(@"播放被取消");
-            break;
-        default:
-            break;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        switch (audioPlayerState) {
+            case VoiceMessageStateNormal:
+            {
+                
+                [self.focusCell.audioButton stopPlay];
+                NSLog(@"notice未播放状态");
+                break;
+            }
+            case VoiceMessageStateDownloading:
+            {
+                
+                [self.focusCell.audioButton benginLoadVoice];
+                NSLog(@"notice正在下载中");//正在下载中
+                break;
+            }
+            case VoiceMessageStatePlaying://正在播放
+            {
+                
+                [self.focusCell.audioButton didLoadVoice];
+                NSLog(@"notice正在播放");
+                break;
+            }
+            case VoiceMessageStateCancel:
+            {
+                
+                [self.focusCell.audioButton stopPlay];
+                NSLog(@"notice播放被取消");
+                break;
+            }
+            default:
+                break;
+        }
+    });
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -203,7 +243,12 @@ static NSString *CellID = @"noticeCellID";
     [[XMAVAudioPlayer sharePlayer] stopAudioPlayer];
     [XMAVAudioPlayer sharePlayer].index = NSUIntegerMax;
     [XMAVAudioPlayer sharePlayer].URLString = nil;
+    [XMAVAudioPlayer sharePlayer].delegate = nil;
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [XMAVAudioPlayer sharePlayer].delegate = self;
+}
 
 @end

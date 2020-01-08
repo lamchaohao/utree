@@ -15,6 +15,7 @@
 {
     if (self = [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdentifier]) {
         [self createView];
+        self.backgroundColor = [UIColor whiteColor];
     }
     return self;
 }
@@ -42,7 +43,7 @@
 
 -(void)createView
 {
-    [self.imageView setImage:[UIImage imageNamed:@"head_boy"]];
+    [self.imageView setImage:[UIImage imageNamed:@"default_head"]];
     self.imageView.layer.cornerRadius=24 ;//裁成圆角
     self.imageView.layer.masksToBounds=YES;//隐藏裁剪掉的部分
     self.imageView.myCenterY=0;
@@ -55,11 +56,37 @@
 
     [self.contentView addSubview:self.timeLabel];
     
+    self.detailTextLabel.textColor = [UIColor myColorWithHexString:@"#999999"];
+    
 }
 
 -(void)setDataToView:(RecentContact *)contact
 {
-    self.textLabel.text=contact.parent.parentName;
+    NSString *stuNameShow = @"";
+    
+    if (contact.parent.studentName.length==0) {
+       for (int index=0; index<contact.parent.studentList.count; index++) {
+          UTStudent *stu = contact.parent.studentList[index];
+          if (index==0) {
+              NSString *className = [NSString stringWithFormat:@"%ld年%ld班",stu.classDo.classGrade.longValue,stu.classDo.classCode.longValue];
+              stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", className];
+              stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", stu.studentName];
+          }else{
+              stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", stu.studentName];
+          }
+       }
+    }else{
+        stuNameShow =contact.parent.studentName;
+    }
+    NSString *parentNameAndChildStr = [NSString stringWithFormat:@"%@(%@)",contact.parent.parentName,stuNameShow];
+    NSMutableAttributedString *abStr = [[NSMutableAttributedString alloc] initWithString:parentNameAndChildStr];
+    
+    [abStr addAttribute:NSForegroundColorAttributeName value:[UIColor myColorWithHexString:@"#F8A21A"] range:NSMakeRange(contact.parent.parentName.length, stuNameShow.length+2)];
+    [abStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:13] range:NSMakeRange(contact.parent.parentName.length, stuNameShow.length+2)];
+    
+    self.textLabel.attributedText = abStr;
+    
+//    self.textLabel.text=contact.parent.parentName;
     switch (contact.lastMessage.type) {
         case UTMessageTypeText:
             self.detailTextLabel.text=contact.lastMessage.contentStr;
@@ -76,7 +103,7 @@
     }
     
     
-    [self.imageView sd_setImageWithURL:[NSURL URLWithString:contact.parent.picPath]];
+    [self.imageView sd_setImageWithURL:[NSURL URLWithString:contact.parent.picPath] placeholderImage:[UIImage imageNamed:@"default_head"]];
 
     self.imageView.layer.cornerRadius=24 ;//裁成圆角
     self.imageView.layer.masksToBounds=YES;//隐藏裁剪掉的部分

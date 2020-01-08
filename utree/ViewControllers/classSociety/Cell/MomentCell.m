@@ -86,11 +86,10 @@
     _videoFrameLayout.frame =CGRectMake(0, 0, ScreenWidth-30, 200);
     _videoView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth-30, 200)];
     _videoView.backgroundColor = [UIColor grayColor];
-
+    
 
     _videoView.myVertMargin=0;
     _videoView.myHorzMargin=0;
-
     _playVideoBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 38, 38)];
     [_playVideoBtn setImage:[UIImage imageNamed:@"ic_video_playbtn"] forState:UIControlStateNormal];
     _playVideoBtn.myCenterY=0;
@@ -178,7 +177,7 @@
     if (viewModel.momentModel.picList.count!= 0) {
         self.photosView.hidden = NO;
         // 设置图片缩略图数组
-        self.photosView.thumbnailUrls = viewModel.momentModel.picList;
+        self.photosView.thumbnailUrls = viewModel.momentModel.thumnails;
         // 设置图片原图地址
         self.photosView.originalUrls = viewModel.momentModel.picList;
         // 设置图片frame
@@ -193,10 +192,12 @@
         [_videoView sd_setImageWithURL:[NSURL URLWithString:viewModel.momentModel.video.minPath] placeholderImage:placeholder completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
             self.viewModel.momentModel.video.videoHeight=image.size.height;
             self.viewModel.momentModel.video.videoWidth=image.size.width;
+            CGFloat videoH = 9*20;
+            CGFloat videoW = 16*20;
             if(image.size.width > image.size.height){//竖屏 image可能为nil，默认要与viewModel的bodyVideoFrame一致，否则会一直刷新
-                self.videoFrameLayout.frame =CGRectMake(0, 0, 16*20, 9*20);
+                self.videoFrameLayout.frame =CGRectMake(0, 0, videoW, videoH);
             }else{
-                self.videoFrameLayout.frame = CGRectMake(0, 0, 9*20, 16*20);
+                self.videoFrameLayout.frame = CGRectMake(0, 0, videoH, videoH);
             }
             self.videoFrameLayout.hidden=NO;
             //两个区域不相等 则更新
@@ -206,7 +207,9 @@
             }
             
         }];
-        
+        [self.videoView setClipsToBounds:YES];
+//        self.videoFrameLayout.contentMode=UIViewContentModeScaleAspectFill;
+        self.videoView.contentMode=UIViewContentModeScaleAspectFill;
         _videoView.userInteractionEnabled = YES;
         [_playVideoBtn addTarget:self action:@selector(playTheVideoAtIndexPath) forControlEvents:UIControlEventTouchUpInside];
         [_videoView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(playFullScreenVideo)]];

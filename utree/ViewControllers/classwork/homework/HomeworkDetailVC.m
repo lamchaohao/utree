@@ -149,6 +149,7 @@
 
 - (void)playAudioClick:(FileObject *)audioFile
 {
+    [XMAVAudioPlayer sharePlayer].delegate = self;
     [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:audioFile.path atIndex:1];
 }
 
@@ -161,22 +162,29 @@
 
 - (void)audioPlayerStateDidChanged:(VoiceMessageState)audioPlayerState forIndex:(NSUInteger)index
 {
-    switch (audioPlayerState) {
-        case VoiceMessageStateNormal:
-            NSLog(@"未播放状态");
-            break;
-        case VoiceMessageStateDownloading:
-            NSLog(@"正在下载中");//正在下载中
-            break;
-        case VoiceMessageStatePlaying://正在播放
-            NSLog(@"正在播放");
-            break;
-        case VoiceMessageStateCancel:
-            NSLog(@"播放被取消");
-            break;
-        default:
-            break;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+         switch (audioPlayerState) {
+             case VoiceMessageStateNormal:
+                 NSLog(@"未播放状态");
+                 [self.detailView.userHeaderView.audioButton stopPlay];
+                 break;
+             case VoiceMessageStateDownloading:
+                 [self.detailView.userHeaderView.audioButton benginLoadVoice];
+                 NSLog(@"正在下载中");//正在下载中
+                 break;
+             case VoiceMessageStatePlaying://正在播放
+                 [self.detailView.userHeaderView.audioButton didLoadVoice];
+                 NSLog(@"正在播放");
+                 break;
+             case VoiceMessageStateCancel:
+                 [self.detailView.userHeaderView.audioButton stopPlay];
+                 NSLog(@"播放被取消");
+                 break;
+             default:
+                 break;
+         }
+    });
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -184,6 +192,7 @@
     [[XMAVAudioPlayer sharePlayer] stopAudioPlayer];
     [XMAVAudioPlayer sharePlayer].index = NSUIntegerMax;
     [XMAVAudioPlayer sharePlayer].URLString = nil;
+    [XMAVAudioPlayer sharePlayer].delegate = nil;
 }
 
 

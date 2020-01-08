@@ -114,10 +114,12 @@ static NSString * answerNotificationStr = @"kMIMCanswerNotification";
         NSLog(@"response:%@",responseDic);
         if(request.response.statusCode==200){
             NSMutableDictionary *tokenDic = [responseDic objectForKey:@"data"];
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tokenDic options:0 error:0];
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            if (callback) {
-                callback(jsonString);
+            if(tokenDic){
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tokenDic options:0 error:0];
+                NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                if (callback) {
+                    callback(jsonString);
+                }
             }
         }
     } failure:^(__kindof YTKBaseRequest * _Nonnull request) {

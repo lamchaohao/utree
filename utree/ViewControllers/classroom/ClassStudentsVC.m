@@ -66,6 +66,11 @@ static NSString *collectionCellID = @"MyCollectionViewCell";
         [self.viewModel endRefreshing];
     }];
 }
+//1首字母,2 按水滴降序,3水滴升序
+- (void)sortStudentByType:(int)type
+{
+    [self.viewModel sortStudentsWithType:type];
+}
 
 -(void)reloadStuData:(NSNotification *) notification
 {

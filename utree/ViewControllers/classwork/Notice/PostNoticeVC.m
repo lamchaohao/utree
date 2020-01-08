@@ -10,6 +10,7 @@
 #import "RegexTool.h"
 #import "UITextView+ZBPlaceHolder.h"
 #import "PhotoCell.h"
+#import "JhDownProgressView.h"
 #import "MMAlertView.h"
 #import "RecorderView.h"
 #import "XHAudioPlayerHelper.h"
@@ -19,7 +20,7 @@
 #import "FileObject.h"
 #import "SelectReadClassVC.h"
 #import "RxWebViewController.h"
-@interface PostNoticeVC ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate,DeletePicDelegate,RecorderViewDelegate,TZImagePickerControllerDelegate,PostNoticeFileListener,ZBWebviewLoadedDelegate>
+@interface PostNoticeVC ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate,DeletePicDelegate,RecorderViewDelegate,TZImagePickerControllerDelegate,UploadFileListener,ZBWebviewLoadedDelegate>
 @property(nonatomic,strong)MyLinearLayout *rootLayout;
 @property(nonatomic,strong)UISwitch *parentSwitch;
 @property(nonatomic,strong)UISwitch *needFeedbackSwitch;
@@ -29,6 +30,7 @@
 
 @property(nonatomic,strong)UICollectionView *picCollectionView;
 @property(nonatomic,strong)UIButton *webButton;
+@property(nonatomic,strong)JhDownProgressView *progressView;
 
 @property(nonatomic,strong)MyRelativeLayout *urlLayout;
 @property(nonatomic,strong)NSString *audioPath;
@@ -44,10 +46,20 @@
 @property(nonatomic,strong)NSMutableArray *uploadPicObjecList;
 @property(nonatomic,strong)FileObject *audioFileObject;
 @property(nonatomic,strong)NSString *urlInput;
+@property(nonatomic,strong)NSArray *classArray;
 @end
 
 @implementation PostNoticeVC
 static NSString *cellID = @"photoCell";
+
+- (instancetype)initWithClassArray:(NSArray *)classes
+{
+    self = [super init];
+    if (self) {
+        self.classArray = classes;
+    }
+    return self;
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishVC:) name:PostWorkNotifyName object:nil];
@@ -387,6 +399,7 @@ static NSString *cellID = @"photoCell";
 {
 
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    imagePickerVc.allowPickingVideo=NO;
     imagePickerVc.allowTakeVideo=NO;
     imagePickerVc.selectedAssets=self.assetsList;
     // You can get the photos by block, the same as by delegate.
@@ -490,7 +503,8 @@ static NSString *cellID = @"photoCell";
         uploadPicObject.fileType=[fileName pathExtension];
         [self.uploadPicObjecList addObject:uploadPicObject];
         [self.uploadQueue setObject:uploadPicObject.fileName forKey:[NSString stringWithFormat:@"%d",index]];
-        [self.view makeToastActivity:CSToastPositionCenter];
+//        [self.view makeToastActivity:CSToastPositionCenter];
+        [self onStartUploadView];
         [self.dataController uploadFileData:[image sd_imageData] fileName:fileName mediaType:@"pic" fileIndex:index];
     }
     if (self.audioPath) {
@@ -498,7 +512,8 @@ static NSString *cellID = @"photoCell";
         self.audioFileObject.fileKind=[NSNumber numberWithInt:10];
         self.audioFileObject.fileName =[[self.audioPath lastPathComponent] stringByDeletingPathExtension];
         self.audioFileObject.fileType=[self.audioPath pathExtension];
-        [self.view makeToastActivity:CSToastPositionCenter];
+//        [self.view makeToastActivity:CSToastPositionCenter];
+        [self onStartUploadView];
         [self.uploadQueue setObject:self.audioFileObject.fileName forKey:[NSString stringWithFormat:@"%d",10]];
         [self.dataController uploadFile:self.audioPath mediaType:@"audio" fileIndex:10];
         
@@ -508,6 +523,28 @@ static NSString *cellID = @"photoCell";
         [self checkWhenNoFile];
     }
     
+}
+
+-(void)onStartUploadView
+{
+    self.view.userInteractionEnabled = NO;
+    self.navigationController.navigationBar.userInteractionEnabled=NO;//将nav事件禁止
+    self.tabBarController.tabBar.userInteractionEnabled=NO;//将tabbar事件禁止
+    if(!self.progressView){
+        self.progressView = [JhDownProgressView showWithStyle:JhStyle_percentAndRing];
+        self.progressView.center = self.view.center;
+        [self.view addSubview:self.progressView];
+    }
+    
+    
+}
+
+-(void)onUploadDoneView
+{
+    self.view.userInteractionEnabled = YES;
+    self.navigationController.navigationBar.userInteractionEnabled=YES;
+    self.tabBarController.tabBar.userInteractionEnabled=YES;
+    [self.progressView removeFromSuperview];
 }
 
 - (void)onFileUploadResult:(BOOL)success filePath:(NSString *)filePath fileIndex:(NSInteger)index md5Value:(NSString *)md5Str
@@ -525,12 +562,14 @@ static NSString *cellID = @"photoCell";
         
         [self.uploadQueue removeObjectForKey:[NSString stringWithFormat:@"%d",(int)index]];
        if (self.uploadQueue.count==0) {
-           [self.view hideToastActivity];
+//           [self.view hideToastActivity];
+           [self onUploadDoneView];
            [self checkWhenNoFile];
        }
 
     }else{
-           [self.view hideToastActivity];
+//           [self.view hideToastActivity];
+           [self onUploadDoneView];
            [self showToastView:@"上传文件失败,请重试"];
            NSLog(@"上传失败 %@",filePath);
        }
@@ -538,7 +577,10 @@ static NSString *cellID = @"photoCell";
 
 - (void)onFileUploadProgress:(CGFloat)progress filePath:(NSString *)filePath fileIndex:(NSInteger)index
 {
-    
+    NSLog(@"PostNotice onFileUploadProgress---%f",progress);
+    if (self.progressView) {
+        [self.progressView setProgress:progress];
+    }
 }
 
 #pragma mark 无图片和音频时候，检查是否有文字和链接
@@ -600,12 +642,24 @@ static NSString *cellID = @"photoCell";
     [enclosureDic setObject:self.parentSwitch.on?[NSNumber numberWithInt:2]:[NSNumber numberWithInt:1] forKey:@"readType"];
     [enclosureDic setObject:@(self.needFeedbackSwitch.on) forKey:@"needReceipt"];
     
-    SelectReadClassVC *readClassVC = [[SelectReadClassVC alloc]initWithParams:enclosureDic];
-    readClassVC.modalPresentationStyle = UIModalPresentationFullScreen;
-    
-    [self presentViewController:readClassVC animated:YES completion:^{
-//        [self dismissViewControllerAnimated:NO completion:nil];
+    [enclosureDic setObject:self.classArray forKey:@"classIds"];
+    [self.dataController publishNoticeToServerWithTopic:self.titleInput.text content:self.contentInput.text enclosureDic:enclosureDic WithSuccess:^(UTResult * _Nonnull result) {
+        [self showToastView:@"发布成功"];
+        [self dismissViewControllerAnimated:YES completion:^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:PostWorkNotifyName object:nil];
+        }];
+    } failure:^(UTResult * _Nonnull result) {
+        
+        [self showAlertMessage:@"错误" title:result.failureResult];
     }];
+    
+    
+//    SelectReadClassVC *readClassVC = [[SelectReadClassVC alloc]initWithParams:enclosureDic];
+//    readClassVC.modalPresentationStyle = UIModalPresentationFullScreen;
+//
+//    [self presentViewController:readClassVC animated:YES completion:^{
+////        [self dismissViewControllerAnimated:NO completion:nil];
+//    }];
     
 }
 

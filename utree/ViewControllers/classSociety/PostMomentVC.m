@@ -338,10 +338,11 @@ static NSString *cellID=@"photoCell";
     self.view.userInteractionEnabled = NO;
     self.navigationController.navigationBar.userInteractionEnabled=NO;//将nav事件禁止
     self.tabBarController.tabBar.userInteractionEnabled=NO;//将tabbar事件禁止
-    
-    self.progressView = [JhDownProgressView showWithStyle:JhStyle_percentAndRing];
-    self.progressView.center = self.view.center;
-    [self.view addSubview:self.progressView];
+    if (!self.progressView) {
+        self.progressView = [JhDownProgressView showWithStyle:JhStyle_percentAndRing];
+        self.progressView.center = self.view.center;
+        [self.view addSubview:self.progressView];
+    }
     
 }
 

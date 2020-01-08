@@ -30,7 +30,8 @@
     _iconF = CGRectMake(iconX, CGRectGetMaxY(_timeF) + ChatMargin, ChatIconWH, ChatIconWH);
     
     // 3、计算ID位置
-    CGSize nameSize = [_message.accountName uu_sizeWithFont:ChatTimeFont constrainedToSize:CGSizeMake(ChatIconWH+ChatMargin, 50)];
+//    CGSize nameSize = [_message.accountName uu_sizeWithFont:ChatTimeFont constrainedToSize:CGSizeMake(ChatIconWH+ChatMargin, 50)];
+    CGSize nameSize = CGSizeMake(0, 0);//现在不需要显示名字.故不需要暂用宽高
     _nameF = CGRectMake(iconX-ChatMargin/2.0, CGRectGetMaxY(_iconF) + ChatMargin/2.0, ChatIconWH+ChatMargin, nameSize.height);
     
     // 4、计算内容位置

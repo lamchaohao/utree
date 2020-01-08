@@ -8,6 +8,7 @@
 
 #import "ConvertMessageUtil.h"
 #import "JSONUtil.h"
+#import "UTDateConvertTool.h"
 @implementation ConvertMessageUtil
 
 + (UTMessage *)convertMimcMessage:(MIMCMessage *)mimcMessage;
@@ -51,8 +52,7 @@
     message.type = UTMessageTypeText;
     message.from = UTMessageFromOther;
     message.readStatus = 0;//未读消息
-    NSDate *datenow = [NSDate date];
-    NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([datenow timeIntervalSince1970]*1000)];//当前毫秒数
+    NSString *tempTime = [NSString stringWithFormat:@"%ld", [UTDateConvertTool getNowTimestamp]];//当前毫秒数
     message.timeStamp = tempTime;
     
     return message;

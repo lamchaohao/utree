@@ -27,6 +27,7 @@ static NSString *CellID = @"achievementId";
 {
     self = [super initWithFrame:frame];
     if (self) {
+        self.headViewPath=@"pic_no_achievement";
         self.isMyselfData = isSelf;
         _achievementList = [[NSMutableArray alloc]init];
         self.dataController = [[AchievementDC alloc]init];
@@ -38,7 +39,7 @@ static NSString *CellID = @"achievementId";
 -(void)initTableView
 {
     
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.bounds.size.height-iPhone_Bottom_NavH) style:UITableViewStylePlain];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.bounds.size.height-iPhone_Bottom_NavH) style:UITableViewStyleGrouped];
     [_tableView registerClass:[AchievementCell class] forCellReuseIdentifier:CellID];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
@@ -48,10 +49,10 @@ static NSString *CellID = @"achievementId";
     
     _tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, iPhone_Bottom_NavH, 0.0f);
     [self addSubview:_tableView];
-    
+    self.headViewMessage = @"暂无成绩";
     _tableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadAchievementFirstTime)];
     
-    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+    self.tableView.mj_footer = [MJRefreshBackFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
     
     [_tableView.mj_header beginRefreshing];
 }
@@ -63,6 +64,12 @@ static NSString *CellID = @"achievementId";
         self.lastResponseObject = result.successResult;
         [self.achievementList removeAllObjects];
         [self.achievementList addObjectsFromArray:self.lastResponseObject.list];
+        if (self.achievementList.count==0) {
+            self.tableView.tableHeaderView = self.headView;
+        }else{
+            self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+
+        }
         [self.tableView.mj_header endRefreshing];
         [self.tableView reloadData];
     } failure:^(UTResult * _Nonnull result) {
@@ -81,6 +88,12 @@ static NSString *CellID = @"achievementId";
                 [self.tableView.mj_footer endRefreshingWithNoMoreData];
             }else{
                 [self.tableView.mj_footer endRefreshing];
+            }
+            if (self.achievementList.count==0) {
+                self.tableView.tableHeaderView = self.headView;
+            }else{
+                self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+
             }
             [self.tableView reloadData];
         } failure:^(UTResult * _Nonnull result) {

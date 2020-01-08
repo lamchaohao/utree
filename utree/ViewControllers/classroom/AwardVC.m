@@ -8,7 +8,7 @@
 
 #import "AwardVC.h"
 #import "FSScrollContentView.h"
-#import "AwardListVC.h"
+#import "AwardListView.h"
 #import "UTStudent.h"
 #import "DropDetailVC.h"
 #import "CommentVC.h"
@@ -61,12 +61,21 @@
 -(void)loadAwardItemData
 {
     self.dataController = [[AwardDC alloc]init];
+    BOOL hasInitView = NO;
+    self.awardItemsDic = [self.dataController requestAwardItemsFromCache];
+    if (self.awardItemsDic.count>0) {
+        [self initView];
+        hasInitView = YES;
+    }
     
     [self.dataController requestAwardItemsWithSuccess:^(UTResult * _Nonnull result) {
         self.awardItemsDic = result.successResult;
-        [self initView];
-    } failure:^(UTResult * _Nonnull result) {
+        if (!hasInitView) {
+            [self initView];
+        }
         
+    } failure:^(UTResult * _Nonnull result) {
+         [self showToastView:result.failureResult];
     }];
 }
 
@@ -210,7 +219,7 @@
 //    UIView *view = [_viewControllerArray objectAtIndex:index] ;
     long i = index +1;
     NSArray *items = [self.awardItemsDic objectForKey:[NSString stringWithFormat:@"%ld",i]];
-    AwardListVC *listVC= [[AwardListVC alloc]initWithAwardData:items];
+    AwardListView *listVC= [[AwardListView alloc]initWithAwardData:items];
     
     listVC.responser = self;
     return listVC;
@@ -234,8 +243,12 @@
     
     UTStudent *stu = [_studentList objectAtIndex:0];
     DropDetailVC *detailVC = [[DropDetailVC alloc] initWithStudentId:stu.studentId];
-    detailVC.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentViewController:detailVC animated:YES completion:nil];
+//    detailVC.modalPresentationStyle = UIModalPresentationFullScreen;
+//    [self presentViewController:detailVC animated:YES completion:nil];
+    detailVC.hidesBottomBarWhenPushed=YES;
+    [self dismissViewControllerAnimated:NO completion:nil];
+    [self.vcDelegate pushToViewController:detailVC];
+    
 }
 
 
@@ -247,8 +260,6 @@
     [self dismissViewControllerAnimated:NO completion:nil];
     [self.vcDelegate pushToViewController:commentVC];
     
-    //    commentVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    //    [self presentViewController:commentVC animated:YES completion:nil];
 }
 
 - (void)onAwardItemClick:(AwardModel *)model

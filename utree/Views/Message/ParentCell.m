@@ -52,7 +52,7 @@
 -(void)setDataToView:(UTParent *)parent
 {
     self.textLabel.text=parent.parentName;
-    [self.imageView sd_setImageWithURL:[NSURL URLWithString:parent.picPath]];
+    [self.imageView sd_setImageWithURL:[NSURL URLWithString:parent.picPath] placeholderImage:[UIImage imageNamed:@"default_head"]];
     self.accessoryType=UITableViewCellAccessoryNone;
     self.detailTextLabel.text=[NSString stringWithFormat:@"%@家长",parent.studentName];
 

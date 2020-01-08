@@ -11,6 +11,9 @@
 #import "FeedbackVC.h"
 #import "AboutVC.h"
 #import "MainLoginVC.h"
+#import "ClearCacheTool.h"
+#import "MMAlertView.h"
+#import "AppDelegate.h"
 @interface SettingVC ()<UITableViewDataSource,UITableViewDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
@@ -36,14 +39,23 @@ static NSString *CellID = @"staticCell";
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:CellID];
-
+    self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
     [self.view addSubview:_tableView];
     
-    UIButton *logoutBtn = [[UIButton alloc]initWithFrame:CGRectMake(ScreenWidth*0.086, ScreenHeight -ScreenWidth*0.26, ScreenWidth*0.8285, ScreenWidth*0.174)];
+    UIButton *logoutBtn = [[UIButton alloc]initWithFrame:CGRectMake(ScreenWidth*0.086, ScreenHeight -ScreenWidth*0.26, ScreenWidth*0.8285, ScreenWidth*0.12)];
+    logoutBtn.myLeft=logoutBtn.myRight=35;
+//    logoutBtn.bottomPos.equalTo(self.bottomPos).offset(12);
+    
     [logoutBtn setTitle:@"退出登录" forState:UIControlStateNormal];
     [logoutBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [logoutBtn setBackgroundImage:[UIImage imageNamed:@"bg_red_round_conner"] forState:UIControlStateNormal];
-//    logoutBtn.=0;
+    [logoutBtn setBackgroundColor:[UIColor myColorWithHexString:@"#FB5B5B"]];
+    logoutBtn.layer.cornerRadius = ScreenWidth*0.12/2;
+    
+//    UIButton *logoutBtn = [[UIButton alloc]initWithFrame:CGRectMake(ScreenWidth*0.086, ScreenHeight -ScreenWidth*0.26, ScreenWidth*0.8285, ScreenWidth*0.174)];
+//    [logoutBtn setTitle:@"退出登录" forState:UIControlStateNormal];
+//    [logoutBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [logoutBtn setBackgroundImage:[UIImage imageNamed:@"bg_red_round_conner"] forState:UIControlStateNormal];
+
     [logoutBtn addTarget:self action:@selector(logoutClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview: logoutBtn];
 }
@@ -57,6 +69,11 @@ static NSString *CellID = @"staticCell";
             AccountSafeVC *accountVC = [[AccountSafeVC alloc]init];
             //注意是UIViewController调用hidesBottomBarWhenPushed而不是UINavigationController
             [self pushIntoWithoutNavChange:accountVC];
+        }
+            break;
+        case 2:
+        {
+            [self clearCacheDialogShow];
         }
             break;
         case 3:
@@ -82,22 +99,23 @@ static NSString *CellID = @"staticCell";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellID];
-    
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleValue1
+                                      reuseIdentifier: CellID];
+    }
     [cell.textLabel setText:_itemNames[indexPath.row]];
     if (indexPath.row==1) {
         UISwitch *switchview = [[UISwitch alloc] initWithFrame:CGRectZero];
         cell.accessoryView = switchview;
-//        [switchview release];
-        
-//        UISwitch *switchView = (UISwitch *)cell.accessoryView;
-//
-//        if ([switchView isOn]) {
-//            [switchView setOn:NO animated:YES];
-//        } else {
-//            [switchView setOn:YES animated:YES];
-//        }
-    }else{
+
+    }else if(indexPath.row==2){
+        NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+        NSString *sizeStr = [ClearCacheTool getCacheSizeWithFilePath:cachesPath];
+        [cell.detailTextLabel setText:sizeStr];
+        cell.accessoryType=UITableViewCellAccessoryNone;
+    }
+    else{
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     
@@ -126,12 +144,48 @@ static NSString *CellID = @"staticCell";
     
 }
 
+-(void)clearCacheDialogShow
+{
+    MMPopupItemHandler positiveHandler = ^(NSInteger index){
+         NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+        [ClearCacheTool clearCacheWithFilePath:cachesPath];
+        [self.tableView reloadData];
+    };
+    MMPopupItemHandler nagativeHandler = ^(NSInteger index){
+        
+    };
+    NSArray *items =
+    @[MMItemMake(@"确定", MMItemTypeNormal, positiveHandler),
+      MMItemMake(@"取消", MMItemTypeHighlight, nagativeHandler)];
+    
+    MMAlertView *dismissAlert = [[MMAlertView alloc]initWithTitle:@"确定清理缓存?" detail:@"" items:items];
+    
+    [dismissAlert show];
+}
+
 
 -(void)logoutClick:(UIButton *)btn
 {
-    MainLoginVC *mainLogin = [[MainLoginVC alloc] init];
-    mainLogin.modalPresentationStyle=UIModalPresentationOverFullScreen;
-    [self presentViewController:mainLogin animated:YES completion:nil];
+    MMPopupItemHandler positiveHandler = ^(NSInteger index){
+        
+//        MainLoginVC *mainLogin = [[MainLoginVC alloc] init];
+//        mainLogin.modalPresentationStyle=UIModalPresentationOverFullScreen;
+//        [self presentViewController:mainLogin animated:YES completion:nil];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        [appDelegate toLoginVC];
+    };
+    MMPopupItemHandler nagativeHandler = ^(NSInteger index){
+        
+    };
+    NSArray *items =
+    @[MMItemMake(@"确定", MMItemTypeNormal, positiveHandler),
+      MMItemMake(@"取消", MMItemTypeHighlight, nagativeHandler)];
+    
+    MMAlertView *dismissAlert = [[MMAlertView alloc]initWithTitle:@"确定退出登录？" detail:@"" items:items];
+    
+    [dismissAlert show];
+    
+    
 }
 
 

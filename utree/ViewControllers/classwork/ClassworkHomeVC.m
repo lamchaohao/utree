@@ -9,6 +9,7 @@
 #import "ClassworkHomeVC.h"
 #import "PostMenuVC.h"
 #import "PostNoticeVC.h"
+#import "SelectReadClassVC.h"
 #import "PostHomeworkVC.h"
 #import "TYTabPagerView.h"
 #import "NoticeView.h"
@@ -87,7 +88,29 @@
 
 - (void)tabPagerView:(TYTabPagerView *)tabPagerView willAppearView:(UIView *)view forIndex:(NSInteger)index
 {
-    NSLog(@"willAppearView %ld",index);
+    NSLog(@"classwork tabPagerView willAppearView %ld",index);
+    switch (index) {
+        case 0:
+            [self.homeworkView viewWillDisappear:NO];
+            [self.achievementView viewWillDisappear:NO];
+            [self.noticeView viewWillAppear:NO];
+            break;
+        case 1:
+            [self.noticeView viewWillDisappear:NO];
+            [self.achievementView viewWillDisappear:NO];
+            [self.homeworkView viewWillAppear:NO];
+            break;
+        case 2:
+            [self.noticeView viewWillDisappear:NO];
+            [self.homeworkView viewWillDisappear:NO];
+            [self.achievementView viewWillAppear:NO];
+            break;
+        default:
+            [self.homeworkView viewWillDisappear:NO];
+            [self.achievementView viewWillDisappear:NO];
+            [self.noticeView viewWillAppear:NO];
+            break;
+    }
 }
 
 - (NoticeView *)noticeView
@@ -166,10 +189,11 @@
 
 -(void)postNotice:(id)sender
 {
-    PostNoticeVC *postVC = [[PostNoticeVC alloc]init];
-    postVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    [self presentViewController:postVC animated:YES completion:nil];
-
+    SelectReadClassVC *selectClassVC = [[SelectReadClassVC alloc]init];
+//    postVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+//    [self presentViewController:postVC animated:YES completion:nil];
+    selectClassVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:selectClassVC animated:YES];
 
 }
 

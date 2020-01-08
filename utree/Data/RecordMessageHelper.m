@@ -10,6 +10,7 @@
 #import "DBManager.h"
 #import "JSONUtil.h"
 #import "UTMessage.h"
+#import "UTDateConvertTool.h"
 
 @interface RecordMessageHelper()
 
@@ -37,6 +38,7 @@
                                                               options:0];
     NSString *payload = [[NSString alloc] initWithData:payloadByte encoding:NSUTF8StringEncoding];
     UTMessage *message = [self makeFromOtherMessage];
+    message.timeStamp=[NSString stringWithFormat:@"%lld",mimcMessage.getTimestamp / 1000];
     message.messageId = mimcMessage.getPacketId;
     message.accountId = mimcMessage.getFromAccount;
     //    保存的收到的聊天记录中，UTMessage.toAccount = mimcMessage.getFromAccount
@@ -64,7 +66,10 @@
 }
 
 
-
+- (void)updateParentData:(id)parent
+{
+    [self.dbManager updateContactsData:parent];
+}
 
 
 
@@ -75,9 +80,6 @@
     message.type = UTMessageTypeText;
     message.from = UTMessageFromOther;
     message.readStatus = 0;//未读消息
-    NSDate *datenow = [NSDate date];
-    NSString *tempTime = [NSString stringWithFormat:@"%ld", (long)([datenow timeIntervalSince1970]*1000)];//当前毫秒数
-    message.timeStamp = tempTime;
     
     return message;
 }

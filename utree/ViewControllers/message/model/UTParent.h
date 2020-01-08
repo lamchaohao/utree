@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic,strong)NSString *parentId;
 @property(nonatomic,strong)NSString *picPath;
+@property(nonatomic,strong)NSString *phone;
 @property(nonatomic,strong)NSString *relation;
 @property(nonatomic,strong)NSString *parentName;
 @property(nonatomic,strong)NSString *studentName;

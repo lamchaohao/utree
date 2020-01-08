@@ -131,13 +131,12 @@
     // 1、设置时间
     self.dateLabel.text = message.timeForShow;
     self.dateLabel.frame = messageFrame.timeF;
-    
     // 2、设置头像
     _headImageBackView.frame = messageFrame.iconF;
-    self.headImageButton.frame = CGRectMake(2, 2, ChatIconWH-4, ChatIconWH-4);
+    self.headImageButton.frame = CGRectMake(0, 0, ChatIconWH, ChatIconWH+2);
     [self.headImageButton setBackgroundImageForState:UIControlStateNormal
                                           withURL:[NSURL URLWithString:message.headPicUrl]
-                                 placeholderImage:[UIImage uu_imageWithName:@"headImage.jpeg"]];
+                                 placeholderImage:[UIImage imageNamed:@"default_head"]];
     
     // 3、设置下标
 //    self.namelabel.text = @" ";//不需要显示

@@ -10,11 +10,14 @@
 #import "FileObject.h"
 #import "HomeworkViewModel.h"
 #import "UTVideoButton.h"
+#import "UTAudioButton.h"
 NS_ASSUME_NONNULL_BEGIN
+
+@class HomeworkCell;
 
 @protocol HomeworkMediaDelegate <NSObject>
 
--(void)playAudioClick:(FileObject *)audioFile;
+-(void)playAudioClick:(HomeworkCell *)cell;
 
 -(void)openWebView:(NSString *)webUrl;
 
@@ -34,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)UILabel *titleLabel;
 @property(nonatomic,strong)UILabel *subjectLabel;
 @property(nonatomic,strong)UILabel *detailLabel;
-@property(nonatomic,strong)UIButton *audioButton;
+@property(nonatomic,strong)UTAudioButton *audioButton;
 @property(nonatomic,strong)UIButton *webButton;
 @property(nonatomic,strong)UTVideoButton *videoButton;
 @property (nonatomic, strong)PYPhotosView *photosView;

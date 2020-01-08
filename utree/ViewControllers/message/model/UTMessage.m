@@ -7,6 +7,7 @@
 //
 
 #import "UTMessage.h"
+#import "UTDateConvertTool.h"
 @implementation UTMessage
 
 
@@ -49,16 +50,10 @@
     _timeForShow = [self changeTheDateString:timeStamp];
 }
 
-//"08-10 晚上08:09:41.0" ->
-//"昨天 上午10:09"或者"2012-08-10 凌晨07:09"
 - (NSString *)changeTheDateString:(NSString *)Str
 {
    
-    NSDate *lastDate = [self getDateWithTimeSecond:Str];
-    NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
-    [formatter setDateFormat:@"yyyy年MM月dd日 HH:mm"];
-    return [formatter stringFromDate:lastDate];
-    
+    return [UTDateConvertTool timestampSwitchTime:Str.integerValue andFormatter:@"yyyy年MM月dd日 HH:mm"];
     
 }
 
@@ -68,10 +63,11 @@
         self.showDateLabel = YES;
         return;
     }
-    NSDate *startDate = [self getDateWithTimeSecond:start];
+    NSString *startDateStr = [UTDateConvertTool timestampSwitchTime:start.integerValue andFormatter:@"yyyy-MM-dd HH:mm"];
 
-    NSDate *endDate = [self getDateWithTimeSecond:end];;
-    
+    NSString *endDateStr = [UTDateConvertTool timestampSwitchTime:end.integerValue andFormatter:@"yyyy-MM-dd HH:mm"];
+    NSDate *startDate = [UTDateConvertTool dateFromString:startDateStr];
+    NSDate *endDate = [UTDateConvertTool dateFromString:endDateStr];
     //这个是相隔的秒数
     NSTimeInterval timeInterval = [startDate timeIntervalSinceDate:endDate];
     

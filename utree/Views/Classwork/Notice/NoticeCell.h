@@ -10,11 +10,14 @@
 #import "NoticeModel.h"
 #import "NoticeViewModel.h"
 #import "FileObject.h"
+#import "UTAudioButton.h"
 NS_ASSUME_NONNULL_BEGIN
+
+@class NoticeCell;
 
 @protocol NoticeMediaDelegate <NSObject>
 
--(void)playAudioClick:(FileObject *)audioFile;
+-(void)playAudioClick:(NoticeCell *)cell;
 
 -(void)openWebView:(NSString *)webUrl;
 
@@ -29,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)UIImageView *feedbackView;
 @property(nonatomic,strong)UILabel *titleLabel;
 @property(nonatomic,strong)UILabel *detailLabel;
-@property(nonatomic,strong)UIButton *audioButton;
+@property(nonatomic,strong)UTAudioButton *audioButton;
 @property(nonatomic,strong)UIButton *webButton;
 @property (nonatomic, strong)PYPhotosView *photosView;
 

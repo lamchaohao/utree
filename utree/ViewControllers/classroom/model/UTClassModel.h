@@ -23,11 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) NSString *subject;
 
-@property (assign, nonatomic) NSNumber *studentCount;
+@property (strong, nonatomic) NSNumber *studentCount;
 
-@property (assign, nonatomic) NSNumber *dropCount;
+@property (strong, nonatomic) NSNumber *dropCount;
 
-@property (assign, nonatomic) NSNumber *headTeacher;
+@property (strong, nonatomic) NSNumber *headTeacher;
 
 @property (assign, nonatomic) BOOL isSelected;
 

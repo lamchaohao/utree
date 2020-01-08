@@ -104,6 +104,11 @@ static NSString *tableViewCellID =@"studentTableViewCell";
 
 - (void)endRefreshing
 {
+    if(self.viewModel.studentsModel.count<=0){
+        [self.defaultLayout setHidden:NO];
+        [self.tipsLabel setText:self.viewModel.defaultMsg];
+        [self.tipsLabel sizeToFit];
+    }
     [self.tableView.mj_header endRefreshing];
     [self.collectionView.mj_header endRefreshing];
 }

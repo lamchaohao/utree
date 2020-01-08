@@ -27,12 +27,12 @@ static NSString *CellID = @"fineID";
     [self createView];
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    self.showNavigationBarImageWhenDisappear = YES;
-    [super viewWillAppear:animated];
-    
-}
+//- (void)viewWillAppear:(BOOL)animated
+//{
+//    self.showNavigationBarImageWhenDisappear = YES;
+//    [super viewWillAppear:animated];
+//
+//}
 -(void)createView
 {
     self.title=@"个人资料";
@@ -42,7 +42,7 @@ static NSString *CellID = @"fineID";
 //    [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:CellID];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
-    
+    _tableView.tableHeaderView=[[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
     [self.view addSubview:_tableView];
     _tableView.rowHeight=62;
     self.view.backgroundColor = [UIColor_ColorChange colorWithHexString:@"#F7F7F7"];
@@ -136,7 +136,7 @@ static NSString *CellID = @"fineID";
     imagePickerVc.allowPickingGif=NO;
     imagePickerVc.allowPickingOriginalPhoto=YES;
     imagePickerVc.allowTakePicture=YES;
-    imagePickerVc.allowCrop=YES;
+    imagePickerVc.allowCrop=NO;
     imagePickerVc.allowPreview=YES;
     // You can get the photos by block, the same as by delegate.
     [self presentViewController:imagePickerVc animated:YES completion:nil];

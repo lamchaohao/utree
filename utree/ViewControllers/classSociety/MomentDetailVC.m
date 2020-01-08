@@ -13,11 +13,17 @@
 #import "ZBTextField.h"
 #import "MomentCommentDC.h"
 #import "ComplainCommentVC.h"
+#import <ZFPlayer/ZFPlayerController.h>
+#import <ZFPlayer/ZFPlayerControlView.h>
+#import "ZFIJKPlayerManager.h"
+
+
 @interface MomentDetailVC ()<MomentDetailDelegate>
 @property(nonatomic,strong)MomentDetailView *rootView;
 @property(nonatomic,strong)MomentDC *momentDC;
 @property(nonatomic,strong)MomentCommentDC *dataController;
 @property(nonatomic,strong)WrapCommentListModel *wrapListModel;
+@property (nonatomic, strong) ZFPlayerControlView *controlView;
 
 
 @end
@@ -33,6 +39,41 @@
         self.momentViewModel = viewModel;
     }
     return self;
+}
+
+-(void)initPlayer
+{
+    if (self.player) {
+        return ;
+    }
+    ZFIJKPlayerManager *playerManager = [[ZFIJKPlayerManager alloc] init];
+       /// 播放器相关
+       self.player = [ZFPlayerController playerWithPlayerManager:playerManager containerView:self.rootView.videoFrameLayout];
+        self.player.controlView = self.controlView;
+       /// 设置退到后台继续播放
+       self.player.pauseWhenAppResignActive = NO;
+       
+       @weakify(self)
+       self.player.orientationWillChange = ^(ZFPlayerController * _Nonnull player, BOOL isFullScreen) {
+           @strongify(self)
+           [self setNeedsStatusBarAppearanceUpdate];
+       };
+       
+       /// 播放完成
+       self.player.playerDidToEnd = ^(id  _Nonnull asset) {
+           @strongify(self)
+           [self.player.currentPlayerManager replay];
+           [self.player playTheNext];
+           if (!self.player.isLastAssetURL) {
+               NSString *title = [NSString stringWithFormat:self.momentViewModel.momentModel.content,self.player.currentPlayIndex];
+               [self.controlView showTitle:title coverURLString:self.momentViewModel.momentModel.video.minPath fullScreenMode:ZFFullScreenModeLandscape];
+           } else {
+               [self.player stop];
+           }
+       };
+       
+    self.player.assetURLs = [NSArray arrayWithObject:[NSURL URLWithString:self.momentViewModel.momentModel.video.path]];
+    
 }
 
 - (void)viewDidLoad {
@@ -61,7 +102,9 @@
     if (self.detailVCPlayCallback) {
         self.detailVCPlayCallback();
     }
+    [self initPlayer];
     [self.player addPlayerViewToContainerView:self.rootView.videoFrameLayout];
+    [self.player playTheIndex:0];
 }
 
 - (void)requestLikeMoment
@@ -110,18 +153,23 @@
 {
     if (self.wrapListModel) {
         CommentModel *lastComment = [self.wrapListModel.list lastObject];
-        [self.dataController requestCommentMoreWithId:self.momentViewModel.momentModel.schoolCircleId lastCommentId:lastComment.commentId withSuccess:^(UTResult * _Nonnull result)
-        {
-            WrapCommentListModel *wrapModel = result.successResult;
-            self.wrapListModel = wrapModel;
+        if (lastComment) {
+            [self.dataController requestCommentMoreWithId:self.momentViewModel.momentModel.schoolCircleId lastCommentId:lastComment.commentId withSuccess:^(UTResult * _Nonnull result)
+            {
+                WrapCommentListModel *wrapModel = result.successResult;
+                self.wrapListModel = wrapModel;
                 if (wrapModel)
                 {
                     [self.rootView loadMoreFinish:wrapModel.list];
                 }
-        } failure:^(UTResult * _Nonnull result)
-        {
-            [self.rootView makeToast:result.failureResult];
-        }];
+            } failure:^(UTResult * _Nonnull result)
+            {
+                [self.rootView makeToast:result.failureResult];
+            }];
+        }else{
+            [self.rootView loadMoreFinish:nil];
+        }
+        
     }
     
 }
@@ -208,5 +256,22 @@
         [self showAlertMessage:@"" title:result.failureResult];
     }];
 }
+
+- (ZFPlayerControlView *)controlView {
+    if (!_controlView) {
+        _controlView = [ZFPlayerControlView new];
+        _controlView.fastViewAnimated = YES;
+        _controlView.horizontalPanShowControlView = NO;
+        _controlView.prepareShowLoading = YES;
+    }
+    return _controlView;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self.player stopCurrentPlayingView];
+}
+
 
 @end

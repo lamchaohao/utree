@@ -9,16 +9,18 @@
 #import "ModifyPswDC.h"
 #import "ResetPswApi.h"
 #import "VerifyCodeApi.h"
+#import "VerifyOldPhoneApi.h"
+#import "ChangePhoneNumApi.h"
 #import "RegexTool.h"
 #import "MD5Util.h"
 @implementation ModifyPswDC
 
 
-- (void)requestVerifyCode:(NSString *)account WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
+- (void)requestVerifyCode:(NSString *)account usage:(VerifyCodeMethod)usage WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
 {
     if ([RegexTool isMobileNumberClassification:account]) {
 
-        VerifyCodeApi *api = [[VerifyCodeApi alloc]initWithAccount:account usage:USAGE_SETPWD];
+        VerifyCodeApi *api = [[VerifyCodeApi alloc]initWithAccount:account usage:usage];
         
         [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
             if (success) {
@@ -50,6 +52,45 @@
             failure([[UTResult alloc]initWithFailure:message.message]);
         }
     }];
+}
+
+-(void)verifyOldPhoneWithCode:(NSString *)code WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
+{
+    VerifyOldPhoneApi *api = [[VerifyOldPhoneApi alloc]initWithCode:code];
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        if (success) {
+            success([[UTResult alloc]initWithSuccess:successMsg.responseData]);
+        }
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        if (failure) {
+            failure([[UTResult alloc]initWithFailure:message.message]);
+        }
+    }];
+}
+
+-(void)changeNewPhoneWithOldCode:(NSString *)oldCode newPhone:(NSString *)phone andNewCode:(NSString *)newCode  WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
+{
+    if ([RegexTool isMobileNumberClassification:phone]) {
+
+       ChangePhoneNumApi *api = [[ChangePhoneNumApi alloc]initWithOldCode:oldCode newPhone:phone andNewCode:newCode];
+        
+        [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+            if (success) {
+                success([[UTResult alloc]initWithSuccess:successMsg.responseData]);
+            }
+        } onFailure:^(FailureMsg * _Nonnull message) {
+            if (failure) {
+                failure([[UTResult alloc]initWithFailure:message.message]);
+            }
+        }];
+        
+    }else{
+        if (failure) {
+            failure([[UTResult alloc]initWithFailure:@"手机号码不正确"]);
+        }
+    }
+    
+    
 }
 
 @end

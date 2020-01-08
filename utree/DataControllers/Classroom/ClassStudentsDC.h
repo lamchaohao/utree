@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ClassStudentsDC : BaseDataController
 
+-(NSMutableArray *)readStudentDataInCacheFromCurrentClassId;
+
 -(void)requestStudentListWithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 
 @end

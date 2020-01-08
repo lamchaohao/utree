@@ -76,7 +76,7 @@
     NSDictionary *personalDic = @{
         Key_Account_Id:[self getUserId],
         Key_Account_Name:@"me",
-        Key_Head_Pic:self.parentModel.picPath};
+        Key_Head_Pic:_myHeadPicUrl};
     NSDictionary *parentDic = @{
         Key_Account_Id:self.parentModel.parentId,
         Key_Account_Name:self.parentModel.parentName,
@@ -88,8 +88,7 @@
 -(void)initNaviBar
 {
     self.title = self.parentModel.parentName;//标题
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"data"
-                                                                              style:UIBarButtonItemStyleDone target:self action:@selector(gotoParentDataVC:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"data" style:UIBarButtonItemStyleDone target:self action:@selector(gotoParentDataVC:)];
 
     NSString *imagePath = [[NSBundle mainBundle]pathForResource:@"ic_parent_data" ofType:@"png"];
     UIImage *img = [UIImage imageWithContentsOfFile:imagePath];
@@ -99,7 +98,7 @@
 -(void)gotoParentDataVC:(id)send
 {
     
-    ParentDataVC *parentDataVc = [[ParentDataVC alloc]init];
+    ParentDataVC *parentDataVc = [[ParentDataVC alloc]initWithParent:self.parentModel];
     [self.navigationController pushViewController:parentDataVc animated:YES];
     
 }
@@ -271,7 +270,11 @@
         NSLog(@"onReceiveMimcMessage, 收到自己的消息");
         return ;
     }
-    [self.dataController receiveMessage:packet];
+    if ([packet.getFromAccount isEqualToString:_parentModel.parentId]) {
+        //是发给自己的消息才刷新界面记录
+        [self.dataController receiveMessage:packet];
+    }
+    
     
 }
 

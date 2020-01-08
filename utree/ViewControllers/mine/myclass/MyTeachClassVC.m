@@ -46,7 +46,7 @@ static NSString *ID = @"myTeachClassCell";
         if (self.classList.count==0) {
           self.tableView.tableHeaderView =[self headView];
         }else{
-          self.tableView.tableHeaderView = nil;
+          self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];;
         }
     } failure:^(UTResult * _Nonnull result) {
         [self.view makeToast:result.failureResult];
@@ -54,7 +54,7 @@ static NSString *ID = @"myTeachClassCell";
         if (self.classList.count==0) {
           self.tableView.tableHeaderView =[self headView];
         }else{
-          self.tableView.tableHeaderView = nil;
+          self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];;
         }
     }];
 }

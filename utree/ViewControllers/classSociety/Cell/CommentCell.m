@@ -48,7 +48,7 @@
     contentLayout.myCenterX=0;
     
     self.headView = [[UIImageView alloc]initWithFrame:self.viewModel.headViewFrame];
-    [self.headView setImage:[UIImage imageNamed:@"head_boy"]];
+    [self.headView setImage:[UIImage imageNamed:@"default_head"]];
     self.headView.myTop = self.headView.myLeft = 0;
     self.headView.contentMode = UIViewContentModeScaleAspectFit;
     CGSize itemSize = CGSizeMake(48, 48);
@@ -101,24 +101,16 @@
 {
     self.viewModel = viewModel;
     
-    CommentModel *comment = viewModel.commentModel;
+    CommentModel *commentModel = viewModel.commentModel;
     
-    [self.headView sd_setImageWithURL:[NSURL URLWithString:comment.facePath]];
-    self.writerLabel.text=comment.name;
-    [self.timeLabel setText:comment.createTime];
+    [self.headView sd_setImageWithURL:[NSURL URLWithString:commentModel.facePath] placeholderImage:[UIImage imageNamed:@"default_head"]];
+    self.writerLabel.text=commentModel.name;
+    [self.timeLabel setText:commentModel.createTime];
     [self.writerLabel sizeToFit];
     [self.timeLabel sizeToFit];
     
-//    CGSize itemSize = CGSizeMake(48, 48);
-//    UIGraphicsBeginImageContextWithOptions(itemSize, NO, UIScreen.mainScreen.scale);
-//    CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
-//    [self.headView.image drawInRect:imageRect];
-//    self.headView.image = UIGraphicsGetImageFromCurrentImageContext();
-//    UIGraphicsEndImageContext();
-//    self.headView.layer.cornerRadius=24 ;//裁成圆角
-//    self.headView.layer.masksToBounds=YES;//隐藏裁剪掉的部分
 
-    [self.commentLabel setText:comment.comment];
+    [self.commentLabel setText:commentModel.comment];
     CGSize labelSize = {0, 0};
     labelSize = [viewModel.commentModel.comment boundingRectWithSize:CGSizeMake(CGRectGetWidth(viewModel.commentDetailFrame), 5000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:15]} context:nil].size;
    

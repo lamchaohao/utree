@@ -89,12 +89,26 @@ static DBManager *instance = nil;
 -(void)initTables
 {
     
-    NSString *createTableSqlString =[NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@ (accountId text PRIMARY KEY, accountName text , picPath text);",T_Contacts];
+    NSString *createTableSqlString =[NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@ (accountId text PRIMARY KEY, accountName text , picPath text, studentName text);",T_Contacts];
     [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
         [db executeStatements:createTableSqlString];
     }];
     
 }
+
+#pragma mark 建立联系人聊天记录表
+-(void)createParentsTable:(NSString *)parentId db:(FMDatabase *)db
+{
+    NSString *tableName = [NSString stringWithFormat:@"%@%@",Prefix_Table,parentId];
+    //每个联系人建立聊天消息表
+    NSString *createTableSQL =[NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@ (messagId text PRIMARY KEY,ownerId TEXT, timeStamp TEXT NOT NULL, msgJSON text,msgType text,readStatus INTEGER );",tableName];
+    
+    if([db executeStatements:createTableSQL])
+    {
+        [self.existTableDic setObject:tableName forKey:parentId];
+    }
+}
+
 #pragma mark 查询表是否存在
 -(void)checkTableExist:(NSString *)parentId withResult:(DBExecuteResult)callback
 {
@@ -107,6 +121,7 @@ static DBManager *instance = nil;
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
             FMResultSet *rs=[db executeQuery:checkSql];
             NSMutableDictionary *dic = [[NSMutableDictionary alloc]init];
+            [dic setObject:db forKey:@"database"];
             if ([rs next]) {
                 int count = [rs intForColumnIndex:0];
                 if (count>0) {
@@ -116,21 +131,32 @@ static DBManager *instance = nil;
                     callback(dic);
                 }else{
                     [dic setObject:[NSNumber numberWithBool:NO] forKey:@"check"];
-                    [dic setObject:db forKey:@"database"];
                     callback(dic);
                 }
         
             }else{
                 //联系人聊天记录表不存在，则创建表
                 [dic setObject:[NSNumber numberWithBool:NO] forKey:@"check"];
-                [dic setObject:db forKey:@"database"];
                 callback(dic);
             }
          }];
         
+    }else{
+        callback([NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"check"]);
     }
-    callback([NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"check"]);
-//    return YES;
+
+}
+
+-(void)deleteRecordWithId:(NSString *)parentId
+{
+    NSString *delSQL = [NSString stringWithFormat:@"DELETE FROM %@ WHERE accountId = '%@';",T_Contacts,parentId];
+    NSString *tableName = [NSString stringWithFormat:@"%@%@",Prefix_Table,parentId];
+    NSString *dropSQL = [NSString stringWithFormat:@"DROP TABLE %@;",tableName];
+    [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+        [db executeUpdate:delSQL];
+        [db executeStatements:dropSQL];
+        [self.existTableDic removeObjectForKey:parentId];
+    }];
 }
 
 #pragma mark 用于打开联系人聊天界面
@@ -148,8 +174,19 @@ static DBManager *instance = nil;
 #pragma mark 增加联系人
 -(void)addContacts:(UTParent *)parent db:(FMDatabase *)db
 {
-    
-    NSString *sql = [NSString stringWithFormat:@"INSERT INTO %@ (accountId,accountName,picPath) VALUES ('%@', '%@', '%@');",T_Contacts,parent.parentId,parent.parentName,parent.picPath];
+    NSString *stuNameShow = @"";
+    for (int index=0; index<parent.studentList.count; index++) {
+        UTStudent *stu = parent.studentList[index];
+        if (index==0) {
+            NSString *className = [NSString stringWithFormat:@"%ld年%ld班",stu.classDo.classGrade.longValue,stu.classDo.classCode.longValue];
+            stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", className];
+            stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", stu.studentName];
+        }
+    }
+    if (parent.studentName) {
+        stuNameShow = parent.studentName;
+    }
+    NSString *sql = [NSString stringWithFormat:@"INSERT INTO %@ (accountId,accountName,picPath,studentName) VALUES ('%@', '%@', '%@','%@');",T_Contacts,parent.parentId,parent.parentName,parent.picPath,stuNameShow];
     [db executeUpdate:sql];
 
 
@@ -169,7 +206,36 @@ static DBManager *instance = nil;
 #pragma mark 更新联系人
 -(void)updateContactsData:(UTParent *)parent
 {
+    [self openDB];
+    NSString *stuNameShow = @"";
+    for (int index=0; index<parent.studentList.count; index++) {
+        UTStudent *stu = parent.studentList[index];
+        if (index==0) {
+            NSString *className = [NSString stringWithFormat:@"%ld年%ld班",stu.classDo.classGrade.longValue,stu.classDo.classCode.longValue];
+            stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", className];
+            stuNameShow = [stuNameShow stringByAppendingFormat:@"%@", stu.studentName];
+        }
+    }
     
+        
+    NSString *sql = [NSString stringWithFormat:@"UPDATE %@ SET accountName = '%@',picPath='%@',studentName='%@' WHERE accountId = '%@';",T_Contacts,parent.parentName,parent.picPath,stuNameShow,parent.parentId];
+    [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+        if(![db executeUpdate:sql]){
+            NSLog(@"%@",[db lastError]);
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:UpdateParentDataNotifyName object:parent];
+    }];
+   
+}
+
+-(void)updateMessageReadStatus:(NSString*)parentId
+{
+    NSString *tableName = [NSString stringWithFormat:@"%@%@",Prefix_Table,parentId];
+    NSString *sql = [NSString stringWithFormat:@"UPDATE %@ SET readStatus = 1 where readStatus= 0",tableName];
+    [self openDB];
+    [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+        [db executeUpdate:sql];
+    }];
 }
 
 
@@ -187,49 +253,56 @@ static DBManager *instance = nil;
 -(void)saveReceivedMessage:(UTMessage *)msg
 {
 //    保存的收到的聊天记录中，UTMessage.toAccount = mimcMessage.getFromAccount
-    
+    NSLog(@"call saveReceivedMessage");
     [self checkTableExist:msg.accountId withResult:^(NSDictionary * _Nonnull resultDic) {
         NSNumber *check =[resultDic objectForKey:@"check"];
+        FMDatabase *db = [resultDic objectForKey:@"database"];
         if (!check.boolValue) {
-            FMDatabase *db = [resultDic objectForKey:@"database"];
             //  模拟数据
-            for (UTParent *parent in [self addFakeData]) {
-                if([parent.parentId isEqualToString:msg.accountId]){
-                    [self addContacts:parent db:db];
-                    NSString *sql = [self makeSaveMessageSQL:msg];
-                    if([db executeUpdate:sql])
-                    {
-                        NSLog(@"保存记录成功");
-                    }else{
-                        NSLog(@"保存失败 %@",[db lastErrorMessage]);
-                    }
-                     return;
+             UTParent *parent = nil;
+            for (UTParent *fakeParent in [self addFakeData]) {
+                if([fakeParent.parentId isEqualToString:msg.accountId]){
+                    parent =fakeParent;
+                    break;
                 }
-               
             }
-             //联系人聊天记录表不存在，则创建表
-            ContactDC *dc = [[ContactDC alloc]init];
-            [dc requestParentDataByParentId:msg.accountId WithSuccess:^(UTResult * _Nonnull result) {
-                 //先获取资料，然后建立表，最后保存消息;
-                   UTParent *parent =result.successResult;
-                   [self addContacts:parent db:db];
-                   NSString *sql = [self makeSaveMessageSQL:msg];
-                   if([db executeUpdate:sql])
-                   {
-                       NSLog(@"保存记录成功");
-                   }else{
-                       NSLog(@"保存失败 %@",[db lastErrorMessage]);
-                   }
-                
-            } failure:^(UTResult * _Nonnull result) {
-                NSLog(@"saveReceivedMessage cannot fetch parent data!");
-            }];
+            if (!parent) {
+                parent = [[UTParent alloc]init];
+                parent.parentId =msg.accountId;
+                parent.parentName = msg.accountId;
+            }
+           //联系人聊天记录表不存在，则创建表
+            [self addContacts:parent db:db];
+            //保存消息
+            NSString *sql = [self makeSaveMessageSQL:msg];
+            if([db executeUpdate:sql])
+            {
+                NSLog(@"保存记录成功");
+            }else{
+                NSLog(@"保存失败 %@",[db lastErrorMessage]);
+            }
+            [db close];
+            //通过发送通知进行获取家长的信息，由消息监听者进行更新数据
+            [[NSNotificationCenter defaultCenter] postNotificationName:FetchParentDataNotifyName object:msg.accountId];
+            
+            
         }else{
-            NSLog(@"heo");
-//            [self saveSendMessage:msg];
+            NSLog(@"saveReceivedMessage with exist table");
+            NSString *sql = [self makeSaveMessageSQL:msg];
+            if (db) {
+                if([db executeUpdate:sql])
+                {
+                   NSLog(@"保存记录成功");
+                }else{
+                   NSLog(@"保存失败 %@",[db lastErrorMessage]);
+                }
+            }else{
+                //没有返回db的
+                [self saveSendMessage:msg];
+            }
+            
         }
     }];
-    [self saveSendMessage:msg];
 }
 
 
@@ -345,6 +418,7 @@ static DBManager *instance = nil;
             parent.parentId=[contactsRS stringForColumnIndex:0];
             parent.parentName =[contactsRS stringForColumnIndex:1];
             parent.picPath = [contactsRS stringForColumnIndex:2];
+            parent.studentName = [contactsRS stringForColumnIndex:3];
             RecentContact *recentContact = [[RecentContact alloc]init];
             recentContact.parent = parent;
             
@@ -435,6 +509,7 @@ static DBManager *instance = nil;
     for (int i=0; i<parentAccounts.count; i++) {
         UTParent *parent = [[UTParent alloc]init];
         parent.parentId = parentAccounts[i];
+        parent.studentName = @"某某某";
         parent.parentName=parentNames[i];
         parent.picPath=[imgs objectAtIndex:i%imgs.count];
         [fakeDatas addObject:parent];

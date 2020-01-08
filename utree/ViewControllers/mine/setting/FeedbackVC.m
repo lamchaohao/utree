@@ -7,17 +7,21 @@
 //
 
 #import "FeedbackVC.h"
+#import "FeedbackDC.h"
+#import "MMAlertView.h"
 
 @interface FeedbackVC ()<UITextViewDelegate>
 @property (strong, nonatomic)UIBarButtonItem *rightbarItem;
 @property (strong, nonatomic)UILabel *inputCounter;
 @property (strong, nonatomic)UITextView *feedbackInput;
+@property (strong, nonatomic)FeedbackDC *dataController;
 @end
 
 @implementation FeedbackVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.dataController = [[FeedbackDC alloc]init];
     self.title = @"意见反馈";
     [self initView];
     
@@ -43,17 +47,35 @@
     
     _feedbackInput.delegate = self;
     
-    _inputCounter = [[UILabel alloc]initWithFrame:CGRectMake(ScreenWidth-60, ScreenWidth*0.84-20, 40, 20)];
+    _inputCounter = [[UILabel alloc]initWithFrame:CGRectMake(ScreenWidth-80, ScreenWidth*0.84-20, 40, 20)];
     [_inputCounter setTextColor:[UIColor grayColor]];
     
     [self.view addSubview:_inputCounter];
-    
+    _inputCounter.text = @"0/200";
+    [_inputCounter sizeToFit];
 }
 
 -(void)onSubmit:(UIButton *)sender
 {
-   
+    NSString *content = _feedbackInput.text;
+    if (![self isBlankString:content]) {
+        [self.dataController submitFeedbackWithContent:content withSuccess:^(UTResult * _Nonnull result) {
+            [self showInfoAfterSubmit];
+        } failure:^(UTResult * _Nonnull result) {
+            [self.view makeToast:result.failureResult];
+        }];
+    }
 }
+
+-(void)showInfoAfterSubmit
+{
+    MMPopupCompletionBlock completeBlock = ^(MMPopupView *popupView, BOOL finished){
+        [self.navigationController popViewControllerAnimated:YES];
+    };
+    MMAlertView *alertView = [[MMAlertView alloc]initWithConfirmTitle:@"反馈成功" detail:@"我们将会对您反馈的问题进行处理,谢谢！"];
+    [alertView showWithBlock:completeBlock];
+}
+
 
 -(void)textViewDidChange:(UITextView *)textView
 {
@@ -62,8 +84,8 @@
     _inputCounter.text = [NSString stringWithFormat:@"%ld/200",(long)textView.text.length];
     [_inputCounter sizeToFit];
     //字数限制
-    if (textView.text.length >= 200) {
-        textView.text = [textView.text substringToIndex:200];
+    if (textView.text.length >= 199) {
+        textView.text = [textView.text substringToIndex:199];
     }
     
 }

@@ -47,6 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)endRefreshing;
 
+-(void)sortStudentsWithType:(int)type;
+
 @property(nonatomic,assign)id<StudentViewModelDelegate> delegate;
 
 @end

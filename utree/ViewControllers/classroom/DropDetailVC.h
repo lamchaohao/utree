@@ -6,12 +6,12 @@
 //  Copyright © 2019 科研部. All rights reserved.
 //
 
-#import "BaseViewController.h"
+#import "BaseSecondVC.h"
 #import "DropLevelProgressView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DropDetailVC : BaseViewController
+@interface DropDetailVC : BaseSecondVC
 - (instancetype)initWithStudentId:(NSString *)stuId;
 @property(nonatomic,strong)DropLevelProgressView *uiProgress;
 

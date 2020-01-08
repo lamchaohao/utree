@@ -128,15 +128,30 @@
     }];
     [window addSubview:_contentView];
     
-    self.contentView.transform = CGAffineTransformMakeTranslation(0.01, 389);
+    self.contentView.transform =CGAffineTransformMakeScale(0.01,1);
+    //CGAffineTransformMakeTranslation(0.01, 389);
     [UIView animateWithDuration:0.3 animations:^{
         self.contentView.transform = CGAffineTransformMakeTranslation(0.01, 0.01);
     }];
+    
+    
+    [UIView animateWithDuration:[[CSToastManager sharedStyle] fadeDuration]
+                          delay:0.0
+                        options:(UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction)
+                     animations:^{
+                         self.contentView.alpha = 1.0;
+                     } completion:^(BOOL finished) {
+                         NSTimer *timer = [NSTimer timerWithTimeInterval:1.2 target:self selector:@selector(dismissView:) userInfo:self repeats:NO];
+                         [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+                         objc_setAssociatedObject(self, @"AwardResultViewTimerKey", timer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                     }];
+    
 }
  
 - (void)dismissView :(id)sender{
     [UIView animateWithDuration:0.3 animations:^{
-        self.contentView.transform = CGAffineTransformMakeTranslation(0.01, 389);
+        self.contentView.transform =CGAffineTransformMakeScale(0.01,1);
+//        CGAffineTransformMakeTranslation(0.01, 389);
         self.contentView.alpha = 0.2;
         self.alpha = 0;
     } completion:^(BOOL finished) {

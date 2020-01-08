@@ -18,6 +18,7 @@
 #import "PostHomeworkDC.h"
 #import "FileObject.h"
 #import "JhDownProgressView.h"
+#import "RMDateSelectionViewController.h"
 
 @interface PostHomeworkVC ()<UICollectionViewDelegate,UICollectionViewDataSource,TZImagePickerControllerDelegate,DeletePicDelegate,RecorderViewDelegate,ZBWebviewLoadedDelegate,UploadFileListener>
 @property(nonatomic,strong)MyLinearLayout *rootLayout;
@@ -578,24 +579,28 @@ static NSString *cellID = @"photoCell";
 #pragma mark 选择时间
 -(void)showDatePicker:(id)sender
 {
-    BOOL isContain = NO;
-    for (UIView *view in [self.rootLayout subviews]) {
-        if([view isKindOfClass:[UIDatePicker class]])
-        {
-            isContain = YES;
-        }
-    }
-    
-    if(isContain){
-        [self.datePicker removeFromSuperview];
-        [self.datePicker setHidden:YES];
+
+    if(sender)
+    {
+         RMAction<UIDatePicker *> *selectAction = [RMAction<UIDatePicker *> actionWithTitle:@"选择" style:RMActionStyleDone andHandler:^(RMActionController<UIDatePicker *> *controller) {
+             NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+             //设置时间格式
+             formatter.dateFormat = @"yyyy-MM-dd HH:mm";
+             NSString *dateStr = [formatter  stringFromDate:controller.contentView.date];
+             
+             self.deadLineLabel.text = dateStr;
+             NSLog(@"Successfully selected date: %@", controller.contentView.date);
+         }];
+
+         RMAction<UIDatePicker *> *cancelAction = [RMAction<UIDatePicker *> actionWithTitle:@"取消" style:RMActionStyleCancel andHandler:^(RMActionController<UIDatePicker *> *controller) {
+             NSLog(@"Date selection was canceled");
+         }];
+        RMDateSelectionViewController *dateSelectionController = [RMDateSelectionViewController actionControllerWithStyle:RMActionControllerStyleWhite title:@"选择截止时间" message:@"" selectAction:selectAction andCancelAction:cancelAction];
+
+         [self presentViewController:dateSelectionController animated:YES completion:nil];
     }else{
-        if(sender)
-        {
-            [self.rootLayout addSubview:self.datePicker];
-            [self.datePicker setHidden:NO];
-        }
-        
+        [self.titleInput resignFirstResponder];
+        [self.contentInput resignFirstResponder];
     }
 
 }
@@ -734,7 +739,7 @@ static NSString *cellID = @"photoCell";
         
         if (filePath&&fileName) {
             [self.dataController uploadFile:filePath mediaType:@"video" fileIndex:11];
-            [self.uploadQueue setObject:self.videoObject.fileName forKey:[NSString stringWithFormat:@"%d",10]];
+            [self.uploadQueue setObject:self.videoObject.fileName forKey:[NSString stringWithFormat:@"%d",11]];
         }
     }];
 }
@@ -745,10 +750,11 @@ static NSString *cellID = @"photoCell";
     self.view.userInteractionEnabled = NO;
     self.navigationController.navigationBar.userInteractionEnabled=NO;//将nav事件禁止
     self.tabBarController.tabBar.userInteractionEnabled=NO;//将tabbar事件禁止
-    
-    self.progressView = [JhDownProgressView showWithStyle:JhStyle_percentAndRing];
-    self.progressView.center = self.view.center;
-    [self.view addSubview:self.progressView];
+    if(!self.progressView){
+        self.progressView = [JhDownProgressView showWithStyle:JhStyle_percentAndRing];
+        self.progressView.center = self.view.center;
+        [self.view addSubview:self.progressView];
+    }
     
 }
 
@@ -784,7 +790,7 @@ static NSString *cellID = @"photoCell";
 
     }else{
         [self onUploadDoneView];
-        [self showAlertMessage:@"" title:@"分享失败,请重试"];
+        [self showAlertMessage:@"" title:@"发布失败,请重试"];
         NSLog(@"上传失败 %@",filePath);
     }
 }
@@ -792,9 +798,9 @@ static NSString *cellID = @"photoCell";
 - (void)onFileUploadProgress:(CGFloat)progress filePath:(NSString *)filePath fileIndex:(NSInteger)index
 {
     NSLog(@"onFileUploadProgress---%f",progress);
-    if (self.progressView) {
+//    if (self.progressView) {
         [self.progressView setProgress:progress];
-    }
+//    }
 }
 
 

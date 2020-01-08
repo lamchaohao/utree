@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 //YES_--GridView
 -(BOOL)switchToGridView;
 -(void)switchToMultiChoice;
-
+- (void)sortStudentByType:(int)type;
 @property(nonatomic, strong)ClassStudentsDC *dataController;
 @property(nonatomic, strong)StudentsViewModel *viewModel;
 @end

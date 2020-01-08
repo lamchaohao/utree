@@ -15,6 +15,8 @@ static NSString *ClassCache = @"class_plist";
 static NSString *ProfileCache = @"profile_plist";
 static NSString *GroupPlanCache = @"group_plist";
 static NSString *CommentCache = @"comment_plist";
+static NSString *AwarditemCache = @"award_item.txt";
+static NSString *StudentsArrayCache = @"_students.txt";
 
 +(NSString *)appendFileName:(NSString *)fileName
 {
@@ -132,5 +134,44 @@ static NSString *CommentCache = @"comment_plist";
     return commentList;
 }
 
++(void)saveAwardItems:(NSArray *)array
+{
+    [array writeToFile:[self appendFileName:AwarditemCache]  atomically:YES];
+}
+
++(NSArray*)readAwardItemsJson
+{
+    NSMutableArray *array = [NSMutableArray arrayWithContentsOfFile:[self appendFileName:AwarditemCache]];
+    return array;
+}
+
++(void)saveStudentsData:(NSArray *)array inClassId:(NSString *)classId
+{
+    NSString *filePath=[self appendFileName:[NSString stringWithFormat:@"%@%@",classId,StudentsArrayCache]];
+//    NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:121 userInfo:@{NSLocalizedDescriptionKey:@"本地化的错误描述"}];
+    NSDictionary *dic=[NSDictionary dictionaryWithObject:array forKey:@"stus"];
+    NSData *data=[NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+
+    BOOL success =[data writeToFile:filePath atomically:YES];
+    if (success) {
+        NSLog(@"saveStudentsData success");
+    }else{
+        NSLog(@"saveStudentsData fail");
+    }
+    
+}
+
++(NSMutableArray *)readStudentsDataInClassId:(NSString *)classId
+{
+    NSString *filePath=[self appendFileName:[NSString stringWithFormat:@"%@%@",classId,StudentsArrayCache]];
+    NSLog(@"cache file=%@",filePath);
+    NSData *data= [NSData dataWithContentsOfFile:filePath];
+//    NSMutableArray *array = [NSMutableArray arrayWithContentsOfURL:[NSURL URLWithString:filePath]];
+//    NSString *jsonStr=[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+
+    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+    NSMutableArray *array =[dic objectForKey:@"stus"];
+    return array;
+}
 
 @end

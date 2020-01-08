@@ -43,9 +43,17 @@ static NSString *cellID = @"collectionID";
 {
     self.chosenStudents = [[NSMutableArray alloc]init];
     self.dataController = [[ClassStudentsDC alloc]init];
+    BOOL hasShowView = NO;
+    self.studentList = [self.dataController readStudentDataInCacheFromCurrentClassId];
+    if (self.studentList.count>0) {
+        [self showView];
+        hasShowView = YES;
+    }
     [self.dataController requestStudentListWithSuccess:^(UTResult * _Nonnull result) {
         self.studentList = result.successResult;
-        [self showView];
+        if (!hasShowView) {
+            [self showView];
+        }
     } failure:^(UTResult * _Nonnull result) {
         [self showToastView:result.failureResult];
     }];

@@ -13,6 +13,7 @@
 #import "UTVideoButton.h"
 #import "NoticeModel.h"
 #import "WorkHeaderViewModel.h"
+#import "UTAudioButton.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol WorkMediaDelegate <NSObject>
@@ -36,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)UILabel *titleLabel;
 @property(nonatomic,strong)UILabel *subjectLabel;
 @property(nonatomic,strong)UILabel *detailLabel;
-@property(nonatomic,strong)UIButton *audioButton;
+@property(nonatomic,strong)UTAudioButton *audioButton;
 @property(nonatomic,strong)UIButton *webButton;
 @property(nonatomic,strong)UTVideoButton *videoButton;
 @property (nonatomic, strong)PYPhotosView *photosView;

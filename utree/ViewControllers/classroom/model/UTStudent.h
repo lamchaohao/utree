@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic,assign)BOOL gender;
 
-@property(nonatomic,assign)NSString *birthDay;
+@property(nonatomic,strong)NSString *birthDay;
 
 @property(nonatomic,strong)NSString *studentName;
 
@@ -29,9 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic,assign)NSInteger attendanceMode;//0出勤。1迟到。2早退。3请假
 
-@property(nonatomic,assign)NSNumber *studentStatus; //0在校，1毕业，2休学，3退学
+@property(nonatomic,strong)NSNumber *studentStatus; //0在校，1毕业，2休学，3退学
 
-@property(nonatomic,assign)UTClassModel *classDo;
+@property(nonatomic,strong)UTClassModel *classDo;
 
 - (instancetype)initWithStuName:(NSString *)stuName andScore:(NSInteger)score;
 

@@ -30,6 +30,8 @@
 
 @property(nonatomic,assign)BOOL isSelfData;
 
+@property(nonatomic,strong)HomeworkCell *focusCell;
+
 @end
 
 @implementation HomeworkListView
@@ -40,6 +42,7 @@ static NSString *CellID= @"HomeworkListCellId";
 {
     self = [super initWithFrame:frame];
     if (self) {
+        self.headViewPath=@"pic_no_homework";
         _isSelfData = isSelf;
         [self setupViews];
     }
@@ -48,19 +51,18 @@ static NSString *CellID= @"HomeworkListCellId";
 
 - (void)setupViews {
     _userId = [[UTCache readProfile] objectForKey:@"teacherId"];
-    [XMAVAudioPlayer sharePlayer].delegate = self;
     self.dataController = [[HomeworkListDC alloc]init];
     self.taskArray = [[NSMutableArray alloc]init];
     self.taskFrameArray = [[NSMutableArray alloc]init];
     [self initTableView];
-    [self loadNoticeDataAtFirstTime];
+    [self loadHomeworkDataAtFirstTime];
 //    [self loadNewData];
 }
 
 -(void)initTableView
 {
     
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.bounds.size.height-iPhone_Bottom_NavH) style:UITableViewStylePlain];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.bounds.size.height-iPhone_Bottom_NavH) style:UITableViewStyleGrouped];
     [_tableView registerClass:[HomeworkCell class] forCellReuseIdentifier:CellID];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
@@ -69,10 +71,10 @@ static NSString *CellID= @"HomeworkListCellId";
     
     _tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, iPhone_Bottom_NavH, 0.0f);
     [self addSubview:_tableView];
+    self.headViewMessage = @"暂无作业";
+    _tableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadHomeworkDataAtFirstTime)];
     
-    _tableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNoticeDataAtFirstTime)];
-    
-    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+    self.tableView.mj_footer = [MJRefreshBackFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreHomeworkData)];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -118,7 +120,7 @@ static NSString *CellID= @"HomeworkListCellId";
 }
 
 
--(void)loadNoticeDataAtFirstTime
+-(void)loadHomeworkDataAtFirstTime
 {
     
     [self.dataController requestHomeworkListFirstTime:_isSelfData WithSuccess:^(UTResult * _Nonnull result) {
@@ -133,6 +135,12 @@ static NSString *CellID= @"HomeworkListCellId";
             [taskVM setTaskModelToCaculate:task];
             [self.taskFrameArray addObject:taskVM];
         }
+        if (self.taskArray.count==0) {
+            self.tableView.tableHeaderView = self.headView;
+        }else{
+            self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+
+        }
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
 
@@ -143,7 +151,7 @@ static NSString *CellID= @"HomeworkListCellId";
 
 }
 
--(void)loadMoreData
+-(void)loadMoreHomeworkData
 {
     if (self.taskArray.count>0) {
         HomeworkModel *lastTask = [self.taskArray lastObject];
@@ -158,8 +166,18 @@ static NSString *CellID= @"HomeworkListCellId";
                 [taskVM setTaskModelToCaculate:task];
                 [self.taskFrameArray addObject:taskVM];
             }
+            if (self.taskArray.count==0) {
+                self.tableView.tableHeaderView = self.headView;
+            }else{
+                self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+
+            }
             [self.tableView reloadData];
-            [self.tableView.mj_footer endRefreshing];
+            if (wrapTaskModel.list.count>0) {
+                [self.tableView.mj_footer endRefreshing];
+            }else{
+                [self.tableView.mj_footer endRefreshingWithNoMoreData];
+            }
         } failure:^(UTResult * _Nonnull result) {
             [self makeToast:result.failureResult];
             [self.tableView.mj_footer endRefreshing];
@@ -170,12 +188,17 @@ static NSString *CellID= @"HomeworkListCellId";
     
 }
 
-
-- (void)playAudioClick:(FileObject *)audioFile
+- (void)playAudioClick:(HomeworkCell *)cell
 {
-//    [playerHelper managerAudioWithFileName:self.audioPath toPlay:YES];
-    [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:audioFile.path atIndex:1 ];
+    [XMAVAudioPlayer sharePlayer].delegate = self;
+    if (self.focusCell) {
+        //如果之前有在播放，先停止
+        [self.focusCell.audioButton stopPlay];
+    }
+    self.focusCell = cell;
+    [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:cell.taskViewModel.taskModel.audio.path atIndex:1 ];
 }
+
 
 - (void)playVideoClick:(FileObject *)videoFile
 {
@@ -198,22 +221,40 @@ static NSString *CellID= @"HomeworkListCellId";
 
 - (void)audioPlayerStateDidChanged:(VoiceMessageState)audioPlayerState forIndex:(NSUInteger)index
 {
-    switch (audioPlayerState) {
-        case VoiceMessageStateNormal:
-            NSLog(@"未播放状态");
-            break;
-        case VoiceMessageStateDownloading:
-            NSLog(@"正在下载中");//正在下载中
-            break;
-        case VoiceMessageStatePlaying://正在播放
-            NSLog(@"正在播放");
-            break;
-        case VoiceMessageStateCancel:
-            NSLog(@"播放被取消");
-            break;
-        default:
-            break;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+         switch (audioPlayerState) {
+             case VoiceMessageStateNormal:
+             {
+                 [self.focusCell.audioButton stopPlay];
+                 NSLog(@"homework未播放状态");
+                 break;
+             }
+             case VoiceMessageStateDownloading:
+             {
+                 
+                 [self.focusCell.audioButton benginLoadVoice];
+                 NSLog(@"homework正在下载中");//正在下载中
+                 break;
+             }
+             case VoiceMessageStatePlaying://正在播放
+             {
+                 
+                 [self.focusCell.audioButton didLoadVoice];
+                 NSLog(@"homework正在播放");
+                 break;
+             }
+             case VoiceMessageStateCancel:
+             {
+                 
+                 [self.focusCell.audioButton stopPlay];
+                 NSLog(@"homework播放被取消");
+                 break;
+             }
+             default:
+                 break;
+         }
+    });
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -221,5 +262,12 @@ static NSString *CellID= @"HomeworkListCellId";
     [[XMAVAudioPlayer sharePlayer] stopAudioPlayer];
     [XMAVAudioPlayer sharePlayer].index = NSUIntegerMax;
     [XMAVAudioPlayer sharePlayer].URLString = nil;
+    [XMAVAudioPlayer sharePlayer].delegate = nil;
 }
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [XMAVAudioPlayer sharePlayer].delegate = self;
+}
+
 @end

@@ -23,6 +23,7 @@
 @property(nonatomic,strong)UILabel *commentCountLabel;
 @property(nonatomic,strong)UIImageView *likeImageAnim;
 @property(nonatomic,strong)NSMutableArray *cellViewModelList;
+@property(nonatomic,assign)CGFloat headViewHeight;
 @end
 
 @implementation MomentDetailView
@@ -200,7 +201,7 @@ static NSString *CellID = @"commentID";
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     if(section == 0) {
-        return self.viewModel.cellHeight+8;
+        return self.headViewHeight+8;
     }
     return 1;
 }
@@ -274,6 +275,7 @@ static NSString *CellID = @"commentID";
 
 -(void)bindViewWithData
 {
+    self.headViewHeight = self.viewModel.cellHeight;
     [_headView sd_setImageWithURL:[NSURL URLWithString:self.viewModel.momentModel.teacherDo.path] placeholderImage:[UIImage imageNamed:@"default_head"]];
 
     [_posterLabel setText:self.viewModel.momentModel.teacherDo.teacherName];
@@ -284,6 +286,7 @@ static NSString *CellID = @"commentID";
 
     [_detailLabel setText:self.viewModel.momentModel.content];
     _detailLabel.frame = self.viewModel.bodyTextFrame;
+    [_detailLabel sizeToFit];
     //如果没有图片则隐藏 图片View
 
     if (self.viewModel.momentModel.picList.count!= 0) {
@@ -301,16 +304,21 @@ static NSString *CellID = @"commentID";
     
     if (self.viewModel.momentModel.video) {
         self.videoFrameLayout.hidden=NO;
-         UIImage *placeholder = [ZFUtilities imageWithColor:[UIColor colorWithRed:220/255.0 green:220/255.0 blue:220/255.0 alpha:1] size:self.videoView.bounds.size];
+         UIImage *placeholder = [ZFUtilities imageWithColor:[UIColor colorWithRed:220/255.0 green:220/255.0 blue:220/255.0 alpha:0.8] size:self.videoView.bounds.size];
         [_videoView sd_setImageWithURL:[NSURL URLWithString:self.viewModel.momentModel.video.minPath] placeholderImage:placeholder completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
             self.viewModel.momentModel.video.videoHeight=image.size.height;
             self.viewModel.momentModel.video.videoWidth=image.size.width;
+            CGFloat videoH = 9*20;
+            CGFloat videoW = 16*20;
+            
             if(image.size.width < image.size.height){//竖屏
-                self.videoFrameLayout.frame = CGRectMake(0, 0, 9*20, 16*20);
+                self.videoFrameLayout.frame = CGRectMake(0, 0, circleCellWidth, circleCellWidth);
+                self.headViewHeight+=(circleCellWidth-videoH);
             }else{
-                self.videoFrameLayout.frame = CGRectMake(0, 0, 16*20, 9*20);
+                self.videoFrameLayout.frame = CGRectMake(0, 0, videoW, videoH);
             }
         }];
+        _videoView.contentMode=UIViewContentModeScaleAspectFit;
         [_playVideoBtn addTarget:self action:@selector(onPlayButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         _videoView.userInteractionEnabled = YES;
     }else{
@@ -321,6 +329,7 @@ static NSString *CellID = @"commentID";
     [self.likeCountLabel setText:[NSString stringWithFormat:@"点赞 %ld",self.viewModel.momentModel.likeCount.longValue]];
     
     [self setLikeLayout];
+    [self.tableView reloadData];
 }
 
 -(void)setLikeLayout

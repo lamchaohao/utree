@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PostNoticeVC : BaseViewController
 
+- (instancetype)initWithClassArray:(NSArray *)classes;
+
 @end
 
 NS_ASSUME_NONNULL_END

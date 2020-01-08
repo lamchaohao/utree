@@ -41,7 +41,7 @@
              self.navigationController.interactivePopGestureRecognizer.enabled = NO;
         }
     }
-    [self.navigationController setNavigationBarHidden:NO animated:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
     
    //禁止页面左侧滑动返回，注意，如果仅仅需要禁止此单个页面返回，还需要在viewWillDisapper下开放侧滑权限
    // 禁用返回手势

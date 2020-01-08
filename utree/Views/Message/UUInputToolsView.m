@@ -182,8 +182,9 @@
     }
     else{
         [self.textViewInput resignFirstResponder];
-        UIActionSheet *actionSheet= [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"相机",@"图片",nil];
-        [actionSheet showInView:self.window];
+        [self.delegate showFunctionView];
+//        UIActionSheet *actionSheet= [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"相机",@"图片",@"图示",nil];
+//        [actionSheet showInView:self.window];
     }
 }
 
@@ -233,10 +234,17 @@
 #pragma mark - Add Picture
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex == 0) {
+    
+}
+
+-(void)onFunctionActionClick:(int)position
+{
+    if (position == 0) {
         [self addCarema];
-    }else if (buttonIndex == 1){
+    }else if (position == 1){
         [self pickPicture];
+    }else if(position==2){
+       
     }
 }
 

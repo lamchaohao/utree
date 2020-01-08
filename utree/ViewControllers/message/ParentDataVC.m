@@ -7,19 +7,29 @@
 //
 
 #import "ParentDataVC.h"
-
+#import "UTParent.h"
+#import "ContactDC.h"
 @interface ParentDataVC ()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong)UITableView *tableView;
 @property(nonatomic,strong)NSArray *itemNames;
-
+@property(nonatomic,strong)UTParent *parent;
 @end
 
 @implementation ParentDataVC
 static NSString *CellID = @"dataID";
 
+- (instancetype)initWithParent:(UTParent *)parent
+{
+    self = [super init];
+    if (self) {
+        self.parent = parent;
+    }
+    return self;
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self createView];
+    [self loadParentData];
 }
 
 -(void)createView
@@ -38,9 +48,20 @@ static NSString *CellID = @"dataID";
     
 }
 
+-(void)loadParentData
+{
+    ContactDC *dataController = [[ContactDC alloc]init];
+    [dataController requestParentDataByParentId:self.parent.parentId WithSuccess:^(UTResult * _Nonnull result) {
+        self.parent = result.successResult;
+        [self.tableView reloadData];
+    } failure:^(UTResult * _Nonnull result) {
+        [self.view makeToast:result.failureResult];
+    }];
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
 }
 
@@ -57,23 +78,36 @@ static NSString *CellID = @"dataID";
     switch (indexPath.row) {
         case 0:
         {
-            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"default_head"]];
+            UIImageView *imageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"default_head"]];
+            [imageView sd_setImageWithURL:[NSURL URLWithString:self.parent.picPath] placeholderImage:[UIImage imageNamed:@"default_head"]];
             cell.accessoryView = imageView;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-           
             break;
         case 1:
-            [cell.detailTextLabel setText:@"杜子腾"];
+            [cell.detailTextLabel setText:self.parent.parentName];
             cell.accessoryType = UITableViewCellAccessoryNone;
             break;
         case 2:
-            [cell.detailTextLabel setText:@"13631808080"];
+            [cell.detailTextLabel setText:self.parent.phone];
             cell.accessoryType = UITableViewCellAccessoryNone;
             break;
         case 3:
-            [cell.detailTextLabel setText:@"杜械妈妈"];
+        {
+            NSString *relationStr = @"";
+            for (int index=0; index<self.parent.studentList.count; index++) {
+                UTStudent *stu = self.parent.studentList[index];
+                relationStr = [relationStr stringByAppendingFormat:@"%@", stu.studentName];
+                if (index!=self.parent.studentList.count-1) {
+                    relationStr = [relationStr stringByAppendingFormat:@"%@", @"|"];
+                }else{
+                    relationStr = [relationStr stringByAppendingFormat:@"%@", @"家长"];
+                }
+            }
+            [cell.detailTextLabel setText:relationStr];
             cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+            
             break;
         default:
             break;

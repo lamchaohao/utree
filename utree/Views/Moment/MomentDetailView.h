@@ -9,6 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "MomentViewModel.h"
 #import "CommentModel.h"
+#import "JXPagerView.h"
+#import "JXCategoryTitleView.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MomentDetailDelegate <NSObject>

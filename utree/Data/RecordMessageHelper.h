@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)saveMessage:(MIMCMessage *)mimcMessage;
 
+-(void)updateParentData:(id)parent;
+
 @end
 
 NS_ASSUME_NONNULL_END

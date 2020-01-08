@@ -11,13 +11,13 @@
 #import "ChatViewController.h"
 #import "ChatContactCell.h"
 #import "XMUserManager.h"
-#import "ChatVC.h"
 #import "UUChatViewController.h"
 #import "UUParentChatVC.h"
 #import "DBManager.h"
+#import "MMAlertView.h"
 #import "ConvertMessageUtil.h"
 @interface ChatListVC ()<UITableViewDelegate,UITableViewDataSource>
-
+@property(nonatomic,strong)UIView *headView;
 @property(nonatomic,strong)UIButton *contactBtn;
 @property(nonatomic,strong)NSMutableArray *recentList;
 @property(nonatomic,strong)DBManager *dbManager;
@@ -39,6 +39,18 @@ static NSString *cellID = @"chatId";
 -(void)registerNotification
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onReceiveMsgNotification:) name:MIMC_ReceiveMsgNotifyName object:nil];
+    [[NSNotificationCenter defaultCenter] addObserverForName:UpdateParentDataNotifyName object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        UTParent *parent = note.object;
+        for (int index=0; index<self.recentList.count; index ++) {
+            RecentContact *contact = [self.recentList objectAtIndex:index];
+            if([contact.parent.parentId isEqualToString:parent.parentId]){
+                contact.parent = parent;
+                [contact.parent setStudentList:parent.studentList];
+                [self reloadTableViewData];
+                break;
+            }
+        }
+    }];
 }
 
 - (void)onReceiveMsgNotification:(NSNotification *) notification {
@@ -57,15 +69,16 @@ static NSString *cellID = @"chatId";
     UTMessage *message = [ConvertMessageUtil convertMimcMessage:mimcMsg];
     int oldPosition = -1;
     for (int index=0; index<self.recentList.count; index ++) {
-        RecentContact *contact = [self.recentList objectAtIndex:0];
+        RecentContact *contact = [self.recentList objectAtIndex:index];
         if([contact.parent.parentId isEqualToString:accountId]){
             oldPosition = index;
             contact.lastMessage = message;
             contact.unreadCount ++;
+            break;
         }
     }
     if (oldPosition!=-1) {//更新列表中的顺序
-        [self.recentList exchangeObjectAtIndex:0 withObjectAtIndex:oldPosition];
+        [self.recentList exchangeObjectAtIndex:oldPosition withObjectAtIndex:0];
         NSMutableArray *indexpaths = [[NSMutableArray alloc]init];
         for (int count =0 ; count<=oldPosition; count++) {
             NSIndexPath *indexpath = [NSIndexPath indexPathForRow:count inSection:0];
@@ -81,7 +94,7 @@ static NSString *cellID = @"chatId";
             NSMutableArray *recents = resultDic[@"result"];
             [self.recentList addObjectsFromArray:recents];
             dispatch_sync(dispatch_get_main_queue(), ^{
-                  [self.tableView reloadData];
+                  [self reloadTableViewData];
             });
            
         }];
@@ -99,7 +112,7 @@ static NSString *cellID = @"chatId";
         [_dbManager queryRecentContactListWithResult:^(NSDictionary * _Nonnull resultDic) {
             NSMutableArray *recents = resultDic[@"result"];
             [self.recentList addObjectsFromArray:recents];
-            [self.tableView reloadData];
+            [self reloadTableViewData];
         }];
         
     }
@@ -119,9 +132,23 @@ static NSString *cellID = @"chatId";
     [_dbManager queryRecentContactListWithResult:^(NSDictionary * _Nonnull resultDic) {
         NSMutableArray *recents = resultDic[@"result"];
         [self.recentList addObjectsFromArray:recents];
+        [self reloadTableViewData];
+    }];
+    
+}
+
+-(void)reloadTableViewData
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.recentList.count==0) {
+            self.tableView.tableHeaderView = self.headView;
+        }else{
+            self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
+        }
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
-    }];
+        
+    });
     
 }
 
@@ -131,11 +158,40 @@ static NSString *cellID = @"chatId";
     [_tableView registerClass:[ChatContactCell class] forCellReuseIdentifier:cellID];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
-    
+//    _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     _tableView.contentInset = UIEdgeInsetsMake(0, 0, iPhone_Bottom_NavH, 0);
     _tableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(refreshRecentContacts)];
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = [UIColor myColorWithHexString:@"#F7F7F7"];
     [_tableView.mj_header beginRefreshing];
+}
+
+-(UIView *)headView
+{
+    if (!_headView) {
+        UIView *rootView = [MyRelativeLayout new];
+        rootView.frame = CGRectMake(0, 0, ScreenWidth, 240);
+        UILabel *tips = [UILabel new];
+        UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 230, 170)];
+        NSString *picPath;
+        picPath =[[NSBundle mainBundle] pathForResource:@"pic_no_message" ofType:@"png"];
+        [tips setText:@"暂无消息"];
+        UIImage *img = [UIImage imageWithContentsOfFile:picPath];
+        [imageView setImage:img];
+        imageView.myCenterX=0;
+        imageView.myCenterY=0;
+        [tips sizeToFit];
+        tips.textColor = [UIColor myColorWithHexString:@"#666666"];
+        tips.font=[UIFont systemFontOfSize:14];
+        tips.topPos.equalTo(imageView.bottomPos).offset(20);
+        tips.myCenterX =0;
+        
+        [rootView addSubview:imageView];
+        [rootView addSubview:tips];
+        _headView = rootView;
+    }
+    
+    return _headView;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -156,6 +212,10 @@ static NSString *cellID = @"chatId";
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
     return 0.0001;
 }
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 0.1;
+}
 
 //创建TableViewCell
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -164,6 +224,10 @@ static NSString *cellID = @"chatId";
 
     RecentContact *contact = [_recentList objectAtIndex:indexPath.row];
     [cell setDataToView:contact];
+    UILongPressGestureRecognizer * longPressGesture =[[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(cellLongPress:)];
+       
+    longPressGesture.minimumPressDuration=0.7f;//设置长按 时间
+    [cell addGestureRecognizer:longPressGesture];
     return cell;
 }
 
@@ -176,10 +240,40 @@ static NSString *cellID = @"chatId";
 //    chatC.hidesBottomBarWhenPushed = YES;
     UUParentChatVC *vc= [[UUParentChatVC alloc]initWithParent:contact.parent];
     vc.hidesBottomBarWhenPushed = YES;
-    
+    [self.dbManager updateMessageReadStatus:contact.parent.parentId];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+
+-(void)cellLongPress:(UILongPressGestureRecognizer *)longRecognizer
+{
+    if (longRecognizer.state==UIGestureRecognizerStateBegan) {
+          //成为第一响应者，需重写该方法
+        [self becomeFirstResponder];
+
+        CGPoint location = [longRecognizer locationInView:self.tableView];
+        NSIndexPath * indexPath = [self.tableView indexPathForRowAtPoint:location];
+        //可以得到此时你点击的哪一行
+        RecentContact *contact = [_recentList objectAtIndex:indexPath.row];
+        
+        //在此添加你想要完成的功能
+        MMPopupItemHandler positiveHandler = ^(NSInteger index){
+            [self.dbManager deleteRecordWithId:contact.parent.parentId];
+            [self refreshRecentContacts];
+        };
+        MMPopupItemHandler nagativeHandler = ^(NSInteger index){
+            
+        };
+        NSArray *items =
+        @[MMItemMake(@"确定", MMItemTypeHighlight, positiveHandler),
+        MMItemMake(@"取消", MMItemTypeNormal, nagativeHandler)];
+
+        MMAlertView *dismissAlert = [[MMAlertView alloc]initWithTitle:[NSString stringWithFormat:@"是否删除与%@的聊天记录",contact.parent.parentName] detail:@"" items:items];
+
+        [dismissAlert show];
+    }
+       
+}
 
 -(void)initContactsButton
 {

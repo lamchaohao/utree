@@ -11,14 +11,36 @@
 #import "AwardModel.h"
 #import "AwardStuApi.h"
 #import "UTStudent.h"
+#import "UTCache.h"
 @implementation AwardDC
 
+-(NSMutableDictionary *)requestAwardItemsFromCache
+{
+    NSArray *items =[UTCache readAwardItemsJson];
+    if (!items) {
+        return nil;
+    }
+    NSArray *awardItems = [AwardModel mj_objectArrayWithKeyValuesArray:items];
+
+    NSMutableDictionary *sortdic = [[NSMutableDictionary alloc]init];
+    for (int type=1; type<6; type++) {
+        NSMutableArray *sortAwardItems = [[NSMutableArray alloc]init];
+        for (AwardModel *model in awardItems) {
+            if (model.excitationType.intValue==type) {
+                [sortAwardItems addObject:model];
+            }
+        }
+        [sortdic setObject:sortAwardItems forKey:[NSString stringWithFormat:@"%d",type]];
+    }
+    return sortdic;
+}
 
 - (void)requestAwardItemsWithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
 {
     AwardItemsApi *api = [[AwardItemsApi alloc]init];
     
     [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        [UTCache saveAwardItems:successMsg.responseData];
         NSArray *items =[AwardModel mj_objectArrayWithKeyValuesArray:successMsg.responseData];
         NSMutableDictionary *sortdic = [[NSMutableDictionary alloc]init];
         for (int type=1; type<6; type++) {

@@ -32,6 +32,7 @@
 @property (strong, nonatomic)UIButton *showListBtn;
 @property (strong, nonatomic)UIButton *randomBtn;
 @property (strong, nonatomic)UIBarButtonItem *rightbarItem;
+@property(assign, nonatomic)int sortType;
 @end
 
 @implementation ClassroomHomeVC
@@ -44,6 +45,12 @@
     [self initMenuBtn];
     self.view.backgroundColor=[UIColor whiteColor];
 
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden=NO;
 }
 
 -(void)initBarbutton{
@@ -241,21 +248,23 @@
 
 -(void)sortMenuClick:(UIButton *)sender
 {
-
-    MMPopupItemHandler block = ^(NSInteger index){
+    
+    MMPopupItemHandler dropblock = ^(NSInteger index){
         NSLog(@"clickd %@ button",@(index));
-        
+        self.sortType= (int)index;
+        [self.personVC sortStudentByType:(int)index];
     };
     MMPopupCompletionBlock completeBlock = ^(MMPopupView *popupView, BOOL finished){
         NSLog(@"animation complete");
     };
     //MMAlertView
     NSArray *items =
-  @[MMItemMake(@"按名字首字母排序", MMItemTypeNormal, block),
-    MMItemMake(@"按水滴最多排序", MMItemTypeHighlight, block)];
+    @[MMItemMake(@"按名字首字母排序", _sortType==0?MMItemTypeHighlight:MMItemTypeNormal, dropblock),
+    MMItemMake(@"按水滴最多排序", _sortType==1?MMItemTypeHighlight:MMItemTypeNormal, dropblock),
+    MMItemMake(@"按水滴最少排序", _sortType==2?MMItemTypeHighlight:MMItemTypeNormal, dropblock)];
     
-    [[[MMAlertView alloc] initWithTitle:nil
-                                 detail:@"请选择排序"
+    [[[MMAlertView alloc] initWithTitle:@"请选择排序"
+                                 detail:nil
                                   items:items]
      showWithBlock:completeBlock];
     

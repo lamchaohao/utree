@@ -18,10 +18,12 @@
 #import "UUInputToolsView.h"
 #import "RecordView.h"
 #import "AVAudioPlayer.h"
+#import "UUChatFunctionView.h"
 
-@interface UUChatView ()<UUInputToolsViewDelegate, UTMessageCellDelegate, UITableViewDataSource, UITableViewDelegate,RecordViewDelegate,XMAVAudioPlayerDelegate>
+@interface UUChatView ()<UUInputToolsViewDelegate, UTMessageCellDelegate, UITableViewDataSource, UITableViewDelegate,RecordViewDelegate,XMAVAudioPlayerDelegate,UUChatFunctioViewDataSource,UUChatFunctioViewDelegate>
 {
     CGFloat _keyboardHeight;
+    BOOL _isShowFunctionView;
 }
 
 @property (strong, nonatomic) UITableView *chatTableView;
@@ -33,6 +35,9 @@
 @property (strong, nonatomic)ChatMessageDC *dataController;
 
 @property (assign, nonatomic)UTMessageCell *focusCell;
+
+@property (strong, nonatomic)UUChatFunctionView *moreView;
+
 @end
 
 @implementation UUChatView
@@ -91,6 +96,10 @@
 
 - (void)notifyLoadMoreMessageFinish:(int64_t)pageNum
 {
+    if (pageNum==0) {
+        [self.chatTableView.mj_header endRefreshing];
+        return;
+    }
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:pageNum-1 inSection:0];
     [self.chatTableView reloadData];
     [self.chatTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
@@ -104,8 +113,15 @@
         _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-_keyboardHeight);
         _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
     } else {
-        _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH);
-        _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
+        if(_isShowFunctionView){
+            _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH-210);
+            _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
+            _moreView.frame=CGRectMake(0, _inputFuncView.uu_bottom, self.uu_width, 210);
+        }else{
+            _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH);
+            _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
+        }
+        
     }
 }
 
@@ -166,14 +182,16 @@
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:animationDuration];
     [UIView setAnimationCurve:animationCurve];
-    
+    _isShowFunctionView=NO;
     self.chatTableView.uu_height = self.uu_height - _inputFuncView.uu_height;
     self.chatTableView.uu_height -= notification.name == UIKeyboardWillShowNotification ? _keyboardHeight:iPhone_Safe_BottomNavH;
     self.chatTableView.contentOffset = CGPointMake(0, self.chatTableView.contentSize.height-self.chatTableView.uu_height);
 
     self.inputFuncView.uu_top = self.chatTableView.uu_bottom;
+    [self.moreView removeFromSuperview];
     
     [UIView commitAnimations];
+    
 }
 
 - (void)adjustCollectionViewLayout
@@ -208,6 +226,27 @@
 - (void)UUInputToolsView:(UUInputToolsView *)funcView sendVoice:(NSData *)voice time:(NSInteger)second
 {
     //交由 (void)recordFinish:(NSData *)data duration:(float)duration
+}
+
+- (void)showFunctionView
+{
+    _isShowFunctionView = !_isShowFunctionView;
+    if(_isShowFunctionView){
+        
+        self.chatTableView.uu_height = self.uu_height-210;
+        [self addSubview:self.moreView];
+        [self tableViewScrollToBottom];
+        
+    }else{
+        [UIView animateWithDuration:.3 animations:^
+        {
+            self.chatTableView.uu_height = self.uu_height-self.inputFuncView.uu_height;
+            [self.moreView removeFromSuperview];
+        }];
+        [self tableViewScrollToBottom];
+    }
+    self.inputFuncView.uu_top = self.chatTableView.uu_bottom;
+    self.moreView.uu_top=self.inputFuncView.uu_bottom;
 }
 
 - (void)startRecordAudio
@@ -265,6 +304,9 @@
 #pragma mark RecordViewDelegate recordFinish callback
 - (void)recordFinish:(NSString *)url duration:(NSString *)duration
 {
+    if(duration.floatValue<1.0){
+        return;
+    }
     NSDictionary *dic = @{Key_Voice_URL: url,
                           Key_Voice_Duration: duration,
                           Key_Type: @(UTMessageTypeVoice)};
@@ -345,8 +387,8 @@
 
 - (void)chatCell:(UTMessageCell *)cell headImageDidClick:(NSString *)userId
 {
-    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:cell.messageFrame.message.accountName message:@"headImage clicked" delegate:nil cancelButtonTitle:@"sure" otherButtonTitles:nil];
-    [alert show];
+//    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:cell.messageFrame.message.accountName message:@"headImage clicked" delegate:nil cancelButtonTitle:@"sure" otherButtonTitles:nil];
+//    [alert show];
 }
 
 - (void)onCellMediaClick:(UTMessageCell *)cell
@@ -362,6 +404,43 @@
     }
 }
 
+#pragma mark - ChatMoreViewDelegate & ChatMoreViewDataSource
+- (void)moreView:(UUChatFunctionView *)moreView selectIndex:(ChatFunctionItemType)itemType
+{
+    switch (itemType) {
+        case FunctionTakePic:
+            [self.inputFuncView onFunctionActionClick:0];
+            break;
+        case FunctionSelectPic:
+            [self.inputFuncView onFunctionActionClick:1];
+            break;
+        case FunctionPhrasebook:
+            [self.inputFuncView onFunctionActionClick:2];
+            break;
+        default:
+            break;
+    }
+    
+    
+}
+
+
+- (NSArray *)titlesOfMoreView:(UUChatFunctionView *)moreView
+{
+    return @[@"拍照",
+             @"照片",
+             @"常用语"];
+}
+
+- (NSArray *)imageNamesOfMoreView:(UUChatFunctionView *)moreView
+{
+    return @[@"ic_chat_take_photo",
+             @"ic_chat_select_photo",
+             @"ic_chat_phrasebook"];
+}
+
+
+
 - (RecordView *)recordView
 {
     if (!_recordView)
@@ -373,6 +452,18 @@
         _recordView.backgroundColor    = [UIColor colorWithWhite:0.3 alpha:1];
     }
     return _recordView;
+}
+
+- (UUChatFunctionView *)moreView
+{
+    if (!_moreView)
+    {
+        _moreView = [[UUChatFunctionView alloc] initWithFrame:CGRectMake(0,_chatTableView.uu_bottom+40, self.uu_width, 210)];
+        _moreView.delegate = self;
+        _moreView.dataSource = self;
+        _moreView.backgroundColor = self.backgroundColor;
+    }
+    return _moreView;
 }
 
 @end

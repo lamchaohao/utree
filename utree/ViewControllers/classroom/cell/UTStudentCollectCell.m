@@ -101,7 +101,7 @@
 {
 
     [_headView sd_setImageWithURL:[NSURL URLWithString:studentModel.fileDo.path] placeholderImage:[UIImage imageNamed:@"head_boy"]];
-    
+    _headView.contentMode=UIViewContentModeScaleAspectFill;
     self.nameLabel.text =studentModel.studentName;
     self.scoreLabel.text=[NSString stringWithFormat:@"%ld",studentModel.dropRecord];
     if (_nameLabel == nil) {

@@ -12,14 +12,11 @@
 #import "PostMomentVC.h"
 #import "MomentDC.h"
 #import "MomentDetailVC.h"
-#import <ZFPlayer/ZFPlayerController.h>
-#import <ZFPlayer/ZFPlayerControlView.h>
-#import "ZFIJKPlayerManager.h"
 #import "VideoViewController.h"
 
 @interface ClassSocietyHomeVC ()<UITableViewDataSource,UITableViewDelegate,
 MomentActionDelegate,SchollCircleDetailDelegate>
-
+@property(nonatomic,strong)UIView *headView;
 @property(nonatomic,strong)NSMutableArray *dataSource;
 @property(nonatomic,strong)MomentDC *dataController;
 @property (nonatomic,strong)NSMutableArray *momentViewModels; //ViewModel(包含cell子控件的Frame)
@@ -27,13 +24,9 @@ MomentActionDelegate,SchollCircleDetailDelegate>
 @property(nonatomic,strong)UIImageView *likeImageAnim;
 @property(nonatomic,strong)UIButton *postMomentBtn;
 @property(nonatomic,strong)NSString *lastMomentID;
-@property (nonatomic,strong)NSMutableArray *videoUrls;
-@property (nonatomic, strong) ZFPlayerController *player;
-@property (nonatomic, strong) ZFPlayerControlView *controlView;
 
 @end
 static NSString *CellID = @"societyCell";
-static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/utree/archive/35741315680210787/video/AD8D4F2C764C8C4DC41BEAB5448C23EC.mp4";
 @implementation ClassSocietyHomeVC
 
 - (void)viewDidLoad {
@@ -50,50 +43,8 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
     [self loadDataFirstTime];
 }
 
--(void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    @weakify(self)
-    [self.tableView zf_filterShouldPlayCellWhileScrolled:^(NSIndexPath *indexPath) {
-        @strongify(self)
-        [self playTheVideoAtIndexPath:indexPath scrollToTop:NO];
-    }];
-}
 
--(void)viewWillDisappear:(BOOL)animated
-{
-    [self.player stopCurrentPlayingCell];
-}
-
--(void)initPlayer
-{
-    ZFIJKPlayerManager *playerManager = [[ZFIJKPlayerManager alloc] init];
-
-    /// player的tag值必须在cell里设置
-    self.player = [ZFPlayerController playerWithScrollView:self.tableView playerManager:playerManager containerViewTag:100];
-    self.player.controlView = self.controlView;
-    self.player.assetURLs = self.videoUrls;
-    /// 0.8是消失80%时候，默认0.5
-    self.player.playerDisapperaPercent = 0.8;
-    /// 移动网络依然自动播放
-    self.player.WWANAutoPlay = YES;
-
-    @weakify(self)
-    self.player.playerDidToEnd = ^(id  _Nonnull asset) {
-        @strongify(self)
-        [self.player stopCurrentPlayingCell];
-    };
-
-    self.player.orientationWillChange = ^(ZFPlayerController * _Nonnull player, BOOL isFullScreen) {
-        @strongify(self)
-        [self setNeedsStatusBarAppearanceUpdate];
-        [UIViewController attemptRotationToDeviceOrientation];
-        self.tableView.scrollsToTop = !isFullScreen;
-    };
-    
-}
-
-- (void)loadMoreData{
+- (void)loadMoreMomentData{
     
     if (self.dataSource.count>0) {
         MomentModel *lastModel= [self.dataSource lastObject];
@@ -105,32 +56,40 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
               MomentViewModel *momentVM = [[MomentViewModel alloc] init];
               [momentVM setMomentModel:moment] ;
               [self.momentViewModels addObject:momentVM];
-                if(moment.video){
-                    [self.videoUrls addObject:[NSURL URLWithString:moment.video.path]];
-                }else{
-                    [self.videoUrls addObject:[NSURL URLWithString:defaultVideoUrl]];
-                }
+
+            }
+            if (self.dataSource.count==0) {
+                self.tableView.tableHeaderView = self.headView;
+            }else{
+                self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
             }
             [self.tableView reloadData];
-            [self.tableView.mj_footer endRefreshing];
+            if(wrapListModel.list.count>0){
+                [self.tableView.mj_footer endRefreshing];
+            }else{
+                [self.tableView.mj_footer endRefreshingWithNoMoreData];
+            }
         } failure:^(UTResult * _Nonnull result) {
             [self.tableView.mj_footer endRefreshing];
             [self showAlertMessage:@"" title:result.failureResult];
         }];
+    }else{
+        [self.tableView.mj_footer endRefreshingWithNoMoreData];
     }
+    
 
 }
 
 -(void)initTableView
 {
     
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.view.bounds.size.height) style:UITableViewStylePlain];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.view.bounds.size.height) style:UITableViewStyleGrouped];
     //tabBar遮挡tableview问题
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight |UIViewAutoresizingFlexibleWidth;
     [_tableView registerClass:[MomentCell class] forCellReuseIdentifier:CellID];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
-    // Set the callback（一Once you enter the refresh status，then call the action of target，that is call [self loadNewData]）
+    
     MJRefreshGifHeader *header = [MJRefreshGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadDataFirstTime)];
     
     // Set the ordinary state of animated images
@@ -151,7 +110,7 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
     
     [self.view addSubview:_tableView];
     
-    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+    self.tableView.mj_footer = [MJRefreshBackFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreMomentData)];
     
     _tableView.estimatedRowHeight = 0;
     
@@ -159,27 +118,22 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
 
 -(void)loadDataFirstTime
 {
-    if (!self.player) {
-        self.videoUrls =[[NSMutableArray alloc]init];
-        [self initPlayer];
-    }
+
     [self.dataController requestFirstTimeList:NO limitItems:[NSNumber numberWithInt:30] WithSuccess:^(UTResult * _Nonnull result) {
         [self.momentViewModels removeAllObjects];
-        [self.videoUrls removeAllObjects];
+//        [self.videoUrls removeAllObjects];
         [self.dataSource removeAllObjects];
-        [self.player stopCurrentPlayingCell];
         WrapMomentListModel *wrapListModel = result.successResult;
         [self.dataSource addObjectsFromArray:wrapListModel.list];
         for (MomentModel *moment in self.dataSource) {
             MomentViewModel *momentVM = [[MomentViewModel alloc] init];
             [momentVM setMomentModel:moment] ;
-            if(moment.video){
-                
-                [self.videoUrls addObject:[NSURL URLWithString:moment.video.path ]];
-            }else{
-                [self.videoUrls addObject:[NSURL URLWithString:defaultVideoUrl]];
-            }
             [self.momentViewModels addObject:momentVM];
+        }
+        if (self.dataSource.count==0) {
+            self.tableView.tableHeaderView = self.headView;
+        }else{
+            self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
         }
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
@@ -192,32 +146,10 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.player.playingIndexPath != indexPath) {
-        [self.player stopCurrentPlayingCell];
-    }
-    /// 如果没有播放，则点击进详情页会自动播放
-    if (!self.player.currentPlayerManager.isPlaying) {
-        [self playTheVideoAtIndexPath:indexPath scrollToTop:NO];
-    }
       /// 到详情页
     MomentViewModel *viewModel=[self.momentViewModels objectAtIndex:indexPath.row];
     MomentDetailVC *detailVC = [[MomentDetailVC alloc]initWithViewModel:viewModel];
                detailVC.hidesBottomBarWhenPushed = YES;
-    detailVC.delegate = self;
-    detailVC.player = self.player;
-    @weakify(self)
-    /// 详情页返回的回调
-    detailVC.detailVCPopCallback = ^{
-        @strongify(self)
-        if(viewModel.momentModel.video)
-            [self.player addPlayerViewToCell];
-    };
-    /// 详情页点击播放的回调
-    detailVC.detailVCPlayCallback = ^{
-        @strongify(self)
-        if(viewModel.momentModel.video)
-            [self playTheVideoAtIndexPath:indexPath scrollToTop:NO];
-    };
     [self.navigationController pushViewController:detailVC animated:YES];
 
 }
@@ -288,63 +220,18 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
     }
     return _likeImageAnim;
 }
-
-#pragma mark actionDelegate 播放视频
+#pragma mark MomentActionDelegate
 - (void)playVideoAtIndex:(NSIndexPath *)indexPath moment:(MomentModel *)moment
 {
-    [self playTheVideoAtIndexPath:indexPath scrollToTop:NO];
-
+    [self playVideoFullScreen:indexPath moment:moment];
 }
-
-/// play the video
-- (void)playTheVideoAtIndexPath:(NSIndexPath *)indexPath scrollToTop:(BOOL)scrollToTop {
-    
-    
-    MomentViewModel *model = [self.momentViewModels objectAtIndex:indexPath.row];
-    if (model.momentModel.video) {
-        [self.player playTheIndexPath:indexPath scrollToTop:scrollToTop];
-    }
-    [self.controlView showTitle:@""
-                 coverURLString:model.momentModel.video.minPath fullScreenMode:ZFFullScreenModeAutomatic];
-    //isPortrait?ZFFullScreenModePortrait:ZFFullScreenModeLandscape
-}
-
+#pragma mark MomentActionDelegate
 - (void)playVideoFullScreen:(NSIndexPath *)indexPath moment:(MomentModel *)moment
 {
     VideoViewController *videoVC = [[VideoViewController alloc]initWithVideo:moment.video];
     videoVC.hidesBottomBarWhenPushed = YES;
 //    videoVC.diasblePopGesture = YES;
     [self.navigationController pushViewController:videoVC animated:YES];
-}
-
-- (ZFPlayerControlView *)controlView {
-    if (!_controlView) {
-        _controlView = [ZFPlayerControlView new];
-        _controlView.fastViewAnimated = YES;
-        _controlView.horizontalPanShowControlView = NO;
-        _controlView.prepareShowLoading = YES;
-    }
-    return _controlView;
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    [scrollView zf_scrollViewDidEndDecelerating];
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    [scrollView zf_scrollViewDidEndDraggingWillDecelerate:decelerate];
-}
-
-- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
-    [scrollView zf_scrollViewDidScrollToTop];
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [scrollView zf_scrollViewDidScroll];
-}
-
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    [scrollView zf_scrollViewWillBeginDragging];
 }
 
 
@@ -440,25 +327,14 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
 {
     [self.dataController deleteMomentById:moment.schoolCircleId WithSuccess:^(UTResult * _Nonnull result) {
         MomentViewModel *viewModelToDel;
-        NSURL *videoURL;
         for (MomentViewModel *vm in self.momentViewModels) {
             if([vm.momentModel.schoolCircleId isEqualToString:moment.schoolCircleId]){
                 viewModelToDel = vm;
-                if (vm.momentModel.video) {
-                    NSURL *urlToDel =[NSURL URLWithString:vm.momentModel.video.path];
-                    for (NSURL *url in self.videoUrls) {
-                        if([url.absoluteString isEqualToString:urlToDel.absoluteString])
-                        {
-                            videoURL = url;
-                        }
-                    }
-                }
                 break;
             }
         }
         if (viewModelToDel) {
             [self.momentViewModels removeObject:viewModelToDel];
-            [self.videoUrls removeObject:videoURL];
             [self.tableView reloadData];
         }
     } failure:^(UTResult * _Nonnull result) {
@@ -471,5 +347,34 @@ static NSString *defaultVideoUrl = @"http://warw.oss-cn-shenzhen.aliyuncs.com/ut
 {
     [self onDeleteMomentClick:moment];
 }
+
+-(UIView *)headView
+{
+    if (!_headView) {
+        UIView *rootView = [MyRelativeLayout new];
+        rootView.frame = CGRectMake(0, 0, ScreenWidth, 240);
+        UILabel *tips = [UILabel new];
+        UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 230, 170)];
+        NSString *picPath;
+        picPath =[[NSBundle mainBundle] pathForResource:@"pic_no_moment" ofType:@"png"];
+        [tips setText:@"暂无分享"];
+        UIImage *img = [UIImage imageWithContentsOfFile:picPath];
+        [imageView setImage:img];
+        imageView.myCenterX=0;
+        imageView.myCenterY=0;
+        [tips sizeToFit];
+        tips.textColor = [UIColor myColorWithHexString:@"#666666"];
+        tips.font=[UIFont systemFontOfSize:14];
+        tips.topPos.equalTo(imageView.bottomPos).offset(20);
+        tips.myCenterX =0;
+        
+        [rootView addSubview:imageView];
+        [rootView addSubview:tips];
+        _headView = rootView;
+    }
+    
+    return _headView;
+}
+
 
 @end

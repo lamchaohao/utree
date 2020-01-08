@@ -14,6 +14,13 @@
 #import "UTStudent.h"
 @implementation ClassStudentsDC
 
+-(NSMutableArray *)readStudentDataInCacheFromCurrentClassId
+{
+    NSArray *dictArray =  [UTCache readStudentsDataInClassId:[UTCache readClassId]];
+    NSMutableArray *studentList = [UTStudent mj_objectArrayWithKeyValuesArray:dictArray];
+    return studentList;
+}
+
 -(void)fetchClassListWithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
 {
     TeachClassApi *api = [[TeachClassApi alloc]init];
@@ -74,6 +81,8 @@
     StudentListApi *api = [[StudentListApi alloc]initWithClassId:classID];
     [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
         NSArray *dictArray =  successMsg.responseData;
+        //保存一份到缓存
+        [UTCache saveStudentsData:dictArray inClassId:classID];
         NSArray *studentList = [UTStudent mj_objectArrayWithKeyValuesArray:dictArray];
         if (success) {
             success([[UTResult alloc]initWithSuccess:studentList]);

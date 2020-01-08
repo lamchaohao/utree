@@ -9,15 +9,17 @@
 #import "PhoneNumStateVC.h"
 #import "AccountSafeVC.h"
 #import "PasswordVC.h"
+#import "UTCache.h"
 @interface AccountSafeVC ()<UITableViewDelegate,UITableViewDataSource>
 
 @property(nonatomic,strong)UITableView *tableView;
 @property(nonatomic,strong)NSArray *itemNames;
+@property(nonatomic,strong)NSString *accountPhoneNum;
 
 @end
 
 @implementation AccountSafeVC
-static NSString *CellID = @"fineID";
+static NSString *CellID = @"safeId";
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.navigationController setNavigationBarHidden:NO];
@@ -32,7 +34,7 @@ static NSString *CellID = @"fineID";
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) style:UITableViewStyleGrouped];
     [_tableView setDataSource:self];
     [_tableView setDelegate:self];
-    
+    self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
     [self.view addSubview:_tableView];
     _tableView.rowHeight=62;
     self.view.backgroundColor = [UIColor_ColorChange colorWithHexString:@"#F7F7F7"];
@@ -69,7 +71,7 @@ static NSString *CellID = @"fineID";
     [cell.textLabel setText:_itemNames[indexPath.row]];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     if (indexPath.row==0) {
-        [cell.detailTextLabel setText:@"137***112"];
+        [cell.detailTextLabel setText:self.accountPhoneNum];
     }
     return cell;
 }
@@ -84,10 +86,16 @@ static NSString *CellID = @"fineID";
     return 1;
 }
 
-//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    return ScreenWidth*0.15;
-//}
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    NSString *phone = [[UTCache readProfile] objectForKey:@"phone"];
+    NSRange range =NSMakeRange(0, 2);
+    if (phone.length>10) {
+       range = NSMakeRange(3, 4);
+    }
+    self.accountPhoneNum = [phone stringByReplacingCharactersInRange:range withString:@"****"];
+}
 
 
 

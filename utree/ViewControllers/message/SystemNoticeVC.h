@@ -7,11 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "SchoolInfoVC.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SystemNoticeVC : UIViewController
-@property(nonatomic,strong)UITableView *tableView;
+@interface SystemNoticeVC : SchoolInfoVC
 
 @end
 

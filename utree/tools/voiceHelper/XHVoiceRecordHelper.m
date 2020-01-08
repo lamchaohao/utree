@@ -279,6 +279,10 @@
 
 - (void)getVoiceDuration:(NSString*)recordPath {
     NSError *error = nil;
+    if(!recordPath){
+        self.recordDuration = [NSString stringWithFormat:@"%.1f", 0.0];
+        return ;
+    }
     AVAudioPlayer *play = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:recordPath] error:&error];
     if (error) {
         DLog(@"recordPath：%@ error：%@", recordPath, error);

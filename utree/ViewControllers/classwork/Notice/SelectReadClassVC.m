@@ -9,6 +9,7 @@
 #import "SelectReadClassVC.h"
 #import "PostNoticeDC.h"
 #import "UTClassModel.h"
+#import "PostNoticeVC.h"
 @interface SelectReadClassVC ()<UITableViewDelegate,UITableViewDataSource>
 
 @property(nonatomic,strong)UITableView *tableView;
@@ -38,6 +39,7 @@ static NSString *cellId = @"classCellId";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.title=@"选择可见班级";
     [self initNaviBar];
     [self loadClassData];
 }
@@ -51,34 +53,6 @@ static NSString *cellId = @"classCellId";
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    MyRelativeLayout *navBarLayout = [MyRelativeLayout new];
-    navBarLayout.frame = CGRectMake(0, 0, ScreenWidth, 64);
-    navBarLayout.backgroundColor = [UIColor whiteColor];
-    navBarLayout.myTop=iPhone_StatuBarHeight;
-    navBarLayout.myLeft=0;
-    
-    UILabel *navTitle = [[UILabel alloc]init];
-    navTitle.myCenterX=0;
-    navTitle.myCenterY=0;
-    navTitle.textColor = [UIColor blackColor];
-    navTitle.font = [UIFont boldSystemFontOfSize:20];
-    navTitle.text=@"选择可见班级";
-    [navTitle sizeToFit];
-    
-    UIButton *closeButton = [[UIButton alloc]init];
-    [closeButton setImage:[UIImage imageNamed:@"ic_close_black"] forState:UIControlStateNormal];
-    [closeButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [closeButton sizeToFit];
-    [closeButton addTarget:self action:@selector(finishVC:) forControlEvents:UIControlEventTouchUpInside];
-    closeButton.myTop=0;
-    closeButton.myLeft=18;
-    closeButton.myCenterY=0;
-    
-    [navBarLayout addSubview:closeButton];
-    [navBarLayout addSubview:navTitle];
-    self.navBarLayout = navBarLayout;
-    [self.view addSubview:self.navBarLayout];
     
     MyRelativeLayout *bottomBar = [MyRelativeLayout new];
     bottomBar.frame = CGRectMake(0, 0, ScreenWidth, 58);
@@ -141,9 +115,10 @@ static NSString *cellId = @"classCellId";
 -(void)initTableView
 {
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 400) style:UITableViewStyleGrouped];
-    _tableView.topPos.equalTo(self.navBarLayout.bottomPos);
+    _tableView.myTop=0;
     _tableView.bottomPos.equalTo(self.bottomBarLayout.topPos);
     [self.view addSubview:_tableView];
+    _tableView.tableHeaderView=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0.1, 0.1)];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:cellId];
@@ -218,12 +193,6 @@ static NSString *cellId = @"classCellId";
 
 -(void)postToServer:(id)sender
 {
-    
-    
-    
-    NSString *title = [self.paramDic objectForKey:@"title"];
-    NSString *content = [self.paramDic objectForKey:@"content"];
-    
     NSMutableArray *selectedClassArray = [[NSMutableArray alloc]init];
     for (UTClassModel *model in self.classList) {
         if(model.isSelected){
@@ -238,16 +207,10 @@ static NSString *cellId = @"classCellId";
             UTClassModel *model = selectedClassArray[i];
             [classIdArray addObject:model.classId];
         }
-        [self.paramDic setObject:classIdArray forKey:@"classIds"];
-        [self.dataController publishNoticeToServerWithTopic:title content:content enclosureDic:self.paramDic WithSuccess:^(UTResult * _Nonnull result) {
-            [self showToastView:@"发布成功"];
-            [self dismissViewControllerAnimated:YES completion:^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:PostWorkNotifyName object:nil];
-            }];
-        } failure:^(UTResult * _Nonnull result) {
-            
-            [self showAlertMessage:@"错误" title:result.failureResult];
-        }];
+        PostNoticeVC *postNoticeVC = [[PostNoticeVC alloc]initWithClassArray:classIdArray];
+        postNoticeVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self presentViewController:postNoticeVC animated:YES completion:nil];
+        [self.navigationController popViewControllerAnimated:NO];
     }
     
     

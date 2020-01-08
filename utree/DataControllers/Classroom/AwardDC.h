@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface AwardDC : BaseDataController
 
+-(NSMutableDictionary *)requestAwardItemsFromCache;
+
 -(void)requestAwardItemsWithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 
 -(void)requestAwardGroupId:(NSString *)groupId awardId:(NSString *)awardId  WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;

@@ -13,6 +13,7 @@
 #import "MineInfoVC.h"
 #import "UTCache.h"
 #import "MyPublishVC.h"
+#import "UTQRScan.h"
 
 @interface MineHomeVC ()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong) NSArray *icons;
@@ -92,6 +93,13 @@ static NSString *CellID = @"mineStaticCell";
             MyPublishVC *viewController = [[MyPublishVC alloc]init];
             viewController.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:viewController animated:YES];
+        }
+             break;
+        case 3:
+        {
+            UTQRScan *qrVC = [[UTQRScan alloc]init];
+            qrVC.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:qrVC animated:YES];
         }
             break;
         case 5:

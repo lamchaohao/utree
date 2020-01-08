@@ -28,6 +28,12 @@ typedef void(^DBExecuteResult)(NSDictionary *resultDic);
 
 -(void)queryMessageWithAccount:(NSString *)accountId limit:(int)limit offset:(int)offset withResult:(DBExecuteResult)callback;
 
+-(void)updateContactsData:(UTParent *)parent;
+
+-(void)updateMessageReadStatus:(NSString*)parentId;
+
+-(void)deleteRecordWithId:(NSString *)parentId;
+
 -(void)closeDB;
 
 @end

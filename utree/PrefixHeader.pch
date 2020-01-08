@@ -56,8 +56,8 @@
 #define GroupPlanChangedNotifyName @"GROUP_PLAN_CHANGED"
 #define PostWorkNotifyName @"POST_CLASSWORK_SUCCESS"
 #define MIMC_ReceiveMsgNotifyName @"mimc_receive_msg"
-
-
+#define FetchParentDataNotifyName @"need_parent_profile_notify"
+#define UpdateParentDataNotifyName @"update_parent_profile_completed_notify"
 #define OSS_ENDPOINT @"https://oss-cn-shenzhen.aliyuncs.com/"
 #define OSS_BUCKETNAME @"humanoid-file"
 #define OSS_PATH_PREFIX @"https://humanoid-file.oss-cn-shenzhen.aliyuncs.com/"

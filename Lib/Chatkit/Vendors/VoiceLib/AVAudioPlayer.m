@@ -294,6 +294,8 @@ NSString *const kXMNAudioDataKey;
     if (self.delegate && [self.delegate respondsToSelector:@selector(audioPlayerStateDidChanged:forIndex:)])
     {
         [self.delegate audioPlayerStateDidChanged:_audioPlayerState forIndex:self.index];
+    }else{
+        NSLog(@"XMAVAudioPlayer has no delegate");
     }
     
     if (_audioPlayerState == VoiceMessageStateCancel || _audioPlayerState == VoiceMessageStateNormal)

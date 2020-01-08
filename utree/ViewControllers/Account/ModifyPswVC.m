@@ -46,7 +46,7 @@
 
 - (void)onRequestVerifyCode:(NSString *)account
 {
-    [self.dataController requestVerifyCode:account WithSuccess:^(UTResult * _Nonnull result) {
+    [self.dataController requestVerifyCode:account usage:USAGE_SETPWD WithSuccess:^(UTResult * _Nonnull result) {
         [self.viewModel showCountDownViewFrom:60];
     } failure:^(UTResult * _Nonnull result) {
         [self showAlertMessage:@"" title:result.failureResult];

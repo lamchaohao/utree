@@ -49,6 +49,7 @@ static NSString *tableViewCellID =@"tableViewCell";
         UTParent *parent = [[UTParent alloc]init];
         parent.parentId = parentAccounts[i];
         parent.parentName=parentNames[i];
+        parent.studentName = @"某某某";
         parent.picPath=[imgs objectAtIndex:i%imgs.count];
         [fakeDatas addObject:parent];
     }
