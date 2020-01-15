@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,assign)NSNumber *unread;
 @property(nonatomic,strong)NSArray *picList;
 @property(nonatomic,strong)NSNumber *allCheckNum;
+@property(nonatomic,strong)NSMutableArray *thumnails;
 @end
 
 NS_ASSUME_NONNULL_END

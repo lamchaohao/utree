@@ -286,10 +286,20 @@
     if (_groupId||_studentList.count>1) {
         AwardResultView *resultView = [[AwardResultView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) stuNum:[NSString stringWithFormat:@"%ld",_studentList.count]];
         [resultView showView];
+        if ([self.vcDelegate respondsToSelector:@selector(onAwardSuccess:)]) {
+            [self.vcDelegate onAwardSuccess:model];
+        }
+        [self dismissViewControllerAnimated:YES completion:nil];
     }else{
         UTStudent *stu = [_studentList objectAtIndex:0];
         AwardResultView *resultView = [[AwardResultView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) stuName:stu.studentName score:model.dropPoint.stringValue];
         [resultView showView];
+        if ([self.vcDelegate respondsToSelector:@selector(onAwardSuccess:)]) {
+            [self.vcDelegate onAwardSuccess:model];
+        }
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
     }
     
 }

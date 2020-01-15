@@ -116,11 +116,11 @@
     
 }
 
-- (void)viewDidAppear:(BOOL)animated
+
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
+    [super viewWillAppear:animated];
     [self.chatView VCviewDidAppear:animated];
-  
 }
 
 
@@ -163,6 +163,19 @@
 - (void)onMessageReceivedCompleted
 {
     [self.chatView notifyReceiveNewMessage];
+}
+#pragma mark ChatMessageDCDelegate
+- (void)showViewController:(UIViewController *)vc
+{
+    [self.chatView VCviewWillDisappear:NO];
+    vc.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    [self presentViewController:vc animated:YES completion:nil];
+    
+}
+
+- (void)viewControllerDidFinish
+{
+    [self.chatView VCviewDidAppear:NO];
 }
 
 

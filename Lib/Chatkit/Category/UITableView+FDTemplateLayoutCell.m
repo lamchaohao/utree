@@ -373,29 +373,29 @@ static CGFloat const _FDTemplateLayoutCellHeightCacheAbsentValue = -1;
     [self fd_precacheIfNeeded];
 }
 
-- (void)fd_deleteRowsAtIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation
-{
-    if (self.fd_autoCacheInvalidationEnabled) {
-        [self.fd_cellHeightCache buildHeightCachesAtIndexPathsIfNeeded:indexPaths];
-        
-        NSMutableDictionary *mutableIndexSetsToRemove = @{}.mutableCopy;
-        [indexPaths enumerateObjectsUsingBlock:^(NSIndexPath *indexPath, NSUInteger idx, BOOL *stop) {
-            
-            NSMutableIndexSet *mutableIndexSet = mutableIndexSetsToRemove[@(indexPath.section)];
-            if (!mutableIndexSet) {
-                mutableIndexSetsToRemove[@(indexPath.section)] = [NSMutableIndexSet indexSet];
-            }
-            
-            [mutableIndexSet addIndex:indexPath.row];
-        }];
-        
-        [mutableIndexSetsToRemove enumerateKeysAndObjectsUsingBlock:^(NSNumber *key, NSIndexSet *indexSet, BOOL *stop) {
-            NSMutableArray *rows = self.fd_cellHeightCache.sections[key.integerValue];
-            [rows removeObjectsAtIndexes:indexSet];
-        }];
-    }
-    [self fd_deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation]; // Primary call
-}
+//- (void)fd_deleteRowsAtIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation
+//{
+//    if (self.fd_autoCacheInvalidationEnabled) {
+//        [self.fd_cellHeightCache buildHeightCachesAtIndexPathsIfNeeded:indexPaths];
+//
+//        NSMutableDictionary *mutableIndexSetsToRemove = @{}.mutableCopy;
+//        [indexPaths enumerateObjectsUsingBlock:^(NSIndexPath *indexPath, NSUInteger idx, BOOL *stop) {
+//
+//            NSMutableIndexSet *mutableIndexSet = mutableIndexSetsToRemove[@(indexPath.section)];
+//            if (!mutableIndexSet) {
+//                mutableIndexSetsToRemove[@(indexPath.section)] = [NSMutableIndexSet indexSet];
+//            }
+//
+//            [mutableIndexSet addIndex:indexPath.row];
+//        }];
+//
+//        [mutableIndexSetsToRemove enumerateKeysAndObjectsUsingBlock:^(NSNumber *key, NSIndexSet *indexSet, BOOL *stop) {
+//            NSMutableArray *rows = self.fd_cellHeightCache.sections[key.integerValue];
+//            [rows removeObjectsAtIndexes:indexSet];
+//        }];
+//    }
+//    [self fd_deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation]; // Primary call
+//}
 
 - (void)fd_reloadRowsAtIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation
 {

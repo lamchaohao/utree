@@ -41,7 +41,7 @@ static NSString *tableViewCellID = @"myClassCell";
     contentLayout.frame = CGRectMake(0, 0, ScreenWidth*0.814, ScreenHeight);
     contentLayout.backgroundColor = [UIColor whiteColor];
     
-    UIImageView *topImg = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, ScreenHeight*0.205)];
+    UIImageView *topImg = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 137)];
     topImg.contentMode = UIViewContentModeScaleToFill;
     [topImg setImage:[UIImage imageNamed:@"drawer_top_img"]];
     

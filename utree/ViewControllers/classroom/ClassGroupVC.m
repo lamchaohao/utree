@@ -231,4 +231,10 @@
     [self.navigationController pushViewController:controller animated:YES];
 }
 
+
+- (void)dealloc
+{
+     [[NSNotificationCenter defaultCenter] removeObserver:self name:GroupPlanChangedNotifyName object:nil];
+}
+
 @end

@@ -11,6 +11,7 @@
 #import "JSONUtil.h"
 #import "UTMessage.h"
 #import "UTDateConvertTool.h"
+#import "RedDotHelper.h"
 
 @interface RecordMessageHelper()
 
@@ -63,6 +64,9 @@
     }
     
     [self.dbManager saveReceivedMessage:message];
+    int unread = [RedDotHelper shareInstance].chatUnread;
+    unread ++;
+    [[RedDotHelper shareInstance] setChatUnread:unread];
 }
 
 

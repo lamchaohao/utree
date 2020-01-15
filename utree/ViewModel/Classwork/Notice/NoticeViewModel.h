@@ -22,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 //昵称Frame头像Frame时间Frame
 @property (nonatomic ,assign) CGRect headDataFrame;
-
+//标题Frame
+@property (nonatomic ,assign) CGRect titleTextFrame;
 //正文Frame
 @property (nonatomic ,assign) CGRect detailTextFrame;
 //录音Frame

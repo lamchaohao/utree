@@ -147,7 +147,7 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
         NSTimer *timer = [NSTimer timerWithTimeInterval:self.graceTime target:self selector:@selector(handleGraceTimer:) userInfo:nil repeats:NO];
         [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         self.graceTimer = timer;
-    } 
+    }
     // ... otherwise show the HUD immediately
     else {
         [self showUsingAnimation:self.useAnimation];
@@ -168,7 +168,7 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
             [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
             self.minShowTimer = timer;
             return;
-        } 
+        }
     }
     // ... otherwise hide the HUD immediately
     [self hideUsingAnimation:self.useAnimation];
@@ -405,7 +405,7 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
         if (mode == MBProgressHUDModeAnnularDeterminate) {
             [(MBRoundProgressView *)indicator setAnnular:YES];
         }
-    } 
+    }
     else if (mode == MBProgressHUDModeCustomView && self.customView != indicator) {
         // Update custom view indicator
         [indicator removeFromSuperview];

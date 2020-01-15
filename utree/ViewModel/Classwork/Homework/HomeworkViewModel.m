@@ -43,7 +43,16 @@
     CGFloat textX = circleCellMargin;
     CGFloat textY = CGRectGetMaxY(titleFrame) + circleContentTextMargin;
     CGFloat textW = circleCellWidth;
-    CGSize textSize = [self.taskModel.content boundingRectWithSize:CGSizeMake(textW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTextattributes context:nil].size;
+    
+    NSString *textToshow = @"";
+    if(self.taskModel.content.length>100){
+        textToshow =[[self.taskModel.content substringToIndex:100] stringByAppendingFormat:@"..."];
+    }else{
+        textToshow =self.taskModel.content;
+    }
+    
+    CGSize textSize = [textToshow boundingRectWithSize:CGSizeMake(textW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTextattributes context:nil].size;
+    textSize.height = ceil(textSize.height) + 1;
     self.detailTextFrame = (CGRect){{textX,textY},textSize};
     //录音(判断是否有录音)
     if (self.taskModel.audio) {
@@ -84,7 +93,7 @@
         self.taskBodyFrame = CGRectMake(0, 0, circleCellWidth, bodyH);
     }
     //判断是否有链接
-    if (self.taskModel.link) {
+    if (self.taskModel.link&&self.taskModel.link.length>0) {
        CGFloat linkY= CGRectGetMaxY(self.taskBodyFrame) + circleContentTextMargin;
        CGFloat linkW = ScreenWidth-30;
        CGFloat linkH = 56;

@@ -11,6 +11,7 @@
 #import "AchievementDC.h"
 #import "AchievementDetailVC.h"
 #import "WrapAchievementModel.h"
+#import "RedDotHelper.h"
 @interface AchievementView()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong)UITableView *tableView;
 @property(nonatomic,strong)AchievementDC *dataController;
@@ -118,6 +119,13 @@ static NSString *CellID = @"achievementId";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     AchievementModel *model = [self.achievementList objectAtIndex:indexPath.row];
+    if (model.examUnread.boolValue) {
+        model.examUnread=[NSNumber numberWithBool:NO];
+        [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        [RedDotHelper shareInstance].examUnread--;
+        [[NSNotificationCenter defaultCenter] postNotificationName:BadgeValueUpdateNotifyName object:nil];
+    }
+    
     AchievementDetailVC *detail = [[AchievementDetailVC alloc]initWithAchievementModel:model];
     [self.utViewDelegate pushToViewController:detail];
 }

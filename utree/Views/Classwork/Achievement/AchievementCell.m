@@ -90,17 +90,6 @@
 
     [self addFirstRow];
     
-//    for (int i=0; i<3; i++) {
-//        MyLinearLayout *scoreRow = [tableLayout addRow:55 colSize:MyLayoutSize.fill];
-//        scoreRow.notUseIntelligentBorderline = YES;
-//        scoreRow.bottomBorderline = [[MyBorderline alloc] initWithColor:[UIColor myColorWithHexString:@"#E0E0E0"]];
-//        UIView *innerName = [self createCellLayout:@"王晓晓"];
-//        UIView *innerScore = [self createCellLayout:@"89"];
-//        innerName.weight=1;
-//        innerScore.weight=1;
-//        [tableLayout addSubview:innerName];
-//        [tableLayout addSubview:innerScore];
-//    }
     
     [contentLayout addSubview:topLayout];
     [contentLayout addSubview:divideView];
@@ -151,13 +140,18 @@
 
 -(void)setDataToView:(AchievementModel *)model
 {
-    [_headView sd_setImageWithURL:[NSURL URLWithString:model.teacherDo.path] placeholderImage:[UIImage imageNamed:@"head_boy"]];
+    if (model.examUnread.boolValue) {
+        [self.topLayout addSubview:_unreadView];
+    }else{
+        [_unreadView removeFromSuperview];
+    }
+    [_headView sd_setImageWithURL:[NSURL URLWithString:model.teacherDo.path] placeholderImage:[UIImage imageNamed:@"default_head"]];
     
     [_posterLabel setText:model.teacherDo.teacherName];
     [_posterLabel sizeToFit];
     [_timeLabel setText:model.uploadTime];
     [_subjectAndTitleLabel setText:[NSString stringWithFormat:@"科目：%@    标题：%@",model.subjectName,model.examType]];
-    [self.topLayout addSubview:_unreadView];
+    
     [self.tableLayout removeAllSubviews];
     [self addFirstRow];
     for (int rank=1; rank<4; rank++) {

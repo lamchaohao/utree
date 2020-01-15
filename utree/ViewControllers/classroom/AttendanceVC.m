@@ -41,7 +41,7 @@ static NSString *CellID = @"attendCellID";
         self.viewModel.studentList = result.successResult;
         [rootView bindWithViewModel:self.viewModel];
     } failure:^(UTResult * _Nonnull result) {
-        
+        [self showToastView:result.failureResult];
     }];
     
 }

@@ -103,4 +103,8 @@
     [self.delegate endRefreshing];
 }
 
+- (void)afterAwardSuccess:(AwardModel *)model
+{
+    [self.delegate afterStudentAward:model];
+}
 @end

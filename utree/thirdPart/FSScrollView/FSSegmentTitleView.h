@@ -42,6 +42,8 @@ typedef enum : NSUInteger {
  */
 - (void)FSSegmentTitleViewWillEndDragging:(FSSegmentTitleView *)titleView;
 
+-(BOOL)showBadgeViewOrNot:(NSInteger)index;
+
 @end
 
 @interface FSSegmentTitleView : UIView

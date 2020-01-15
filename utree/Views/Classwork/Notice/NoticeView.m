@@ -16,6 +16,7 @@
 #import "RxWebViewController.h"
 #import "NoticeDetailVC.h"
 #import "UTCache.h"
+#import "RedDotHelper.h"
 @interface NoticeView ()<UITableViewDataSource,UITableViewDelegate,NoticeMediaDelegate,XMAVAudioPlayerDelegate>
 
 @property(nonatomic,strong)NoticeListDC *dataController;
@@ -76,6 +77,13 @@ static NSString *CellID = @"noticeCellID";
     
     if ([self.noticeFrameArray objectAtIndex: indexPath.row]) {
         NoticeViewModel *vm = [self.noticeFrameArray objectAtIndex:indexPath.row];
+        if (vm.notice.unread.boolValue) {
+            vm.notice.unread=[NSNumber numberWithBool:NO];
+            [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+            [RedDotHelper shareInstance].noticeUnread--;
+            [[NSNotificationCenter defaultCenter] postNotificationName:BadgeValueUpdateNotifyName object:nil];
+        }
+        
         NoticeDetailVC *detailVC = [[NoticeDetailVC alloc]initWithNoticeModel:vm.notice];
         [self.utViewDelegate pushToViewController:detailVC];
 

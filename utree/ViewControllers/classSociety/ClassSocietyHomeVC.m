@@ -13,9 +13,10 @@
 #import "MomentDC.h"
 #import "MomentDetailVC.h"
 #import "VideoViewController.h"
+#import "RedDotHelper.h"
 
 @interface ClassSocietyHomeVC ()<UITableViewDataSource,UITableViewDelegate,
-MomentActionDelegate,SchollCircleDetailDelegate>
+MomentActionDelegate,SchollCircleDetailDelegate,PostMomentCallback>
 @property(nonatomic,strong)UIView *headView;
 @property(nonatomic,strong)NSMutableArray *dataSource;
 @property(nonatomic,strong)MomentDC *dataController;
@@ -135,6 +136,7 @@ static NSString *CellID = @"societyCell";
         }else{
             self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
         }
+        [RedDotHelper shareInstance].circleUnread=0;
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
     } failure:^(UTResult * _Nonnull result) {
@@ -150,6 +152,7 @@ static NSString *CellID = @"societyCell";
     MomentViewModel *viewModel=[self.momentViewModels objectAtIndex:indexPath.row];
     MomentDetailVC *detailVC = [[MomentDetailVC alloc]initWithViewModel:viewModel];
                detailVC.hidesBottomBarWhenPushed = YES;
+    detailVC.delegate=self;
     [self.navigationController pushViewController:detailVC animated:YES];
 
 }
@@ -276,7 +279,7 @@ static NSString *CellID = @"societyCell";
 {
     PostMomentVC *postM= [[PostMomentVC alloc]init];
     postM.hidesBottomBarWhenPushed=YES;
-    
+    postM.callback=self;
     [self.navigationController pushViewController:postM animated:YES];
 }
 
@@ -342,10 +345,16 @@ static NSString *CellID = @"societyCell";
     }];
 }
 
-
+#pragma mark SchollCircleDetailDelegate
 - (void)deleteMoment:(MomentModel *)moment
 {
     [self onDeleteMomentClick:moment];
+}
+
+#pragma mark PostMomentCallback
+- (void)onPostSuccess
+{
+    [self.tableView.mj_header beginRefreshing];
 }
 
 -(UIView *)headView

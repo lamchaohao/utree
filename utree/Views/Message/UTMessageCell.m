@@ -14,7 +14,7 @@
 #import "UIButton+AFNetworking.h"
 #import "UUImageAvatarBrowser.h"
 #import "UUChatCategory.h"
-
+#import "UTPicBrowserVC.h"
 
 
 @interface UTMessageCell ()
@@ -104,7 +104,16 @@
     else if (self.messageFrame.message.type == UTMessageTypePicture)
     {
         if (self.btnContent.backImageView) {
-            [UUImageAvatarBrowser showImage:self.btnContent.backImageView];
+//            [UUImageAvatarBrowser showImage:self.btnContent.backImageView];
+//            [UTPicBrowserVC showImage:self.messageFrame.message.picUrl sourceImg:self.btnContent.backImageView];
+            
+            PYPhotoBrowseView *photoBroseView = [[PYPhotoBrowseView alloc] init];
+            // 2.1 设置图片源(UIImageView)数组
+            photoBroseView.sourceImgageViews = [NSArray arrayWithObject:self.btnContent.backImageView];
+            // 2.2 设置初始化图片下标（即当前点击第几张图片）
+            photoBroseView.currentIndex = 0;
+            // 3.显示(浏览)
+            [photoBroseView show];
         }
         if ([self.delegate isKindOfClass:[UIViewController class]]) {
             [[(UIViewController *)self.delegate view] endEditing:YES];

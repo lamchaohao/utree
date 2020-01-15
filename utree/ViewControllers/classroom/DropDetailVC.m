@@ -74,15 +74,19 @@
 - (void)onChangeDate:(NSInteger)index
 {
     self.dateType= [NSNumber numberWithLong:index];
-    [self.viewModel.dropRecordList removeAllObjects];
-    [self.viewModel.dateTitleList removeAllObjects];
+    
     //获取水滴记录信息
     [self.dataController requestDropRecordFirst:self.studentId dateZone:[NSNumber numberWithLong:index] WithSuccess:^(UTResult * _Nonnull result) {
+        [self.viewModel.dropRecordList removeAllObjects];
+        [self.viewModel.dateTitleList removeAllObjects];
         self.viewModel.wrapDropRecordModel = result.successResult;
         if ( !self.viewModel.wrapDropRecordModel.list
             ||self.viewModel.wrapDropRecordModel.list.count==0) {
+            //无水滴记录也需要刷新
+            [self.mainView refreshDropRecord];
             return ;
         }
+        
         [self handlerRecordList];
     } failure:^(UTResult * _Nonnull result) {
         [self.view makeToast:result.failureResult];

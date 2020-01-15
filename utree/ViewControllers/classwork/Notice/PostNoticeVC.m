@@ -259,11 +259,11 @@ static NSString *cellID = @"photoCell";
     _picCollectionView.hidden=YES;
     
     _urlLayout = [MyRelativeLayout new];
-    _urlLayout.frame = CGRectMake(18, 0, ScreenWidth, 56);
+    _urlLayout.frame = CGRectMake(18, 0, ScreenWidth, 70);
     _urlLayout.myLeft=_urlLayout.myRight=18;
-    self.webButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth-30, 56)];
+    self.webButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth-50, 56)];
     self.webButton.backgroundColor = [UIColor myColorWithHexString:@"#FFEBEBEB"];
-    [self.webButton setImage:[UIImage imageNamed:@"head_boy"] forState:UIControlStateNormal];
+    [self.webButton setImage:[UIImage imageNamed:@"ic_link"] forState:UIControlStateNormal];
     self.webButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;//居左显示
     self.webButton.titleLabel.numberOfLines=0;
     [self.webButton setTitleColor:[UIColor myColorWithHexString:@"#4D4D4D"] forState:UIControlStateNormal];
@@ -457,7 +457,7 @@ static NSString *cellID = @"photoCell";
             self.urlInput = [NSString stringWithFormat:@"http://%@",self.urlInput];
            }
         
-        if(![RegexTool checkURL:textInput]) {
+        if(![RegexTool checkURL:self.urlInput]) {
             self.urlLayout.hidden=NO;
         }else{
             [self.view makeToast:@"链接不可用"];

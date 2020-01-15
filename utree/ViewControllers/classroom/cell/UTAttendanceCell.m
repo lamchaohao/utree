@@ -84,7 +84,9 @@
 
 - (void)setStudentModel:(UTStudent *)studentModel
 {
-    [_headView sd_setImageWithURL:[NSURL URLWithString:studentModel.fileDo.path]];
+    [_headView sd_setImageWithURL:[NSURL URLWithString:studentModel.fileDo.path] placeholderImage:[UIImage imageNamed:studentModel.gender.boolValue?@"head_boy":@"head_girl"]];
+    _headView.contentMode=UIViewContentModeScaleAspectFill;
+    
     self.nameLabel.text =studentModel.studentName;
     
     if (_nameLabel == nil) {

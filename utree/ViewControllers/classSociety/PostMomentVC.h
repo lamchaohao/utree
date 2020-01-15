@@ -13,7 +13,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
 
+@protocol PostMomentCallback <NSObject>
+
+-(void)onPostSuccess;
+
+@end
+
 @interface PostMomentVC : BaseSecondVC
+
+@property(nonatomic,assign)id<PostMomentCallback> callback;
 
 @end
 

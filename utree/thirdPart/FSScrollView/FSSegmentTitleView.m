@@ -66,6 +66,14 @@
             titleFont = btn.isSelected?_titleSelectFont:_titleFont;
             CGFloat itemBtnWidth = [FSSegmentTitleView getWidthWithString:self.titlesArr[idx] font:titleFont] + self.itemMargin;
             totalBtnWidth += itemBtnWidth;
+            //chaohao add for badgeview
+            for (UIView *view in btn.subviews) {
+                if(view.tag==888){
+                    view.frame = CGRectMake(CGRectGetMaxX(btn.titleLabel.frame)+10, 8, 8, 8);
+                    [view setHidden:![self.delegate showBadgeViewOrNot:idx]];
+                }
+                
+            }
         }
     }
     else
@@ -185,6 +193,17 @@
         if (self.itemBtnArr.count == self.selectIndex) {
             btn.selected = YES;
         }
+        //chaohao add for badgeview
+        UIView *badgeView = [[UIView alloc]init];
+        badgeView.tag=888;
+        badgeView.layer.cornerRadius = 4;
+         
+        badgeView.backgroundColor = [UIColor redColor];
+        CGFloat x=CGRectGetMaxX(btn.titleLabel.frame);
+        badgeView.frame = CGRectMake(x+10, 8, 8, 8);
+         
+        [btn addSubview:badgeView];
+         
         [self.itemBtnArr addObject:btn];
     }
     [self setNeedsLayout];

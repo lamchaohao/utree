@@ -16,6 +16,7 @@
 #import "DBManager.h"
 #import "MMAlertView.h"
 #import "ConvertMessageUtil.h"
+#import "RedDotHelper.h"
 @interface ChatListVC ()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong)UIView *headView;
 @property(nonatomic,strong)UIButton *contactBtn;
@@ -84,7 +85,9 @@ static NSString *cellID = @"chatId";
             NSIndexPath *indexpath = [NSIndexPath indexPathForRow:count inSection:0];
             [indexpaths addObject:indexpath];
         }
+        
         dispatch_sync(dispatch_get_main_queue(), ^{
+            [self.tableView exchangeSubviewAtIndex:oldPosition withSubviewAtIndex:0];
               [self.tableView reloadRowsAtIndexPaths:indexpaths withRowAnimation:UITableViewRowAnimationNone];
         });
        
@@ -95,6 +98,7 @@ static NSString *cellID = @"chatId";
             [self.recentList addObjectsFromArray:recents];
             dispatch_sync(dispatch_get_main_queue(), ^{
                   [self reloadTableViewData];
+                [self updateBadgeViewCount];
             });
            
         }];
@@ -113,6 +117,7 @@ static NSString *cellID = @"chatId";
             NSMutableArray *recents = resultDic[@"result"];
             [self.recentList addObjectsFromArray:recents];
             [self reloadTableViewData];
+            [self updateBadgeViewCount];
         }];
         
     }
@@ -125,6 +130,16 @@ static NSString *cellID = @"chatId";
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+-(void)updateBadgeViewCount
+{
+    int unreadCount = 0;
+    for (RecentContact *p in self.recentList) {
+       unreadCount+=p.unreadCount;
+    }
+    [RedDotHelper shareInstance].chatUnread =unreadCount;
+    
+}
+
 -(void)refreshRecentContacts
 {
 
@@ -133,6 +148,7 @@ static NSString *cellID = @"chatId";
         NSMutableArray *recents = resultDic[@"result"];
         [self.recentList addObjectsFromArray:recents];
         [self reloadTableViewData];
+        [self updateBadgeViewCount];
     }];
     
 }

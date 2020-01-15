@@ -16,6 +16,7 @@
 #import "RxWebViewController.h"
 #import "VideoViewController.h"
 #import "HomeworkDetailVC.h"
+#import "RedDotHelper.h"
 @interface HomeworkListView()<UITableViewDelegate,UITableViewDataSource,XMAVAudioPlayerDelegate,HomeworkMediaDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
@@ -81,6 +82,13 @@ static NSString *CellID= @"HomeworkListCellId";
 {
     if ([self.taskFrameArray objectAtIndex: indexPath.row]) {
         HomeworkViewModel *vm = [self.taskFrameArray objectAtIndex:indexPath.row];
+        if (vm.taskModel.unread.boolValue) {
+            vm.taskModel.unread=[NSNumber numberWithBool:NO];
+            [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+            [RedDotHelper shareInstance].studentTaskUnread--;
+            [[NSNotificationCenter defaultCenter] postNotificationName:BadgeValueUpdateNotifyName object:nil];
+        }
+             
         HomeworkDetailVC *detailVC = [[HomeworkDetailVC alloc]initWithHomeworkModel:vm.taskModel];
         [self.utViewDelegate pushToViewController:detailVC];
 

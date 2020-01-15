@@ -18,6 +18,8 @@ typedef void(^DBExecuteResult)(NSDictionary *resultDic);
 
 + (instancetype)sharedInstance;
 
++(void)attempDealloc;
+
 -(void)openContactToChat:(UTParent *)parent;
 
 -(void)queryRecentContactListWithResult:(DBExecuteResult)callback;

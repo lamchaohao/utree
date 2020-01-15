@@ -22,6 +22,10 @@ typedef void(^UTChatloadFinishBlock)(NSArray *messageList);
 
 -(void)addMessage:(NSDictionary *)dic;
 
+-(void)showViewController:(UIViewController *)vc;
+
+-(void)viewControllerDidFinish;
+
 @end
 
 @interface UUChatView : UIView

@@ -10,6 +10,7 @@
 
 @interface TYTabPagerBarCell ()
 @property (nonatomic, weak) UILabel *titleLabel;
+@property (nonatomic, weak)MyRelativeLayout *relativeLayout;
 @end
 
 @implementation TYTabPagerBarCell
@@ -32,12 +33,31 @@
 
 - (void)addTabTitleLabel
 {
+    MyRelativeLayout *relativeLayout = [MyRelativeLayout new];
+    self.relativeLayout=relativeLayout;
     UILabel *titleLabel = [[UILabel alloc]init];
     titleLabel.font = [UIFont systemFontOfSize:15];
     titleLabel.textColor = [UIColor darkTextColor];
     titleLabel.textAlignment = NSTextAlignmentCenter;
-    [self.contentView addSubview:titleLabel];
+    [relativeLayout addSubview:titleLabel];
     _titleLabel = titleLabel;
+    
+    _badgeView = [[UIView alloc]initWithFrame:CGRectMake(0, 10, 6, 6)];
+    _badgeView.backgroundColor = [UIColor redColor];
+    _badgeView.layer.cornerRadius=3;
+    _badgeView.centerXPos.equalTo(titleLabel.centerXPos).offset(30);
+    _badgeView.myTop=10;
+    [relativeLayout addSubview:_badgeView];
+    [self.contentView addSubview:relativeLayout];
+}
+
+- (void)setShowBadgeView:(BOOL)showBadgeView
+{
+    if (showBadgeView) {
+        [self.relativeLayout addSubview:_badgeView];
+    }else{
+        [_badgeView removeFromSuperview];
+    }
 }
 
 + (NSString *)cellIdentifier {
@@ -47,7 +67,7 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    _titleLabel.frame = self.contentView.bounds;
+    self.titleLabel.frame= self.contentView.bounds;
+    self.relativeLayout.frame = self.contentView.bounds;
 }
-
 @end

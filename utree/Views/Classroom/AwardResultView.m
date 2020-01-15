@@ -128,10 +128,10 @@
     }];
     [window addSubview:_contentView];
     
-    self.contentView.transform =CGAffineTransformMakeScale(0.01,1);
+    self.contentView.transform =CGAffineTransformMakeScale(0.01,0.01);
     //CGAffineTransformMakeTranslation(0.01, 389);
     [UIView animateWithDuration:0.3 animations:^{
-        self.contentView.transform = CGAffineTransformMakeTranslation(0.01, 0.01);
+        self.contentView.transform = CGAffineTransformMakeTranslation(1.00, 1.00);
     }];
     
     
@@ -150,7 +150,7 @@
  
 - (void)dismissView :(id)sender{
     [UIView animateWithDuration:0.3 animations:^{
-        self.contentView.transform =CGAffineTransformMakeScale(0.01,1);
+        self.contentView.transform =CGAffineTransformMakeScale(0.01,0.01);
 //        CGAffineTransformMakeTranslation(0.01, 389);
         self.contentView.alpha = 0.2;
         self.alpha = 0;

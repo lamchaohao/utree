@@ -43,7 +43,8 @@ static NSString *cellID=@"photoCell";
 -(void)initView
 {
 
-    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(publishMoment:)];
+//    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(publishMoment:)];
+    UIBarButtonItem *barButtonItem =[[UIBarButtonItem alloc]initWithTitle:@"完成" style:UIBarButtonItemStylePlain target:self action:@selector(publishMoment:)];
     self.navigationItem.rightBarButtonItem = barButtonItem;
     self.showNavigationBarImageWhenDisappear = YES;
     _rootLayout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Vert];
@@ -425,6 +426,9 @@ static NSString *cellID=@"photoCell";
 {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 //需要在主线程执行的代码
+        if([self.callback respondsToSelector:@selector(onPostSuccess)]){
+            [self.callback onPostSuccess];
+        }
         [self showToastView:@"分享成功"];
         [self.navigationController popViewControllerAnimated:YES];
     }];

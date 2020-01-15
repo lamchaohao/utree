@@ -19,7 +19,7 @@
             NSArray *classArray = [UTClassModel mj_objectArrayWithKeyValuesArray:successMsg.responseData];
             NSMutableArray *leadClasses = [[NSMutableArray alloc]init];
             for (UTClassModel *model in classArray) {
-                if(model.headTeacher){
+                if(model.headTeacher.boolValue){
                     [leadClasses addObject:model];
                 }
             }

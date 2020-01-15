@@ -67,8 +67,8 @@
     if (!_thumnails) {
         _thumnails = [[NSMutableArray alloc]init];
         for (NSString *picURL in self.picList) {
-            //等比缩放，限定在矩形框内 将图缩略成宽度为 100，高度为 100，按长边优先
-            NSString *thumnailURL = [picURL stringByAppendingFormat:@"?x-oss-process=image/resize,m_lfit,h_150,w_150"];
+            //等比缩放，限定在矩形框内 将图缩略成原图质量的50%
+            NSString *thumnailURL = [picURL stringByAppendingFormat:@"?x-oss-process=image/quality,q_50"];
             [_thumnails addObject:thumnailURL];
         }
     }

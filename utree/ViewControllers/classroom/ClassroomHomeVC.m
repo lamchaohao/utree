@@ -16,6 +16,7 @@
 #import "AttendanceVC.h"
 #import "RandomVC.h"
 #import "LeftDrawerView.h"
+#import "UTCache.h"
 
 
 @interface ClassroomHomeVC ()<FSPageContentViewDelegate,FSSegmentTitleViewDelegate>
@@ -39,6 +40,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeTitleName:) name:ClazzChangedNotifycationName object:nil];
     [self initBarbutton];
     [self initTabButton];
     [self initScrollView];
@@ -50,7 +52,17 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self changeTitleName:nil];
     self.navigationController.navigationBar.hidden=NO;
+}
+
+-(void)changeTitleName:(id)send
+{
+    NSString *className = @"";
+    if ([UTCache readClassName]) {
+        className=[UTCache readClassName];
+    }
+    self.title=[NSString stringWithFormat:@"%@课堂",className];
 }
 
 -(void)initBarbutton{
@@ -128,6 +140,11 @@
         _rightbarItem.title=@"方案";
     }
 
+}
+
+- (BOOL)showBadgeViewOrNot:(NSInteger)index
+{
+    return NO;
 }
 
 -(void)initMenuBtn{
@@ -335,4 +352,8 @@
     }
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 @end

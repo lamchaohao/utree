@@ -27,19 +27,29 @@
 //计算Code圈主体Frame
 - (void)setBodyFrames{
     
-    self.headDataFrame = (CGRect){{0,0},{0,65.0}};
-    //时间
-    
+    self.headDataFrame = (CGRect){{0,0},{0,65}};
+
+    //标题
     CGFloat topicY = CGRectGetMaxY(self.headDataFrame)+circleCellMargin;
-    CGSize topicSize = [self.notice.topic boundingRectWithSize:CGSizeMake(circleCellWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
-    
-    CGRect titleFrame = (CGRect){{0,topicY},topicSize};
+
+    CGSize topicSize = [self stringSizeWithFont:circleCellTextFont str:[NSString stringWithFormat:@"标题:%@",self.notice.topic] maxWidth:circleCellWidth maxHeight:MAXFLOAT];
+    topicSize.height = ceil(topicSize.height) + 15;
+    self.titleTextFrame = (CGRect){{circleCellMargin,topicY},topicSize};
     
     //正文
     CGFloat textX = circleCellMargin;
-    CGFloat textY = CGRectGetMaxY(titleFrame) + circleCellMargin;
+    CGFloat textY = CGRectGetMaxY(self.titleTextFrame) + circleCellMargin;
     CGFloat textW = circleCellWidth;
-    CGSize textSize = [self.notice.content boundingRectWithSize:CGSizeMake(textW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTextattributes context:nil].size;
+//    CGSize textSize = [self.notice.content boundingRectWithSize:CGSizeMake(textW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTextattributes context:nil].size;
+//    textSize.height+=20;
+    NSString *textToshow = @"";
+    if(self.notice.content.length>100){
+        textToshow =[[self.notice.content substringToIndex:100] stringByAppendingFormat:@"..."];
+    }else{
+        textToshow =self.notice.content;
+    }
+    CGSize textSize = [self stringSizeWithFont:circleCellTextFont str:textToshow maxWidth:circleCellWidth maxHeight:MAXFLOAT];
+    textSize.height = ceil(textSize.height) + 1;
     self.detailTextFrame = (CGRect){{textX,textY},textSize};
     
     //录音(判断是否有录音)
@@ -88,7 +98,7 @@
         self.noticeBodyFrame = CGRectMake(0, 0, circleCellWidth, bodyH);
     }
     //判断是否有链接
-    if (self.notice.link) {
+    if (self.notice.link&&self.notice.link.length>0) {
         CGFloat linkY= CGRectGetMaxY(self.noticeBodyFrame) + circleCellMargin;
         CGFloat linkW = circleCellWidth;
         CGFloat linkH = 56;
@@ -107,6 +117,16 @@
         summaryHeight += circleCellToolBarHeight;
     }
     self.cellHeight = CGRectGetMaxY(self.noticeBodyFrame)+summaryHeight;
+}
+
+
+- (CGSize)stringSizeWithFont:(UIFont *)font str:(NSString*)str maxWidth:(CGFloat)maxWidth maxHeight:(CGFloat)maxHeight
+{
+    NSMutableDictionary *attr = [NSMutableDictionary dictionary];
+    CGSize maxSize = CGSizeMake(maxWidth, maxHeight);
+    attr[NSFontAttributeName] = font;
+    return [str boundingRectWithSize:maxSize options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:attr context:nil].size;
+    
 }
 
 @end

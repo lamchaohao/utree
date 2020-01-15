@@ -64,6 +64,13 @@ static NSString *cellID = @"collectionID";
     MyRelativeLayout *rootLayout = [MyRelativeLayout new];
     self.view = rootLayout;
     
+    UITapGestureRecognizer * tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closedialog:)];
+    UIView *bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
+    bgView.backgroundColor=[UIColor clearColor];
+    [bgView addGestureRecognizer:tapGesture];
+    [tapGesture setNumberOfTapsRequired:1];
+    [self.view addSubview:bgView];
+    
     MyFrameLayout *myTopLL = [MyFrameLayout new];
     myTopLL.frame = CGRectMake(0,0,ScreenWidth-40,50);
     myTopLL.myHorzMargin = 0;

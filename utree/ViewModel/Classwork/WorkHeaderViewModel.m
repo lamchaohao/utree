@@ -53,20 +53,27 @@
     self.headDataFrame = (CGRect){{0,0},{0,50}};
     //科目
     CGFloat subjectY = CGRectGetMaxY(self.headDataFrame) + circleContentTextMargin;
-    CGSize subjectSize = [self.taskModel.topic boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
+
+    CGSize subjectSize = [self stringSizeWithFont:circleCellTextFont str:[NSString stringWithFormat:@"科目:%@",self.taskModel.subjectName] maxWidth:circleCellWidth maxHeight:MAXFLOAT];
+    subjectSize.height = ceil(subjectSize.height) + 1;
+    
     CGRect subjectFrame = (CGRect){{0,subjectY},subjectSize};
     
     
     CGFloat topicY = CGRectGetMaxY(subjectFrame) + circleContentTextMargin;
-    CGSize topicSize = [self.taskModel.topic boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
-    
-    CGRect titleFrame = (CGRect){{0,topicY},topicSize};
+    CGSize topicSize = [self stringSizeWithFont:circleCellTextFont str:[NSString stringWithFormat:@"标题:%@",self.taskModel.topic] maxWidth:circleCellWidth maxHeight:MAXFLOAT];
+    topicSize.height = ceil(topicSize.height) + 1;
+    self.titleFrame= (CGRect){{0,topicY},topicSize};
     
     //正文
     CGFloat textX = 0;
-    CGFloat textY = CGRectGetMaxY(titleFrame) + circleContentTextMargin;
+    CGFloat textY = CGRectGetMaxY(self.titleFrame) + circleContentTextMargin;
     CGFloat textW = circleCellWidth-2*circleCellMargin;
-    CGSize textSize = [self.taskModel.content boundingRectWithSize:CGSizeMake(textW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTextattributes context:nil].size;
+    
+    CGSize textSize = [self stringSizeWithFont:circleCellTextFont str:[NSString stringWithFormat:@"科目:%@",self.taskModel.content] maxWidth:circleCellWidth maxHeight:MAXFLOAT];
+    textSize.height = ceil(textSize.height) + 1;
+    
+//    CGSize textSize = [self.taskModel.content boundingRectWithSize:CGSizeMake(textW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTextattributes context:nil].size;
     self.detailTextFrame = (CGRect){{textX,textY},{textSize.width,textSize.height+24}};
     //录音(判断是否有录音)
     if (self.taskModel.audio) {
@@ -107,7 +114,7 @@
         self.contentBodyFrame = CGRectMake(0, 0, circleCellWidth, bodyH);
     }
     //判断是否有链接
-    if (self.taskModel.link) {
+    if (self.taskModel.link&&self.taskModel.link.length>0) {
        CGFloat linkY= CGRectGetMaxY(self.contentBodyFrame) + circleContentTextMargin;
        CGFloat linkW = ScreenWidth-30;
        CGFloat linkH = 56;
@@ -146,5 +153,13 @@
     self.cellHeight = CGRectGetMaxY(self.taskToolBarFrame);
 }
 
+- (CGSize)stringSizeWithFont:(UIFont *)font str:(NSString*)str maxWidth:(CGFloat)maxWidth maxHeight:(CGFloat)maxHeight
+{
+    NSMutableDictionary *attr = [NSMutableDictionary dictionary];
+    CGSize maxSize = CGSizeMake(maxWidth, maxHeight);
+    attr[NSFontAttributeName] = font;
+    return [str boundingRectWithSize:maxSize options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:attr context:nil].size;
+    
+}
 
 @end

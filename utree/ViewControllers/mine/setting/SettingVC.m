@@ -13,6 +13,7 @@
 #import "MainLoginVC.h"
 #import "ClearCacheTool.h"
 #import "MMAlertView.h"
+#import "DBManager.h"
 #import "AppDelegate.h"
 @interface SettingVC ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -171,6 +172,8 @@ static NSString *CellID = @"staticCell";
 //        MainLoginVC *mainLogin = [[MainLoginVC alloc] init];
 //        mainLogin.modalPresentationStyle=UIModalPresentationOverFullScreen;
 //        [self presentViewController:mainLogin animated:YES completion:nil];
+        [[DBManager sharedInstance] closeDB];
+        [DBManager attempDealloc];//关闭数据库,销毁
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         [appDelegate toLoginVC];
     };

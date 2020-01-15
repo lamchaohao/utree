@@ -100,7 +100,7 @@
 - (void)setStudentModel:(UTStudent *)studentModel
 {
 
-    [_headView sd_setImageWithURL:[NSURL URLWithString:studentModel.fileDo.path] placeholderImage:[UIImage imageNamed:@"head_boy"]];
+    [_headView sd_setImageWithURL:[NSURL URLWithString:studentModel.fileDo.path] placeholderImage:[UIImage imageNamed:studentModel.gender.boolValue?@"head_boy":@"head_girl"]];
     _headView.contentMode=UIViewContentModeScaleAspectFill;
     self.nameLabel.text =studentModel.studentName;
     self.scoreLabel.text=[NSString stringWithFormat:@"%ld",studentModel.dropRecord];

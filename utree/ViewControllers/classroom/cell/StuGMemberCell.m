@@ -65,8 +65,8 @@
 -(void)setStudentModel:(StuGMemberModel *)student
 {
     self.textLabel.text=student.studentName;
-
-    [self.imageView sd_setImageWithURL:[NSURL URLWithString:student.fileDo.path]];
+    [self.imageView sd_setImageWithURL:[NSURL URLWithString:student.fileDo.path] placeholderImage:[UIImage imageNamed:student.gender.boolValue?@"head_boy":@"head_girl"]];
+    self.imageView.contentMode=UIViewContentModeScaleAspectFill;
     self.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
 
     if (student.selectMode==1) {

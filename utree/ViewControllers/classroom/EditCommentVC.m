@@ -77,5 +77,9 @@ static NSString *cellID= @"commentId";
 
 }
 
+- (nullable NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+{
+    return @"删除";
+}
 
 @end

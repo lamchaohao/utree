@@ -215,6 +215,9 @@
     return 25;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (section>=self.viewModel.dateTitleList.count) {
+        return [[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
+    }
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 24)];
     UILabel *label = [[UILabel alloc]init];
     label.text = [NSString stringWithFormat:@"%@",

@@ -55,6 +55,7 @@
 #define ClazzChangedNotifycationName @"CLASS_HAVE_CHANGED"
 #define GroupPlanChangedNotifyName @"GROUP_PLAN_CHANGED"
 #define PostWorkNotifyName @"POST_CLASSWORK_SUCCESS"
+#define BadgeValueUpdateNotifyName @"utree_badge_view_notify"
 #define MIMC_ReceiveMsgNotifyName @"mimc_receive_msg"
 #define FetchParentDataNotifyName @"need_parent_profile_notify"
 #define UpdateParentDataNotifyName @"update_parent_profile_completed_notify"

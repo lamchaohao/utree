@@ -33,7 +33,7 @@
     _headView.myWidth=_headView.myHeight=75;
     _headView.myTop=16;
     _headView.backgroundColor=[UIColor whiteColor];
-    [_headView setImage:[UIImage imageNamed:@"head_boy"]];
+    [_headView setImage:[UIImage imageNamed:@"default_head"]];
     _headView.layer.cornerRadius=5;
     UIColor *color = [UIColor_ColorChange colorWithHexString:@"#CCCCCC"];
     _headView.layer.borderColor=color.CGColor;

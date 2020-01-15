@@ -36,7 +36,7 @@
     _headView = [[UIImageView alloc]initWithFrame:CGRectMake(18, 18, 48, 48)];
     _posterLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 23, 254, 20)];
     _timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 45, 260, 18)];
-    
+    _unreadView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"ic_new_unread"]];
     _feedbackView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 22, 22)];
     
     _headView.myTop=_headView.myLeft=circleCellMargin;
@@ -44,6 +44,8 @@
     _posterLabel.leftPos.equalTo(_headView.rightPos).offset(10);
     _timeLabel.topPos.equalTo(_posterLabel.bottomPos).offset(5);
     _timeLabel.leftPos.equalTo(_headView.rightPos).offset(10);
+    _unreadView.topPos.equalTo(_posterLabel.topPos).offset(5);
+    _unreadView.leftPos.equalTo(_posterLabel.rightPos).offset(10);
     
     _feedbackView.rightPos.equalTo(topLayout.rightPos).offset(10);
     _feedbackView.myCenterY=0;
@@ -125,7 +127,7 @@
     
     self.webButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth-30, 56)];
     self.webButton.backgroundColor = [UIColor myColorWithHexString:@"#FFEBEBEB"];
-    [self.webButton setImage:[UIImage imageNamed:@"head_boy"] forState:UIControlStateNormal];
+    [self.webButton setImage:[UIImage imageNamed:@"ic_link"] forState:UIControlStateNormal];
     self.webButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;//居左显示
     [self.webButton setTitle:@"http://www.gzz100.com" forState:UIControlStateNormal];
     self.webButton.titleLabel.numberOfLines=0;
@@ -188,6 +190,11 @@
 
 -(void)setTaskModel:(HomeworkModel *)model
 {
+    if (model.unread.boolValue) {
+        [self.topLayout addSubview:_unreadView];
+    }else{
+        [_unreadView removeFromSuperview];
+    }
     [_posterLabel setText:model.teacherDo.teacherName];
     [_posterLabel sizeToFit];
 
@@ -200,7 +207,13 @@
     [_titleLabel setText:[NSString stringWithFormat:@"标题:%@",model.topic]];
     [_titleLabel sizeToFit];
 
-    [_detailLabel setText:model.content];
+    NSString *textToshow = @"";
+    if(model.content.length>100){
+       textToshow =[[model.content substringToIndex:100] stringByAppendingFormat:@"..."];
+    }else{
+       textToshow =model.content;
+    }
+    [_detailLabel setText:textToshow];
  
     _detailLabel.numberOfLines = 0;//表示label可以多行显示
     _detailLabel.lineBreakMode = NSLineBreakByWordWrapping;//换行模式，与上面的计算保持一致。
@@ -231,7 +244,7 @@
     if (self.taskViewModel.taskModel.picList.count!= 0) {
         self.photosView.hidden = NO;
         // 设置图片缩略图数组
-        self.photosView.thumbnailUrls = self.taskViewModel.taskModel.picList;
+        self.photosView.thumbnailUrls = self.taskViewModel.taskModel.thumnails;
         // 设置图片原图地址
         self.photosView.originalUrls = self.taskViewModel.taskModel.picList;
         // 设置图片frame

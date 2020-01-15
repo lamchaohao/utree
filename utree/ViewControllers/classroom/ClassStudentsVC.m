@@ -105,14 +105,24 @@ static NSString *collectionCellID = @"MyCollectionViewCell";
     [self.viewModel switchToMultiChoice];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ClazzChangedNotifycationName object:nil];
-}
 
+#pragma mark AwardVCDelegate
 - (void)pushToViewController:(UIViewController *)vc
 {
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)onAwardSuccess:(AwardModel *)model
+{
+    if (model) {
+        [self.viewModel afterAwardSuccess:model];
+    }
+    
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ClazzChangedNotifycationName object:nil];
 }
 
 @end

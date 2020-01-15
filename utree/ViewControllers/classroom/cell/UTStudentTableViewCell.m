@@ -85,8 +85,7 @@
 {
     self.textLabel.text=student.studentName;
     self.scoreLabel.text = [NSString stringWithFormat:@"%ld",student.dropRecord];
-    [self.imageView sd_setImageWithURL:[NSURL URLWithString:student.fileDo.path] placeholderImage:[UIImage imageNamed:@"head_boy"]];
-    
+    [self.imageView sd_setImageWithURL:[NSURL URLWithString:student.fileDo.path] placeholderImage:[UIImage imageNamed:student.gender.boolValue?@"head_boy":@"head_girl"]];
     if (student.selectMode==1) {
         self.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
         self.accessoryView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"ic_selected_green"]];

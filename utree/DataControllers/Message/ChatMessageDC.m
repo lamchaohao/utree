@@ -149,7 +149,14 @@ static NSString *previousTime = nil;
 
 -(void)sendImageMessage:(UIImage *)image andAsset:(PHAsset *)asset
 {
-    NSString *fileName = [asset valueForKey:@"filename"];
+    NSString *fileName =@"";
+     
+    if(!asset){
+        fileName = [NSString stringWithFormat:@"%ld.JPEG", [UTDateConvertTool getNowTimestamp]];
+    }else{
+        fileName = [asset valueForKey:@"filename"];
+    }
+   
     NSLog(@"chatMsgDC,fileName = %@",fileName);
     
     _photoFileIndex ++;

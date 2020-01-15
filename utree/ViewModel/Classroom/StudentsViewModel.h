@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "UTStudent.h"
+#import "AwardModel.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol StudentViewModelDelegate <NSObject>
@@ -19,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)reloadDataToView;
 
 -(void)endRefreshing;
+
+-(void)afterStudentAward:(AwardModel *)awardModel;
 
 @end
 
@@ -48,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)endRefreshing;
 
 -(void)sortStudentsWithType:(int)type;
+
+-(void)afterAwardSuccess:(AwardModel *)model;
 
 @property(nonatomic,assign)id<StudentViewModelDelegate> delegate;
 

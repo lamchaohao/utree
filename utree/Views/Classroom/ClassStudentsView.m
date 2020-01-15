@@ -15,6 +15,9 @@ UITableViewDelegate,UITableViewDataSource,StudentViewModelDelegate>
 @property int kLineNum;
 @property int kLineSpacing ;
 @property(nonatomic,strong)UIButton *awardBtn;
+@property(nonatomic,strong)UTStudent *selectedStudent;
+@property(nonatomic,strong)NSIndexPath *selectedIndexPath;
+@property(nonatomic,assign)BOOL isFromTableViewStu;
 @end
 
 @implementation ClassStudentsView
@@ -173,6 +176,9 @@ static NSString *tableViewCellID =@"studentTableViewCell";
  */
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     UTStudent *stu = self.viewModel.studentsModel[indexPath.row];
+    self.selectedStudent = stu;
+    self.selectedIndexPath = indexPath;
+    self.isFromTableViewStu = NO;
     [self changeSelectStudentStatus:stu selected:YES fromTableView:NO];
 }
 //取消选择
@@ -270,6 +276,9 @@ static NSString *tableViewCellID =@"studentTableViewCell";
     
 
     UTStudent *stu = [[self.viewModel.sortStudentList objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    self.selectedStudent = stu;
+    self.selectedIndexPath = indexPath;
+    self.isFromTableViewStu= YES;
     [self changeSelectStudentStatus:stu selected:YES fromTableView:YES];
     //选中后不变色
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -362,6 +371,19 @@ static NSString *tableViewCellID =@"studentTableViewCell";
     [_awardBtn setHidden:!visible];
     [_collectionView reloadData];
     [_tableView reloadData];
+}
+
+- (void)afterStudentAward:(AwardModel *)awardModel
+{
+    if (awardModel&&self.selectedStudent&&self.selectedIndexPath) {
+        self.selectedStudent.dropRecord += awardModel.dropPoint.longValue;
+        if (self.isFromTableViewStu) {
+            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:self.selectedIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        }else{
+           [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObject:self.selectedIndexPath]];
+        }
+    }
+    
 }
 
 @end

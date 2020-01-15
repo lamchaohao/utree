@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic,strong)NSString *studentId;
 
-@property(nonatomic,assign)BOOL gender;
+@property(nonatomic,strong)NSNumber *gender;
 
 @property(nonatomic,strong)NSString *birthDay;
 

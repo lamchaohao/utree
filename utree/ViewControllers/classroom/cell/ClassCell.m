@@ -35,12 +35,28 @@
         self.layer.shadowOffset = CGSizeMake(5, 5);
         self.layer.shadowColor =   [[UIColor_ColorChange colorWithHexString:@"#FFECECEC"] CGColor];
         
+        MyLinearLayout *classNameLayout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Horz];
+        classNameLayout.frame = CGRectMake(0, 0, circleCellWidth, 24);
+        classNameLayout.myLeft=classNameLayout.myTop=circleCellMargin;
+        UIView *dotView = [[UIView alloc] init];
+        dotView.frame = CGRectMake(0,0,3,20);
+        dotView.backgroundColor = [UIColor colorWithRed:67/255.0 green:210/255.0 blue:127/255.0 alpha:1.0];
         
+//        UILabel *infoTitle =[UILabel new];
+//        infoTitle.text = @"成绩总览";
+//        infoTitle.font = [CFTool font:16];
+//        infoTitle.myLeft = circleCellMargin;
+//        infoTitle.myTop= 0;
+//        [infoTitle sizeToFit];
         _classNameLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 40)];
         [_classNameLabel setText:@"三年二班"];
-        _classNameLabel.myLeft = 30;
-        _classNameLabel.myTop = 12;
+        _classNameLabel.myLeft = 8;
+//        _classNameLabel.myTop = 12;
         [_classNameLabel setFont:[UIFont systemFontOfSize:14]];
+        [classNameLayout addSubview:dotView];
+        [classNameLayout addSubview:_classNameLabel];
+        
+        
         
 //        _classNameLabel.myCenterY = 0;
         MyLinearLayout *contentLayout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Horz];
@@ -83,7 +99,7 @@
         [contentLayout addSubview:_iconImg];
         [contentLayout addSubview:detailLayout];
         
-        [rootLayout addSubview:_classNameLabel];
+        [rootLayout addSubview:classNameLayout];
         [rootLayout addSubview:contentLayout];
         [self.contentView addSubview:rootLayout];
     }
@@ -105,10 +121,34 @@
 
 // 3. 填充数据
 - (void)setClassModel:(UTClassModel *)classModel {
-    [self.subjectLabel setText:classModel.subject];
-    [self.classNameLabel setText:classModel.className];
-    [self.studentCountLabel setText: [NSString stringWithFormat:@"学生: %d",classModel.studentCount.intValue]];
-    [self.dropCountLabel setText:[NSString stringWithFormat:@"水滴: %d",classModel.dropCount.intValue]];
+    NSString *appendClassName = @"";
+    if(classModel.headTeacher.boolValue){
+        appendClassName = [classModel.className stringByAppendingString:@"(班主任)"];
+        NSMutableAttributedString *abStr = [[NSMutableAttributedString alloc] initWithString:appendClassName];
+        [abStr addAttribute:NSForegroundColorAttributeName value:[UIColor myColorWithHexString:@"#F8A21A"] range:NSMakeRange(classModel.className.length, 5)];
+        self.classNameLabel.attributedText = abStr;
+        [self.classNameLabel sizeToFit];
+    }else{
+        [self.classNameLabel setText:classModel.className];
+        [self.classNameLabel sizeToFit];
+    }
+
+    NSMutableAttributedString *subjectAbs = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"科目：%@",classModel.subject]];
+    [subjectAbs addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15] range:NSMakeRange(3, classModel.subject.length)];
+    self.subjectLabel.attributedText = subjectAbs;
+    
+    NSMutableAttributedString *studentCountAbs = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"学生：%d",classModel.studentCount.intValue]];
+    [studentCountAbs addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:17] range:NSMakeRange(3, [NSString stringWithFormat:@"%d",classModel.studentCount.intValue].length)];
+     [studentCountAbs addAttribute:NSForegroundColorAttributeName value:[UIColor myColorWithHexString:@"#43D27F"] range:NSMakeRange(3, classModel.studentCount.stringValue.length)];
+    self.studentCountLabel.attributedText = studentCountAbs;
+    
+//    [self.studentCountLabel setText: [NSString stringWithFormat:@"学生: %d",classModel.studentCount.intValue]];
+    
+    NSMutableAttributedString *dropCountAbs = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"水滴：%d",classModel.dropCount.intValue]];
+    [dropCountAbs addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:17] range:NSMakeRange(3, [NSString stringWithFormat:@"%d",classModel.dropCount.intValue].length)];
+     [dropCountAbs addAttribute:NSForegroundColorAttributeName value:[UIColor myColorWithHexString:@"#44D2FF"] range:NSMakeRange(3, classModel.dropCount.stringValue.length)];
+    self.dropCountLabel.attributedText = dropCountAbs;
+//    [self.dropCountLabel setText:[NSString stringWithFormat:@"水滴: %d",classModel.dropCount.intValue]];
     [_subjectLabel sizeToFit];
     [_studentCountLabel sizeToFit];
     [_dropCountLabel sizeToFit];

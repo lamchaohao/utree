@@ -10,7 +10,7 @@
 #import "UUChatCategory.h"
 #import "TZImagePickerController.h"
 
-@interface UUInputToolsView ()<UITextViewDelegate>
+@interface UUInputToolsView ()<UITextViewDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 
 {
    BOOL isbeginVoiceRecord;
@@ -35,19 +35,17 @@
         self.isAbleToSendTextMessage = NO;
 
         //发送消息
-        self.btnSendMessage = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.btnSendMessage setTitle:@"" forState:UIControlStateNormal];
-        [self.btnSendMessage setBackgroundImage:[UIImage uu_imageWithName:@"chat_bar_more_normal"] forState:UIControlStateNormal];
-        self.btnSendMessage.titleLabel.font = [UIFont systemFontOfSize:12];
-        [self.btnSendMessage addTarget:self action:@selector(sendMessage:) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:self.btnSendMessage];
+        self.btnMoreFunc = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.btnMoreFunc setBackgroundImage:[UIImage uu_imageWithName:@"chat_bar_more_normal"] forState:UIControlStateNormal];
+        [self.btnMoreFunc addTarget:self action:@selector(onMoreBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.btnMoreFunc];
         
         //改变状态（语音、文字）
         self.btnChangeVoiceState = [UIButton buttonWithType:UIButtonTypeCustom];
         isbeginVoiceRecord = NO;
         [self.btnChangeVoiceState setBackgroundImage:[UIImage uu_imageWithName:@"chat_bar_voice_normal"] forState:UIControlStateNormal];
         self.btnChangeVoiceState.titleLabel.font = [UIFont systemFontOfSize:12];
-        [self.btnChangeVoiceState addTarget:self action:@selector(voiceRecord:) forControlEvents:UIControlEventTouchUpInside];
+        [self.btnChangeVoiceState addTarget:self action:@selector(voiceRecordBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.btnChangeVoiceState];
 
         //语音录入键
@@ -96,7 +94,7 @@
 {
     [super layoutSubviews];
     self.btnVoiceRecord.frame = CGRectMake(70, 5, self.uu_width-70*2, 30);
-    self.btnSendMessage.frame = CGRectMake(self.uu_width-40, 5, 30, 30);
+    self.btnMoreFunc.frame = CGRectMake(self.uu_width-40, 5, 30, 30);
     self.textViewInput.frame = CGRectMake(45, 5, self.uu_width-2*45, 30);
     _placeHold.frame = CGRectMake(20, 0, 200, 30);
     self.btnChangeVoiceState.frame = CGRectMake(5, 5, 30, 30);
@@ -159,7 +157,7 @@
 
 
 //改变输入与录音状态
-- (void)voiceRecord:(UIButton *)sender
+- (void)voiceRecordBtnClick:(UIButton *)sender
 {
     self.btnVoiceRecord.hidden = !self.btnVoiceRecord.hidden;
     self.textViewInput.hidden  = !self.textViewInput.hidden;
@@ -167,6 +165,9 @@
     if (isbeginVoiceRecord) {
         [self.btnChangeVoiceState setBackgroundImage:[UIImage uu_imageWithName:@"chat_bar_input_normal"] forState:UIControlStateNormal];
         [self.textViewInput resignFirstResponder];
+        //quickReplyView and FunctionView should be dismiss;
+//        [self.delegate onFunctionSwitchClick:NO];
+        [self.delegate onRecordBtnSwitchToEnable];
     }else{
         [self.btnChangeVoiceState setBackgroundImage:[UIImage uu_imageWithName:@"chat_bar_voice_normal"] forState:UIControlStateNormal];
         [self.textViewInput becomeFirstResponder];
@@ -174,7 +175,7 @@
 }
 
 //发送消息（文字图片）
-- (void)sendMessage:(UIButton *)sender
+- (void)onMoreBtnClick:(UIButton *)sender
 {
     if (self.isAbleToSendTextMessage) {
         NSString *resultStr = [self.textViewInput.text stringByReplacingOccurrencesOfString:@"   " withString:@""];
@@ -182,9 +183,11 @@
     }
     else{
         [self.textViewInput resignFirstResponder];
-        [self.delegate showFunctionView];
-//        UIActionSheet *actionSheet= [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"相机",@"图片",@"图示",nil];
-//        [actionSheet showInView:self.window];
+        self.btnVoiceRecord.hidden=YES;
+        self.textViewInput.hidden=NO;
+        isbeginVoiceRecord=NO;
+        [self.btnChangeVoiceState setBackgroundImage:[UIImage uu_imageWithName:@"chat_bar_voice_normal"] forState:UIControlStateNormal];
+        [self.delegate onFunctionSwitchClick:NO];
     }
 }
 
@@ -215,27 +218,12 @@
     }
 }
 
-- (void)changeSendBtnWithPhoto:(BOOL)isPhoto
-{
-    self.isAbleToSendTextMessage = !isPhoto;
-    [self.btnSendMessage setTitle:isPhoto?@"":@"发送" forState:UIControlStateNormal];
-    CGRect sendFrame = self.btnSendMessage.frame;
-    sendFrame.size.width = isPhoto ? 30:48;
-    self.btnSendMessage.frame = sendFrame;
-    UIImage *image = [UIImage uu_imageWithName:isPhoto?@"chat_bar_more_normal":@"chat_send_message"];
-    [self.btnSendMessage setBackgroundImage:image forState:UIControlStateNormal];
-}
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
     _placeHold.hidden = self.textViewInput.text.length > 0;
 }
 
-#pragma mark - Add Picture
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    
-}
 
 -(void)onFunctionActionClick:(int)position
 {
@@ -244,7 +232,7 @@
     }else if (position == 1){
         [self pickPicture];
     }else if(position==2){
-       
+       [self.delegate onFunctionSwitchClick:YES];
     }
 }
 
@@ -252,13 +240,39 @@
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
-        picker.allowsEditing = YES;
+        picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        
         [self.superVC presentViewController:picker animated:YES completion:^{}];
     }else{
         //如果没有提示用户
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tip" message:@"Your device don't have camera" delegate:nil cancelButtonTitle:@"Sure" otherButtonTitles:nil];
         [alert show];
+    }
+}
+
+//结束采集之后 之后怎么处理都在这里写 通过Infokey取出相应的信息  Infokey可在进入文件中查看
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> *)info{
+//查看是视频还是照片  public.image 或 public.movie
+    NSString * mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    if ([mediaType isEqualToString:@"public.image"]) {//照片
+        UIImage* editedImage =(UIImage *)[info objectForKey:
+                    UIImagePickerControllerEditedImage]; //取出编辑过的照片
+        UIImage* originalImage =(UIImage *)[info objectForKey:
+                    UIImagePickerControllerOriginalImage];//取出原生照片
+//        PHAsset* asset =(PHAsset *)[info objectForKey:
+//        UIImagePickerControllerPHAsset];//取出asset
+
+        UIImage* imageToSave = nil;
+        if(editedImage){
+            imageToSave = editedImage;
+        } else {
+            imageToSave = originalImage;
+        }
+    //将新图像（原始图像或已编辑）保存到相机胶卷
+        UIImageWriteToSavedPhotosAlbum(imageToSave,nil,nil,nil);
+        [self.delegate UUInputToolsView:self sendPicture:[NSArray arrayWithObject:imageToSave] assets:[[NSMutableArray alloc]init]];
+        [picker dismissViewControllerAnimated:YES completion:nil];
     }
 }
 

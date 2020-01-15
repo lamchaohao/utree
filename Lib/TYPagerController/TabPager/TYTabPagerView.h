@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIView *)tabPagerView:(TYTabPagerView *)tabPagerView viewForIndex:(NSInteger)index prefetching:(BOOL)prefetching;
 
 - (NSString *)tabPagerView:(TYTabPagerView *)tabPagerView titleForIndex:(NSInteger)index;
+//chaohao add
+- (BOOL)tabPagerView:(TYTabPagerView *)tabPagerView showbadgeViewForIndex:(NSInteger)index;
 
 @end
 

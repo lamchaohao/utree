@@ -9,11 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "TYTabPagerController.h"
 #import "BaseViewController.h"
+#import "AwardModel.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol AwardVCDelegate <NSObject>
 
 -(void)pushToViewController:(UIViewController *)vc;
+
+-(void)onAwardSuccess:(AwardModel *)model;
 
 @end
 

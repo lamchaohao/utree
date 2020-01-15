@@ -8,7 +8,6 @@
 
 #import "UUChatView.h"
 #import "Masonry.h"
-//#import "UUInputFunctionView.h"
 #import "UTMessageCell.h"
 #import "ChatModel.h"
 #import "UTMessageFrame.h"
@@ -19,11 +18,14 @@
 #import "RecordView.h"
 #import "AVAudioPlayer.h"
 #import "UUChatFunctionView.h"
+#import "UTQuickReplyView.h"
+#import "CHInputVC.h"
 
-@interface UUChatView ()<UUInputToolsViewDelegate, UTMessageCellDelegate, UITableViewDataSource, UITableViewDelegate,RecordViewDelegate,XMAVAudioPlayerDelegate,UUChatFunctioViewDataSource,UUChatFunctioViewDelegate>
+@interface UUChatView ()<UUInputToolsViewDelegate, UTMessageCellDelegate, UITableViewDataSource, UITableViewDelegate,RecordViewDelegate,XMAVAudioPlayerDelegate,UUChatFunctioViewDataSource,UUChatFunctioViewDelegate,UTQuickReplyDelegate,CHInputCallBack>
 {
     CGFloat _keyboardHeight;
     BOOL _isShowFunctionView;
+    BOOL _isShowQuickReplyView;
 }
 
 @property (strong, nonatomic) UITableView *chatTableView;
@@ -37,6 +39,8 @@
 @property (assign, nonatomic)UTMessageCell *focusCell;
 
 @property (strong, nonatomic)UUChatFunctionView *moreView;
+
+@property (strong, nonatomic)UTQuickReplyView *quickReplyView;
 
 @end
 
@@ -57,9 +61,7 @@
 -(void)setupUI
 {
     [self initBasicViews];
-    _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH);
-    _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
-    
+    self.backgroundColor = [UIColor myColorWithHexString:@"#F7F7F7"];
     self.recordView.hidden = YES;
     self.recordView.center = self.center;
     self.recordView.delegate = self;
@@ -114,9 +116,9 @@
         _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
     } else {
         if(_isShowFunctionView){
-            _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH-210);
+            _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH-251);
             _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
-            _moreView.frame=CGRectMake(0, _inputFuncView.uu_bottom, self.uu_width, 210);
+            _moreView.frame=CGRectMake(0, _inputFuncView.uu_bottom, self.uu_width, 251);
         }else{
             _chatTableView.frame = CGRectMake(0, 0, self.uu_width, self.uu_height-40-iPhone_Safe_BottomNavH);
             _inputFuncView.frame = CGRectMake(0, _chatTableView.uu_bottom, self.uu_width, 40);
@@ -142,6 +144,7 @@
     _inputFuncView.delegate = self;
     [self addSubview:_inputFuncView];
     self.chatTableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadRefreshData)];
+    _chatTableView.keyboardDismissMode=UIScrollViewKeyboardDismissModeOnDrag;
     
 }
 
@@ -152,7 +155,12 @@
     [self.dataDelegate loadMoreMessage];
 }
 
-
+- (void)hideAllFunctionView
+{
+    [self.inputFuncView.textViewInput resignFirstResponder];
+    [self showFunctionView:NO];
+    [self showQuickReply:NO];
+}
 
 #pragma mark - notification event
 
@@ -183,13 +191,15 @@
     [UIView setAnimationDuration:animationDuration];
     [UIView setAnimationCurve:animationCurve];
     _isShowFunctionView=NO;
+    _isShowQuickReplyView = NO;
     self.chatTableView.uu_height = self.uu_height - _inputFuncView.uu_height;
     self.chatTableView.uu_height -= notification.name == UIKeyboardWillShowNotification ? _keyboardHeight:iPhone_Safe_BottomNavH;
     self.chatTableView.contentOffset = CGPointMake(0, self.chatTableView.contentSize.height-self.chatTableView.uu_height);
 
     self.inputFuncView.uu_top = self.chatTableView.uu_bottom;
     [self.moreView removeFromSuperview];
-    
+    [self.quickReplyView removeFromSuperview];
+    self.quickReplyView.frame=CGRectMake(0,self.uu_height, self.uu_width, 251);
     [UIView commitAnimations];
     
 }
@@ -207,17 +217,19 @@
     NSDictionary *dic = @{Key_Content_Text: message,
                           Key_Type: @(UTMessageTypeText)};
     funcView.textViewInput.text = @"";
-    [funcView changeSendBtnWithPhoto:YES];
+//    [funcView changeSendBtnWithPhoto:YES];
     [self dealTheFunctionData:dic];
 }
 
 - (void)UUInputToolsView:(UUInputToolsView *)funcView sendPicture:(NSArray *)photos assets:(NSArray *)picAssets
 {
-    for (int index=0; index<picAssets.count; index++) {
-        
-        NSDictionary *dic = @{Key_Pic_Data: photos[index],
-                              Key_Pic_Asset: picAssets[index],
-                              Key_Type: @(UTMessageTypePicture)};
+    for (int index=0; index<photos.count; index++) {
+        NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:
+                                    @{Key_Pic_Data: photos[index],
+                                    Key_Type: @(UTMessageTypePicture)}];
+        if(picAssets&&picAssets.count>0){
+            [dic setObject:picAssets[index] forKey:Key_Pic_Asset];
+        }
         [self dealTheFunctionData:dic];
     }
     
@@ -227,26 +239,117 @@
 {
     //交由 (void)recordFinish:(NSData *)data duration:(float)duration
 }
-
-- (void)showFunctionView
+#pragma mark UUInputToolsViewDelegate
+- (void)onFunctionSwitchClick:(BOOL)sign
 {
-    _isShowFunctionView = !_isShowFunctionView;
-    if(_isShowFunctionView){
-        
-        self.chatTableView.uu_height = self.uu_height-210;
-        [self addSubview:self.moreView];
-        [self tableViewScrollToBottom];
+    if (sign) {//sign为YES 代表为常用语按钮被点击
+        [self showQuickReply:YES];
+        return;
+    }
+
+    if(_isShowQuickReplyView){
+       [self showQuickReply:NO];
+    }else{
+       [self showFunctionView:!_isShowFunctionView];
+    }
+    
+}
+
+- (void)onRecordBtnSwitchToEnable
+{
+    [self hideAllFunctionView];
+}
+
+- (void)showQuickReply:(BOOL)needShow
+{
+    _isShowQuickReplyView= needShow;
+    if(_isShowQuickReplyView){
+        [UIView animateWithDuration:0.25 animations:^
+        {
+            
+            self.quickReplyView.frame = CGRectMake(0,self.chatTableView.uu_bottom+40, self.uu_width, 251);
+            [self addSubview:self.quickReplyView];
+        }];
         
     }else{
-        [UIView animateWithDuration:.3 animations:^
+        [UIView animateWithDuration:0.25 animations:^
+        {
+            
+            self.quickReplyView.frame = CGRectMake(0,self.uu_height, self.uu_width, 251);
+            [self.quickReplyView removeFromSuperview];
+        }];
+    }
+}
+
+- (void)showFunctionView:(BOOL)needShow
+{
+    _isShowFunctionView = needShow;
+    if(_isShowFunctionView){
+        [UIView animateWithDuration:0.25 animations:^
+        {
+            self.chatTableView.uu_height = self.uu_height-self.inputFuncView.uu_height-251;
+            self.moreView.frame = CGRectMake(0,self.chatTableView.uu_bottom+40, self.uu_width, 251);
+            [self addSubview:self.moreView];
+        } completion:^(BOOL finished) {
+            if (finished) {
+                [self tableViewScrollToBottom];
+            }
+        }];
+        
+    }else{
+        [UIView animateWithDuration:0.25 animations:^
         {
             self.chatTableView.uu_height = self.uu_height-self.inputFuncView.uu_height;
+            self.moreView.frame = CGRectMake(0,self.uu_height, self.uu_width, 251);
             [self.moreView removeFromSuperview];
+        } completion:^(BOOL finished) {
+            if (finished) {
+                [self tableViewScrollToBottom];
+            }
         }];
-        [self tableViewScrollToBottom];
+        
     }
     self.inputFuncView.uu_top = self.chatTableView.uu_bottom;
     self.moreView.uu_top=self.inputFuncView.uu_bottom;
+}
+
+#pragma mark UTQuickReplyDelegate
+- (void)onOpenInputDialogToAdd
+{
+    CHInputVC *inputVC= [[CHInputVC alloc]init];
+    inputVC.callback = self;
+    [self.dataDelegate showViewController:inputVC];
+}
+#pragma mark UTQuickReplyDelegate
+- (void)onEditReplySentence:(NSString *)reply index:(int)index
+{
+    CHInputVC *inputVC= [[CHInputVC alloc]initWithContent:reply index:index];
+    inputVC.callback = self;
+    [self.dataDelegate showViewController:inputVC];
+}
+
+#pragma mark UTQuickReplyDelegate
+- (void)onReplyClickToSend:(NSString *)reply
+{
+    NSDictionary *dic = @{Key_Content_Text: reply,
+                          Key_Type: @(UTMessageTypeText)};
+    [self dealTheFunctionData:dic];
+}
+
+#pragma mark CHInputCallBack
+- (void)CHInputdialogWillClose
+{
+    [self.dataDelegate viewControllerDidFinish];
+}
+#pragma mark CHInputCallBack
+-(void)CHInputFinishEditing:(NSString *)content index:(int)index
+{
+    [self.quickReplyView onFinishEdit:content oldIndex:index];
+}
+#pragma mark CHInputCallBack
+- (void)CHInputAdded:(NSString *)content
+{
+    [self.quickReplyView onAddedReply:content];
 }
 
 - (void)startRecordAudio
@@ -458,12 +561,23 @@
 {
     if (!_moreView)
     {
-        _moreView = [[UUChatFunctionView alloc] initWithFrame:CGRectMake(0,_chatTableView.uu_bottom+40, self.uu_width, 210)];
+        _moreView = [[UUChatFunctionView alloc] initWithFrame:CGRectMake(0,self.uu_height, self.uu_width, 251)];
         _moreView.delegate = self;
         _moreView.dataSource = self;
         _moreView.backgroundColor = self.backgroundColor;
     }
     return _moreView;
+}
+
+- (UTQuickReplyView *)quickReplyView
+{
+    if (!_quickReplyView)
+    {
+        _quickReplyView = [[UTQuickReplyView alloc] initWithFrame:CGRectMake(0,self.uu_height, self.uu_width, 251)];
+        _quickReplyView.backgroundColor = self.backgroundColor;
+        _quickReplyView.delegate = self;
+    }
+    return _quickReplyView;
 }
 
 @end

@@ -191,8 +191,14 @@
 }
 
 - (UICollectionViewCell<TYTabPagerBarCellProtocol> *)pagerTabBar:(TYTabPagerBar *)pagerTabBar cellForItemAtIndex:(NSInteger)index {
-    UICollectionViewCell<TYTabPagerBarCellProtocol> *cell = [pagerTabBar dequeueReusableCellWithReuseIdentifier:_identifier forIndex:index];
+    TYTabPagerBarCell *cell = [pagerTabBar dequeueReusableCellWithReuseIdentifier:_identifier forIndex:index];
     cell.titleLabel.text = [_dataSource tabPagerView:self titleForIndex:index];
+    if ([_dataSource respondsToSelector:@selector(tabPagerView:showbadgeViewForIndex:)]) {
+        cell.showBadgeView = [_dataSource tabPagerView:self showbadgeViewForIndex:index];
+    }else{
+        cell.showBadgeView=NO;
+    }
+    
     if ([_delegate respondsToSelector:@selector(tabPagerView:willDisplayCell:atIndex:)]) {
         [_delegate tabPagerView:self willDisplayCell:cell atIndex:index];
     }

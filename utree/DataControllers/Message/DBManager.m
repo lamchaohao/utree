@@ -246,7 +246,6 @@ static DBManager *instance = nil;
     [self queryTheNewestMessageAndUnreadCountFromWithResult:^(NSDictionary * _Nonnull resultDic) {
         callback(resultDic);
     }];
-    
 }
 
 #pragma mark 保存收到的聊天记录
@@ -515,6 +514,11 @@ static DBManager *instance = nil;
         [fakeDatas addObject:parent];
     }
     return fakeDatas;
+}
+
++(void)attempDealloc{
+   onceToken = 0; //只有置成0,GCD才会认为它从未执行过.它默认为0.这样才能保证下次再次调用shareInstance的时候,再次创建对象.
+   instance = nil;
 }
 
 

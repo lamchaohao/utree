@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)UIImageView *headView;
 @property(nonatomic,strong)UILabel *posterLabel;
 @property(nonatomic,strong)UILabel *timeLabel;
+@property(nonatomic,strong)UIImageView *unreadView;
 @property(nonatomic,strong)UIImageView *parentVisView;
 @property(nonatomic,strong)UIImageView *feedbackView;
 @property(nonatomic,strong)UILabel *titleLabel;

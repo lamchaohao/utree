@@ -23,7 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 // audio
 - (void)UUInputToolsView:(UUInputToolsView *)funcView sendVoice:(NSData *)voice time:(NSInteger)second;
 
--(void)showFunctionView;
+-(void)onFunctionSwitchClick:(BOOL)sign;
+
+-(void)onRecordBtnSwitchToEnable;
 
 -(void)startRecordAudio;
 -(void)cancleRecordAudio;
@@ -35,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UUInputToolsView : UIView <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
-@property (nonatomic, retain) UIButton *btnSendMessage;
+@property (nonatomic, retain) UIButton *btnMoreFunc;
 @property (nonatomic, retain) UIButton *btnChangeVoiceState;
 @property (nonatomic, retain) UIButton *btnVoiceRecord;
 @property (nonatomic, retain) UITextView *textViewInput;
@@ -44,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) id<UUInputToolsViewDelegate>delegate;
 
-- (void)changeSendBtnWithPhoto:(BOOL)isPhoto;
 
 -(void)onFunctionActionClick:(int)position;
 

@@ -34,7 +34,7 @@ static NSString *ID = @"myClassCell";
 {
     [self.dataController requestLeadClassListWithSuccess:^(UTResult * _Nonnull result) {
         [self.classList removeAllObjects];
-//        [self.classList addObjectsFromArray:result.successResult];
+        [self.classList addObjectsFromArray:result.successResult];
         [self.tableView.mj_header endRefreshing];
         [self.tableView reloadData];
         if (self.classList.count==0) {

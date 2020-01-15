@@ -19,6 +19,9 @@
 
 - (instancetype)initWithFrame:(CGRect)frame viewModel:(WorkHeaderViewModel *)vm
 {
+    if (frame.size.height>=ScreenHeight-iPhone_Top_NavH) {
+        frame.size.height = ScreenHeight-iPhone_Top_NavH;
+    }
     self = [super initWithFrame:frame];
     if (self) {
         self.viewModel=vm;
@@ -29,16 +32,28 @@
 
 -(void)setupUI
 {
+    UIScrollView *scrollView = [UIScrollView new];
+    scrollView.frame = self.frame;
+    scrollView.contentSize = self.frame.size;
+    if (self.frame.size.height>=(ScreenHeight-iPhone_Top_NavH)) {
+        scrollView.contentSize = CGSizeMake(ScreenWidth, self.viewModel.cellHeight+iPhone_Top_NavH);
+    }
+    
+    
+    scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    [self addSubview:scrollView];
+    
     self.backgroundColor = [UIColor myColorWithHexString:@"#F5F5F5"];
     _bgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 212)];
     [_bgView setImage:[UIImage imageNamed:@"bg_work_green"]];
     
-    _contentView = [[UIView alloc]initWithFrame:CGRectMake(circleCellMargin,circleCellMargin, circleCellWidth, self.frame.size.height-24)];
+    _contentView = [[UIView alloc]initWithFrame:CGRectMake(circleCellMargin,circleCellMargin, circleCellWidth, self.viewModel.cellHeight-24)];
     _contentView.backgroundColor = [UIColor whiteColor];
     _contentView.layer.cornerRadius=8;
-    [self addSubview:_bgView];
+    [scrollView addSubview:_bgView];
     
-    [self addSubview:self.contentView];
+    [scrollView addSubview:self.contentView];
     
     MyRelativeLayout *topLayout = [MyRelativeLayout new];
     topLayout.frame = CGRectMake(0, 0, circleCellWidth, 50);
@@ -89,7 +104,7 @@
     _subjectLabel.myLeft = 0;
     [_subjectLabel setNumberOfLines:0];
     [_subjectLabel setTextColor:[UIColor_ColorChange colorWithHexString:@"#F8A21A"]];
-    [_subjectLabel setFont:[UIFont systemFontOfSize:14]];
+    [_subjectLabel setFont:[UIFont systemFontOfSize:15]];
 
     _titleLabel.myWidth =ScreenWidth-32;
     _titleLabel.myRight = circleCellMargin;
@@ -97,7 +112,7 @@
     _titleLabel.myTop=circleContentTextMargin;
     [_titleLabel setNumberOfLines:0];
     [_titleLabel setTextColor:[UIColor_ColorChange colorWithHexString:@"#F8A21A"]];
-    [_titleLabel setFont:[UIFont systemFontOfSize:14]];
+    [_titleLabel setFont:[UIFont systemFontOfSize:15]];
     
     _feedbackView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 22, 22)];
     _feedbackView.rightPos.equalTo(titleLayout.rightPos).offset(25);
@@ -108,6 +123,7 @@
     _detailLabel.myWidth =circleCellWidth-2*circleCellMargin;
     _detailLabel.myRight = circleCellMargin;
     _detailLabel.myLeft=0;
+    _detailLabel.myTop=circleCellMargin;
     [_detailLabel setTextColor:[UIColor_ColorChange colorWithHexString:@"4D4D4D"]];
     [_detailLabel setFont:circleCellTextFont];
     _detailLabel.numberOfLines=0;
@@ -115,18 +131,6 @@
 
     _audioButton = [[UTAudioButton alloc]initWithFrame:CGRectMake(0,0,163,40)];
     _audioButton.myLeft=0;
-//    _audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [_audioButton setBackgroundImage:[UIImage imageNamed:@"bg_audio_record"] forState:UIControlStateNormal];
-//    [_audioButton setTitle:@"120'" forState:UIControlStateNormal];
-//    [_audioButton setTitleColor:[UIColor myColorWithHexString:@"#028CC3"] forState:UIControlStateNormal];
-//    _audioButton.frame = CGRectMake(0,0,163,40);
-//    _audioButton.myLeft=0;
-//    _audioButton.myTop=circleContentTextMargin;
-//
-//
-//    [_audioButton setImage:[UIImage imageNamed:@"ic_voice_wave"] forState:UIControlStateNormal];
-//    [_audioButton setTitleEdgeInsets:UIEdgeInsetsMake(0, _audioButton.imageView.image.size.width-20, 0, 0)];
-//    [_audioButton setImageEdgeInsets:UIEdgeInsetsMake(0, -46, 0, 0)];
 
 
     // 图片
@@ -146,7 +150,7 @@
 
     self.webButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth-60, 56)];
     self.webButton.backgroundColor = [UIColor myColorWithHexString:@"#FFEBEBEB"];
-    [self.webButton setImage:[UIImage imageNamed:@"head_boy"] forState:UIControlStateNormal];
+    [self.webButton setImage:[UIImage imageNamed:@"ic_link"] forState:UIControlStateNormal];
     self.webButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;//居左显示
     [self.webButton setTitle:@"http://www.gzz100.com" forState:UIControlStateNormal];
     self.webButton.titleLabel.numberOfLines=0;
@@ -218,6 +222,7 @@
     }
     
     [_titleLabel setText:[NSString stringWithFormat:@"标题:%@",model.topic]];
+    _titleLabel.frame=self.viewModel.titleFrame;
     [_titleLabel sizeToFit];
 
     [_detailLabel setText:model.content];
@@ -256,7 +261,7 @@
         self.photosView.hidden = YES;
     }
     //链接按钮
-    if (model.link) {
+    if (model.link&&model.link.length>0) {
         [self.webButton setHidden:NO];
         [self.webButton setTitle:model.link forState:UIControlStateNormal];
         [self.webButton addTarget:self action:@selector(onWebUrlClick:) forControlEvents:UIControlEventTouchUpInside];

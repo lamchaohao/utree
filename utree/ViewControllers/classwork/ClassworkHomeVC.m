@@ -16,6 +16,8 @@
 #import "HomeworkListView.h"
 #import "AchievementView.h"
 #import "SelectSubjectsVC.h"
+#import "UTCache.h"
+#import "RedDotHelper.h"
 @interface ClassworkHomeVC ()<PostMenuDelegate,TYTabPagerViewDataSource, TYTabPagerViewDelegate,UTViewDelegate>
 
 @property(nonatomic,strong)NoticeView *noticeView;
@@ -31,10 +33,33 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeClassworkTitleName:) name:ClazzChangedNotifycationName object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBadgeViewStatus:) name:BadgeValueUpdateNotifyName object:nil];
     self.view.backgroundColor=[UIColor whiteColor];
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [self initScrollView];
     [self initPostButton];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self changeClassworkTitleName:nil];
+    [self.pagerView.tabBar reloadData];
+}
+
+-(void)changeClassworkTitleName:(id)send
+{
+    NSString *className = @"";
+    if ([UTCache readClassName]) {
+        className=[UTCache readClassName];
+    }
+    self.title=[NSString stringWithFormat:@"%@班务",className];
+}
+
+-(void)updateBadgeViewStatus:(id)send
+{
+    [_pagerView reloadData];
 }
 
 -(void)initScrollView{
@@ -84,6 +109,24 @@
 
 - (NSString *)tabPagerView:(TYTabPagerView *)tabPagerView titleForIndex:(NSInteger)index {
     return _titleArray[index];
+}
+
+- (BOOL)tabPagerView:(TYTabPagerView *)tabPagerView showbadgeViewForIndex:(NSInteger)index
+{
+    switch (index) {
+        case 0:
+            NSLog(@"noticeUnread=%d",[RedDotHelper shareInstance].noticeUnread);
+            return [RedDotHelper shareInstance].noticeUnread!=0;
+        case 1:
+            NSLog(@"studentTaskUnread=%d",[RedDotHelper shareInstance].studentTaskUnread);
+            return [RedDotHelper shareInstance].studentTaskUnread!=0;
+        case 2:
+            NSLog(@"examUnread=%d",[RedDotHelper shareInstance].examUnread);
+            return [RedDotHelper shareInstance].examUnread!=0;
+        default:
+            break;
+    }
+    return index%2!=0;
 }
 
 - (void)tabPagerView:(TYTabPagerView *)tabPagerView willAppearView:(UIView *)view forIndex:(NSInteger)index
@@ -211,4 +254,8 @@
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 @end

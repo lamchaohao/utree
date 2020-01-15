@@ -11,6 +11,7 @@
 #import "ChatListVC.h"
 #import "SystemNoticeVC.h"
 #import "SchoolInfoVC.h"
+#import "RedDotHelper.h"
 @interface MessageHomeVC ()<FSPageContentViewDelegate,FSSegmentTitleViewDelegate>
 
 @property (nonatomic, strong) FSPageContentView *pageContentView;
@@ -26,6 +27,18 @@
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [self initTabItem];
     [self initScrollView];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onReceiveUpdateBadgeViewNotice:) name:BadgeValueUpdateNotifyName object:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.titleView layoutSubviews];
+}
+
+-(void)onReceiveUpdateBadgeViewNotice:(id)sender
+{
+    [self.titleView layoutSubviews];
 }
 
 -(void)initTabItem
@@ -67,6 +80,24 @@
     //    self.title = @[@"个人",@"小组"][endIndex];
 }
 
+- (BOOL)showBadgeViewOrNot:(NSInteger)index
+{
+    switch (index) {
+        case 0:
+            return [RedDotHelper shareInstance].systemUnread>0;
+        case 1:
+             return [RedDotHelper shareInstance].chatUnread>0;
+        case 2:
+             return [RedDotHelper shareInstance].schoolMsgUnread>0;
+        default:
+            break;
+    }
+    return NO;
+}
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 @end
