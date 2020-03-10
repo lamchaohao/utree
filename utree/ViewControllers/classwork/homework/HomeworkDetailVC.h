@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithHomeworkModel:(HomeworkModel *)taskModel;
 
+@property (nonatomic, copy) void(^taskDeleteCallback)(NSString *taskId);
 
 @end
 

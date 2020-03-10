@@ -12,7 +12,7 @@
 #import "ParentCheckModel.h"
 #import "AppDelegate.h"
 #import "UTCache.h"
-#import "RxWebViewController.h"
+#import "UTWebViewController.h"
 #import "VideoViewController.h"
 #import "AVAudioPlayer.h"
 #import "MMAlertView.h"
@@ -91,6 +91,8 @@
     } failure:^(UTResult * _Nonnull result) {
         [self.view makeToast:result.failureResult];
     }];
+    
+    [self.dataController setTaskReadWithWorkId:self.taskModel.workId];
 }
 
 -(void)showClassDetail
@@ -110,6 +112,7 @@
     }];
 }
 
+#pragma mark HomeWorkDataDelegate
 - (void)onekeyRemindAll
 {
     [self.dataController requestOneKeyRemind:self.taskModel.workId WithSuccess:^(UTResult * _Nonnull result) {
@@ -119,11 +122,21 @@
     }];
 }
 
+#pragma mark HomeWorkDataDelegate
+- (void)onRemindAgainClick:(ParentCheckModel *)model
+{
+    [self.dataController workRemindStuParentAgain:model.studentId taskId:self.taskModel.workId];
+    
+}
+
 -(void)onDeleteDataClick:(id)send
 {
     MMPopupItemHandler positiveHandler = ^(NSInteger index){
       [self.dataController requestDeleteTaskById:self.taskModel.workId WithSuccess:^(UTResult * _Nonnull result) {
-           [self.navigationController popViewControllerAnimated:YES];
+          if (self.taskDeleteCallback) {
+              self.taskDeleteCallback(self.taskModel.workId);
+          }
+          [self.navigationController popViewControllerAnimated:YES];
        } failure:^(UTResult * _Nonnull result) {
            [self.view makeToast:result.failureResult];
        }];
@@ -143,7 +156,7 @@
 
 - (void)openWebView:(NSString *)webUrl
 {
-    RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
+    UTWebViewController *webViewController = [[UTWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
     [self.navigationController pushViewController:webViewController animated:YES];
 }
 

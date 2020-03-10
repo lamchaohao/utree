@@ -27,7 +27,7 @@
 #import "UnreadApi.h"
 #import "UITabBarController+Badge.h"
 
-@interface AppDelegate ()<LoginDelegate,RecvMsgDelegate>
+@interface AppDelegate ()<LoginDelegate,RecvMsgDelegate,returnUserStatusDelegate>
 @property(nonatomic,strong) RecordMessageHelper *mimcMsgHelper;
 @end
 
@@ -118,6 +118,7 @@
 //    NSString *userName = [self getUserId];
     [userManager setAppAccount:userName];
     userManager.receiveMsgDelegate = self;
+    userManager.returnUserStatusDelegate = self;
     return [userManager userLogin];
 }
 
@@ -132,7 +133,13 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:MIMC_ReceiveMsgNotifyName object:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:packet,user, nil] forKeys:[NSArray arrayWithObjects:@"msg",@"user", nil]]];
     
 }
-
+#pragma mark MIMC登录状态改变回调
+- (void)returnUserStatus:(MCUser *)user status:(int)status
+{
+    if (status==0) {
+        [user login];
+    }
+}
 
 //主页面
 -(void)toMainVC:(NSString *)userId{
@@ -166,6 +173,7 @@
     LeftDrawerView *leftDrawerView = [[LeftDrawerView alloc]init];
     IIViewDeckController *viewDeckController = [[IIViewDeckController alloc] initWithCenterViewController:self.rootTabbarCtr leftViewController:leftDrawerView];
     [viewDeckController setPanningEnabled:NO];//禁止滑动出现
+    leftDrawerView.viewDeckController =viewDeckController;
     //5.
 //    self.window.rootViewController = self.rootTabbarCtr;
     self.window.rootViewController =viewDeckController;
@@ -304,7 +312,7 @@
             NSNumber *homeworkUR= [taskUnreadDic objectForKey:@"studentTaskUnread"];
             NSNumber *examUR= [taskUnreadDic objectForKey:@"examUnread"];
             NSNumber *circleUR = [dic objectForKey:@"circleUnread"];
-            NSDictionary *msgUnreadDic = [dic objectForKey:@"taskUnread"];
+            NSDictionary *msgUnreadDic = [dic objectForKey:@"uTMsg"];
             NSNumber *systemUR= [msgUnreadDic objectForKey:@"systemUnread"];
             NSNumber *schoolMsgUR= [msgUnreadDic objectForKey:@"schoolMsgUnread"];
             [RedDotHelper shareInstance].noticeUnread=(int)noticeUR.longValue;

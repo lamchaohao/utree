@@ -71,6 +71,7 @@ static NSString *tableViewCellID = @"myClassCell";
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     [tableView reloadData];
     [[NSNotificationCenter defaultCenter] postNotificationName:ClazzChangedNotifycationName object:nil];
+    [self.viewDeckController closeSide:YES];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath

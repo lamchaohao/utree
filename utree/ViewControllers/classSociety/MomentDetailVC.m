@@ -256,6 +256,13 @@
         [self showAlertMessage:@"" title:result.failureResult];
     }];
 }
+#pragma mark MomentDetailDelegate
+- (void)presentVCForDelegate:(UIViewController *)vc
+{
+    [self presentViewController:vc animated:YES completion:^{
+        
+    }];
+}
 
 - (ZFPlayerControlView *)controlView {
     if (!_controlView) {

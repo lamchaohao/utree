@@ -52,16 +52,17 @@
     [self addSubview:_bottomLabel];
 }
 
-- (void)setProgressForView:(CGFloat)progress
+- (void)setProgressForViewUsedValue:(CGFloat)usedValue maxValue:(CGFloat)maxValue;
 {
+    CGFloat progress =usedValue/maxValue;
     if (progress>1) {
         progress/=100;
     }
     self.progress = progress;
     self.progressView.frame = CGRectMake(0, 40, self.frame.size.width*self.progress, 10);
-    int currentPrgs = (int)20*progress;
-    [self.bottomLabel setText: [NSString stringWithFormat:@"%d/20",currentPrgs]];
-
+//    int currentPrgs = (int)20*progress;
+    [self.bottomLabel setText: [NSString stringWithFormat:@"%d/%d",(int)usedValue,(int)maxValue]];
+    [self.bottomLabel sizeToFit];
 }
 
 @end

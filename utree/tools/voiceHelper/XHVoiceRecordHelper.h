@@ -9,12 +9,12 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-typedef BOOL(^XHPrepareRecorderCompletion)();
-typedef void(^XHStartRecorderCompletion)();
-typedef void(^XHStopRecorderCompletion)();
-typedef void(^XHPauseRecorderCompletion)();
-typedef void(^XHResumeRecorderCompletion)();
-typedef void(^XHCancellRecorderDeleteFileCompletion)();
+typedef BOOL(^XHPrepareRecorderCompletion)(void);
+typedef void(^XHStartRecorderCompletion)(void);
+typedef void(^XHStopRecorderCompletion)(void);
+typedef void(^XHPauseRecorderCompletion)(void);
+typedef void(^XHResumeRecorderCompletion)(void);
+typedef void(^XHCancellRecorderDeleteFileCompletion)(void);
 typedef void(^XHRecordProgress)(float progress);
 typedef void(^XHPeakPowerForChannel)(float peakPowerForChannel);
 

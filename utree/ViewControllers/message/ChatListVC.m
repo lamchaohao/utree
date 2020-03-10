@@ -146,6 +146,9 @@ static NSString *cellID = @"chatId";
     [_recentList removeAllObjects];
     [_dbManager queryRecentContactListWithResult:^(NSDictionary * _Nonnull resultDic) {
         NSMutableArray *recents = resultDic[@"result"];
+        [recents sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            return NSOrderedDescending;
+        }];
         [self.recentList addObjectsFromArray:recents];
         [self reloadTableViewData];
         [self updateBadgeViewCount];
@@ -161,6 +164,18 @@ static NSString *cellID = @"chatId";
         }else{
             self.tableView.tableHeaderView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.tableView.bounds.size.width,0.01)];
         }
+        [self.recentList sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            
+            RecentContact *contactOne = obj1;
+            RecentContact *contactTwo = obj2;
+            if(contactOne.lastMessage.timeStamp.longLongValue>
+               contactTwo.lastMessage.timeStamp.longLongValue){
+                return NSOrderedAscending;
+            }else{
+                return NSOrderedDescending;
+            }
+            
+        }];
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
         

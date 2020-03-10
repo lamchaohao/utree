@@ -244,6 +244,19 @@ static DBManager *instance = nil;
 {
     
     [self queryTheNewestMessageAndUnreadCountFromWithResult:^(NSDictionary * _Nonnull resultDic) {
+//        NSMutableArray *recentList=[resultDic objectForKey:@"result"];
+//        [recentList sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+//
+//            RecentContact *contactOne = obj1;
+//            RecentContact *contactTwo = obj2;
+//            if(contactOne.lastMessage.timeStamp.longLongValue>
+//               contactTwo.lastMessage.timeStamp.longLongValue){
+//                return NSOrderedDescending;
+//            }else{
+//                return NSOrderedAscending;
+//            }
+//
+//        }];
         callback(resultDic);
     }];
 }

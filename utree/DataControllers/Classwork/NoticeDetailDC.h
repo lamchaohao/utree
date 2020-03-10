@@ -7,7 +7,6 @@
 //
 
 #import "BaseDataController.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NoticeDetailDC : BaseDataController
@@ -19,6 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)requestDeleteNoticeById:(NSString *)noticeId WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 
 -(void)requestClassListById:(NSString *)workId WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
+
+-(void)setNoticeReadWithWorkId:(NSString *)workId;
+
+-(void)remindStuParentAgain:(NSString*) studentId noticeId:(NSString *)noticeId;
 
 @end
 

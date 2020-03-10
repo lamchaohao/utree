@@ -26,6 +26,7 @@
 @property(strong, nonatomic)UIButton *mainMenuBtn;
 @property(nonatomic,strong)TYTabPagerView *pagerView;
 @property(nonatomic,strong)NSArray *titleArray;
+@property(nonatomic,assign)NSInteger currentIndex;
 @end
 
 @implementation ClassworkHomeVC
@@ -60,6 +61,7 @@
 -(void)updateBadgeViewStatus:(id)send
 {
     [_pagerView reloadData];
+    [_pagerView scrollToViewAtIndex:self.currentIndex animate:YES];
 }
 
 -(void)initScrollView{
@@ -131,6 +133,7 @@
 
 - (void)tabPagerView:(TYTabPagerView *)tabPagerView willAppearView:(UIView *)view forIndex:(NSInteger)index
 {
+    self.currentIndex = index;
     NSLog(@"classwork tabPagerView willAppearView %ld",index);
     switch (index) {
         case 0:

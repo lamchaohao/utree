@@ -49,31 +49,6 @@ static NSString *cellID = @"stuCellId";
     self.wrapContentWidth = NO;
     self.wrapContentHeight = NO;
     
-//    MyRelativeLayout *navBarLayout = [MyRelativeLayout new];
-//    navBarLayout.frame = CGRectMake(0, 0, ScreenWidth, 64);
-//    navBarLayout.backgroundColor = [UIColor whiteColor];
-//    navBarLayout.myTop=iPhone_StatuBarHeight;
-//    navBarLayout.myLeft=0;
-//
-//    UILabel *navTitle = [[UILabel alloc]init];
-//    navTitle.myCenterX=0;
-//    navTitle.myCenterY=0;
-//    navTitle.textColor = [UIColor blackColor];
-//    navTitle.font = [UIFont systemFontOfSize:18];
-//    navTitle.text=@"编辑小组";
-//    [navTitle sizeToFit];
-//
-//    UIButton *closeButton = [[UIButton alloc]init];
-//    [closeButton setImage:[UIImage imageNamed:@"ic_close_black"] forState:UIControlStateNormal];
-//    [closeButton sizeToFit];
-//    [closeButton addTarget:self action:@selector(finishVC:) forControlEvents:UIControlEventTouchUpInside];
-//    closeButton.myTop=0;
-//    closeButton.myLeft=18;
-//    closeButton.myCenterY=0;
-//    [navBarLayout addSubview:closeButton];
-//    [navBarLayout addSubview:navTitle];
-    
-//    [self addSubview:navBarLayout];
     
     self.groupNameCell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"groupCell"];
     _groupNameCell.myWidth=ScreenWidth;

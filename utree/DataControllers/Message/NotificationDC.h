@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)requestFirstNotification:(BOOL)isSystemNotice WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 
+-(void)requestNoticeDetailWith:(NSString *)noticeId isSystemNotice:(BOOL)isSystemNotice WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
+
 @end
 
 NS_ASSUME_NONNULL_END

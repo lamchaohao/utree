@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "GroupModel.h"
 #import "ClassGroupVC.h"
+#import "BaseViewController.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol GroupViewControllerDelegate <NSObject>
@@ -17,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface GroupDetailVC : UIViewController
+@interface GroupDetailVC : BaseViewController
 
 -(instancetype)initWithGroup:(GroupModel *)group;
 

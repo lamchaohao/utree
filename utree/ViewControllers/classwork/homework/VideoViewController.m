@@ -51,6 +51,7 @@
 
 -(void)startPlayVideo
 {
+    [self.player addPlayerViewToContainerView:self.playVideoView.coverImageView];
     [self.player playTheIndex:0];
     [self.controlView showTitle:@"" coverURLString:self.videoFile.minPath fullScreenMode:ZFFullScreenModeAutomatic];
 }
@@ -61,9 +62,10 @@
     self.player = [ZFPlayerController playerWithPlayerManager:playerManager containerView:self.playVideoView.coverImageView];
     
     self.player.assetURLs = [NSArray arrayWithObject:[NSURL URLWithString:self.videoFile.path]];
-    self.player.disableGestureTypes = ZFPlayerDisableGestureTypesDoubleTap | ZFPlayerDisableGestureTypesPan | ZFPlayerDisableGestureTypesPinch;
+    //禁用手势功能
+//    self.player.disableGestureTypes = ZFPlayerDisableGestureTypesDoubleTap | ZFPlayerDisableGestureTypesPan | ZFPlayerDisableGestureTypesPinch;
     self.player.pauseWhenAppResignActive = NO;
-    self.player.allowOrentitaionRotation = NO;
+    self.player.allowOrentitaionRotation = YES;
     self.player.WWANAutoPlay = YES;
     self.player.controlView = self.controlView;
     /// 1.0是完全消失时候
@@ -137,6 +139,7 @@
         _controlView.autoHiddenTimeInterval = 5;
         _controlView.autoFadeTimeInterval = 0.5;
         _controlView.prepareShowLoading = YES;
+        _controlView.horizontalPanShowControlView = NO;
         _controlView.prepareShowControlView = YES;
     }
     return _controlView;

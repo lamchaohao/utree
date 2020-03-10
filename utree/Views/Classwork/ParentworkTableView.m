@@ -173,12 +173,18 @@
        if (cell == nil) {
           cell = [[ParentWorkCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"cell"];
        }
-    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     ParentCheckModel *parent= self.dataSource[indexPath.row];
     [cell setDataToView:parent isCheck:self.isCheckData];
     __weak typeof(self)weakSelf = self;
     cell.bgButtonClicked = ^(ParentCheckModel * _Nonnull model) {
-         [weakSelf selectCellAtIndexPath:indexPath];
+//         [weakSelf selectCellAtIndexPath:indexPath];
+        model.remindTime=[NSNumber numberWithInt:2];
+        [weakSelf.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        if ([weakSelf.delegate respondsToSelector:@selector(onRemindAgain:)]) {
+            [weakSelf.delegate onRemindAgain:model];
+        }
+        
     };
     
     return cell;
@@ -189,7 +195,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {

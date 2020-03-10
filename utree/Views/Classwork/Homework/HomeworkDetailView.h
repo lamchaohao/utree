@@ -11,6 +11,7 @@
 #import "JXCategoryTitleView.h"
 #import "WorkHeaderView.h"
 #import "HomeworkModel.h"
+#import "ParentCheckModel.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol HomeWorkDataDelegate <NSObject>
@@ -18,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)getParentListWithCheck:(NSNumber *)isCheck;
 
 -(void)onekeyRemindAll;
+
+-(void)onRemindAgainClick:(ParentCheckModel *)model;
 
 @end
 

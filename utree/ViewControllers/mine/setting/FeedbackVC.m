@@ -9,6 +9,7 @@
 #import "FeedbackVC.h"
 #import "FeedbackDC.h"
 #import "MMAlertView.h"
+#import "UITextView+ZBPlaceHolder.h"
 
 @interface FeedbackVC ()<UITextViewDelegate>
 @property (strong, nonatomic)UIBarButtonItem *rightbarItem;
@@ -33,7 +34,7 @@
     
     _feedbackInput = [[UITextView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenWidth*0.84)];
 //    _feedbackInput.text
-//    _feedbackInput.placeholder = @"请输入您的宝贵意见";
+    [_feedbackInput setPlaceholder:@"请输入您宝贵的意见"];
     _feedbackInput.backgroundColor = [UIColor whiteColor];
     _feedbackInput.textAlignment = NSTextAlignmentLeft;
     _feedbackInput.font = [UIFont systemFontOfSize:16];

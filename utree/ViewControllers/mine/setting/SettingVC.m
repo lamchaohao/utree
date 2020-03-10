@@ -18,7 +18,8 @@
 @interface SettingVC ()<UITableViewDataSource,UITableViewDelegate>
 
 @property(nonatomic,strong)UITableView *tableView;
-@property(nonatomic,strong) NSArray *itemNames;
+@property(nonatomic,strong)NSArray *itemNames;
+@property(nonatomic,strong)NSString *cacheMemoryStr;
 @end
 
 @implementation SettingVC
@@ -28,6 +29,20 @@ static NSString *CellID = @"staticCell";
     [super viewDidLoad];
     
     [self initView];
+    [self loadCacheData];
+    
+}
+
+- (void)loadCacheData
+{
+    self.cacheMemoryStr = @"0.0B";
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+        NSString *sizeStr = [ClearCacheTool getCacheSizeWithFilePath:cachesPath];
+        weakSelf.cacheMemoryStr =sizeStr;
+        [weakSelf.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:2 inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+    });
 }
 
 
@@ -111,9 +126,9 @@ static NSString *CellID = @"staticCell";
         cell.accessoryView = switchview;
 
     }else if(indexPath.row==2){
-        NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
-        NSString *sizeStr = [ClearCacheTool getCacheSizeWithFilePath:cachesPath];
-        [cell.detailTextLabel setText:sizeStr];
+//        NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+//        NSString *sizeStr = [ClearCacheTool getCacheSizeWithFilePath:cachesPath];
+        [cell.detailTextLabel setText:self.cacheMemoryStr];
         cell.accessoryType=UITableViewCellAccessoryNone;
     }
     else{
@@ -150,7 +165,8 @@ static NSString *CellID = @"staticCell";
     MMPopupItemHandler positiveHandler = ^(NSInteger index){
          NSString *cachesPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
         [ClearCacheTool clearCacheWithFilePath:cachesPath];
-        [self.tableView reloadData];
+//        [self.tableView reloadData];
+        [self loadCacheData];
     };
     MMPopupItemHandler nagativeHandler = ^(NSInteger index){
         

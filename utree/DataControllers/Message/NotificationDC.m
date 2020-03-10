@@ -9,6 +9,8 @@
 #import "NotificationDC.h"
 #import "MessageInfoApi.h"
 #import "WrapNoticeMsgModel.h"
+#import "MessageNoticeDetailApi.h"
+#import "NoticeMessageModel.h"
 @implementation NotificationDC
 
 
@@ -43,6 +45,24 @@
             failure([[UTResult alloc]initWithFailure:message.message]);
         }
     }];
+}
+
+
+- (void)requestNoticeDetailWith:(NSString *)noticeId isSystemNotice:(BOOL)isSystemNotice WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure
+{
+    MessageNoticeDetailApi *api = [[MessageNoticeDetailApi alloc]initWithMsgId:noticeId isSystem:isSystemNotice];
+    
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        NoticeMessageModel *model = [NoticeMessageModel mj_objectWithKeyValues:successMsg.responseData];
+        if (success) {
+            success([[UTResult alloc]initWithSuccess:model]);
+        }
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        if (failure) {
+            failure([[UTResult alloc] initWithFailure:message.message]);
+        }
+    }];
+    
 }
 
 

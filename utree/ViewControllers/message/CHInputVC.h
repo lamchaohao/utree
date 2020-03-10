@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CHInputVC : BaseViewController
 @property(nonatomic,assign)long inputLengthLimit;
 - (instancetype)initWithContent:(NSString *)content index:(int)index;
-
+@property(nonatomic,strong)NSString *saveBtnStr;;
 @property(nonatomic,weak)id<CHInputCallBack> callback;
 
 @end

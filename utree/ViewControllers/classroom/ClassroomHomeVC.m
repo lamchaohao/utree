@@ -248,6 +248,7 @@
 {
     RandomVC *randomVC= [[RandomVC alloc]init];
     randomVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    randomVC.modalTransitionStyle=UIModalTransitionStyleCrossDissolve;
     [self presentViewController:randomVC animated:YES completion:nil];
     [self hideExtendButton];
 }

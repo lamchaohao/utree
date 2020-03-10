@@ -15,6 +15,7 @@
 #import "VideoViewController.h"
 #import "RedDotHelper.h"
 
+
 @interface ClassSocietyHomeVC ()<UITableViewDataSource,UITableViewDelegate,
 MomentActionDelegate,SchollCircleDetailDelegate,PostMomentCallback>
 @property(nonatomic,strong)UIView *headView;
@@ -92,7 +93,6 @@ static NSString *CellID = @"societyCell";
     [_tableView setDataSource:self];
     
     MJRefreshGifHeader *header = [MJRefreshGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadDataFirstTime)];
-    
     // Set the ordinary state of animated images
     NSString *gifPath = [[NSBundle mainBundle] pathForResource:@"head_refresh_anim" ofType:@"gif"];
     NSData *gifData = [NSData dataWithContentsOfFile:gifPath];
@@ -100,15 +100,12 @@ static NSString *CellID = @"societyCell";
     [header setImages:[NSArray arrayWithObject:image] forState:MJRefreshStateIdle];
     [header setImages:[NSArray arrayWithObject:image] forState:MJRefreshStatePulling];
     [header setImages:[NSArray arrayWithObject:image] forState:MJRefreshStateRefreshing];
-    // Hide the time
     header.lastUpdatedTimeLabel.hidden = YES;
-    // Hide the status
     header.stateLabel.hidden = YES;
-    header.gifView.frame=CGRectMake(0, 0, 210*0.5, 310*0.5);
+//    header.gifView.frame=CGRectMake(0, 0, 210*0.5, 310*0.5);
     self.tableView.mj_header = header;
     [self.tableView.mj_header beginRefreshing];
-    header.gifView.frame=CGRectMake(0, 0, 210*0.5, 310*0.5);
-    
+    header.gifView.frame=CGRectMake(0, 0, 56, 70);
     [self.view addSubview:_tableView];
     
     self.tableView.mj_footer = [MJRefreshBackFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreMomentData)];
@@ -119,7 +116,7 @@ static NSString *CellID = @"societyCell";
 
 -(void)loadDataFirstTime
 {
-
+    [[SDImageCache sharedImageCache] clearMemory];
     [self.dataController requestFirstTimeList:NO limitItems:[NSNumber numberWithInt:30] WithSuccess:^(UTResult * _Nonnull result) {
         [self.momentViewModels removeAllObjects];
 //        [self.videoUrls removeAllObjects];
@@ -145,6 +142,11 @@ static NSString *CellID = @"societyCell";
     }];
 }
 
+#pragma mark 滑动停止的时候清理内存，防止图片占用内存过高
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    [[SDImageCache sharedImageCache] clearMemory];
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

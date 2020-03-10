@@ -96,6 +96,7 @@
     
     _audioButton = [[UTAudioButton alloc]initWithFrame:CGRectMake(0,0,163,40)];
     _audioButton.myLeft=0;
+    _audioButton.myTop=circleContentTextMargin;
 //    _audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
 //    [_audioButton setBackgroundImage:[UIImage imageNamed:@"bg_audio_record"] forState:UIControlStateNormal];
 //    [_audioButton setTitle:@"120'" forState:UIControlStateNormal];

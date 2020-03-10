@@ -13,6 +13,8 @@
 #import "DeleteWorkApi.h"
 #import "WorkClassListApi.h"
 #import "UTClassModel.h"
+#import "SetReadApi.h"
+#import "RemindAgainApi.h"
 
 @implementation NoticeDetailDC
 
@@ -89,6 +91,27 @@
         if (failure) {
             failure([[UTResult alloc]initWithFailure:message.message]);
         }
+    }];
+}
+
+-(void)setNoticeReadWithWorkId:(NSString *)workId
+{
+    SetReadApi *api = [[SetReadApi alloc]initWithWorkId:workId type:1];
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        
+    }];
+}
+
+- (void)remindStuParentAgain:(NSString *)studentId noticeId:(nonnull NSString *)noticeId
+{
+    RemindAgainApi *api = [[RemindAgainApi alloc]initWithWorkId:noticeId stuId:studentId workType:1];
+    
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        
     }];
 }
 

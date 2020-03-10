@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFrame:(CGRect)frame andProgress:(CGFloat)progress;
 
-- (void)setProgressForView:(CGFloat)progress;
+- (void)setProgressForViewUsedValue:(CGFloat)usedValue maxValue:(CGFloat)maxValue;
 
 @end
 

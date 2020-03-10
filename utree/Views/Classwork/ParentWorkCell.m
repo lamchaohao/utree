@@ -28,6 +28,18 @@
     return self;
 }
 
+#pragma mark 保持imageview不变形
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    CGRect imageFrame = CGRectMake(10, 10,48, 48);
+    [self.imageView setFrame:imageFrame];
+
+    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    
+}
+
+
 
 -(void)createView
 {
@@ -60,6 +72,7 @@
 //    [self createView];
     self.parentModel = parent;
     self.textLabel.text=parent.studentName;
+    self.detailTextLabel.textColor = [UIColor myColorWithHexString:@"#B3B3B3"];
     if (parent.parentList) {
         NSString *parentName = @"";
         for (UTParent *parentMo in parent.parentList) {
@@ -67,7 +80,7 @@
         }
         self.detailTextLabel.text=parentName;
     }
-    [self.imageView sd_setImageWithURL:[NSURL URLWithString:parent.studentPic] placeholderImage:[UIImage imageNamed:@"head_boy"]];
+    [self.imageView sd_setImageWithURL:[NSURL URLWithString:parent.studentPic] placeholderImage:[UIImage imageNamed:@"default_head"]];
     
     if (isCheck) {
         self.accessoryType=UITableViewCellAccessoryNone;

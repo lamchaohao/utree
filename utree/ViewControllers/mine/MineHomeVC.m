@@ -43,6 +43,7 @@ static NSString *CellID = @"mineStaticCell";
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:animated];
+    [self reloadHeadData];
 }
 
 -(void)initStaticTableView
@@ -62,7 +63,7 @@ static NSString *CellID = @"mineStaticCell";
     [self.view addSubview:self.tableView];
     
     self.tableView.mj_header = [MJRefreshHeader headerWithRefreshingTarget:self refreshingAction:@selector(reloadHeadData)];
-    [self.tableView.mj_header beginRefreshing];
+    
     
 }
 
@@ -196,7 +197,10 @@ static NSString *CellID = @"mineStaticCell";
     [self.accountLabel sizeToFit];
     self.accountLabel.myCenterX=0;
     self.schoolLabel.myCenterX=0;
-    [self.tableView.mj_header endRefreshing];
+    if ([self.tableView.mj_header isRefreshing]) {
+        [self.tableView.mj_header endRefreshing];
+    }
+    
 }
 
 -(void)initTopLayout
@@ -213,7 +217,7 @@ static NSString *CellID = @"mineStaticCell";
     self.headView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"default_head"]];
     
     self.headView.myCenterX=0;
-    self.headView.myTop=38;
+    self.headView.myTop=38+iPhone_SNavH;
     self.headView.userInteractionEnabled = YES;
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
     [self.headView addGestureRecognizer:singleTap];
@@ -223,7 +227,7 @@ static NSString *CellID = @"mineStaticCell";
     NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:@"请登录" attributes:@{NSFontAttributeName: [UIFont boldSystemFontOfSize:18],NSForegroundColorAttributeName: [UIColor whiteColor]}];
     self.accountLabel.attributedText = string;
     self.accountLabel.myCenterX=0;
-    self.accountLabel.myTop = 110;
+    self.accountLabel.topPos.equalTo(self.headView.bottomPos).offset(12);
     [self.accountLabel sizeToFit];
     
     self.schoolLabel = [[UILabel alloc]init];
@@ -231,7 +235,7 @@ static NSString *CellID = @"mineStaticCell";
     NSMutableAttributedString *schoolStr = [[NSMutableAttributedString alloc] initWithString:@"未加入学校" attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:13],NSForegroundColorAttributeName: [UIColor whiteColor]}];
     self.schoolLabel.attributedText = schoolStr;
     self.schoolLabel.myCenterX=0;
-    self.schoolLabel.myTop = 134;
+    self.schoolLabel.topPos.equalTo(self.accountLabel.bottomPos).offset(8);
     [self.schoolLabel sizeToFit];
     
     [topLayout addSubview:self.headView];

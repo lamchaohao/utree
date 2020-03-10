@@ -385,7 +385,7 @@ static NSString *cellID=@"photoCell";
 - (void)onFileUploadProgress:(CGFloat)progress filePath:(NSString *)filePath fileIndex:(NSInteger)index
 {
     NSLog(@"onFileUploadProgress---%f",progress);
-    if (self.progressView) {
+    if (progress<1.0f) {
         [self.progressView setProgress:progress];
     }
 }

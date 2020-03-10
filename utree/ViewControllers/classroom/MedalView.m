@@ -171,11 +171,12 @@ static NSString *cellID = @"medalViewCell";
     NSString *imgPath = _medalImgList[indexPath.row];
     if (self.medalModelList.count>indexPath.row) {
         StuMedalModel *model = [self.medalModelList objectAtIndex:indexPath.row];
-        CGFloat progress = model.medalNow.floatValue/model.medalMax.floatValue;
-        
-        [cell setDataToviewWithMedalImagePath:imgPath progress:progress needMask:(model.medalNow.intValue!=model.medalMax.intValue)];
+//        CGFloat progress = model.medalNow.floatValue/model.medalMax.floatValue;
+        [cell setDataToviewWithMedalImagePath:imgPath metalNow:model.medalNow.floatValue metalMax:model.medalMax.floatValue needMask:(model.medalNow.intValue!=model.medalMax.intValue)];
+
     }else{
-         [cell setDataToviewWithMedalImagePath:imgPath progress:0 needMask:YES];
+         [cell setDataToviewWithMedalImagePath:imgPath metalNow:0 metalMax:99 needMask:YES];
+//         [cell setDataToviewWithMedalImagePath:imgPath progress:0 needMask:YES];
     }
     
     return cell;

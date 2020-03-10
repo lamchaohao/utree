@@ -13,7 +13,7 @@
 #import "HomeworkListDC.h"
 #import "WrapHomeworkListModel.h"
 #import "AVAudioPlayer.h"
-#import "RxWebViewController.h"
+#import "UTWebViewController.h"
 #import "VideoViewController.h"
 #import "HomeworkDetailVC.h"
 #import "RedDotHelper.h"
@@ -58,6 +58,7 @@ static NSString *CellID= @"HomeworkListCellId";
     [self initTableView];
     [self loadHomeworkDataAtFirstTime];
 //    [self loadNewData];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadHomeworkDataAtFirstTime) name:PostHomeworkNotifyName object:nil];
 }
 
 -(void)initTableView
@@ -90,6 +91,10 @@ static NSString *CellID= @"HomeworkListCellId";
         }
              
         HomeworkDetailVC *detailVC = [[HomeworkDetailVC alloc]initWithHomeworkModel:vm.taskModel];
+        [detailVC setTaskDeleteCallback:^(NSString * _Nonnull taskId) {
+            [self.taskFrameArray removeObjectAtIndex:indexPath.row];
+            [tableView reloadData];
+        }];
         [self.utViewDelegate pushToViewController:detailVC];
 
     }
@@ -222,7 +227,7 @@ static NSString *CellID= @"HomeworkListCellId";
 {
     if([self.utViewDelegate respondsToSelector:@selector(pushToViewController:)])
     {
-       RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
+       UTWebViewController* webViewController = [[UTWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
        [self.utViewDelegate pushToViewController:webViewController];
     }
 }
@@ -278,4 +283,8 @@ static NSString *CellID= @"HomeworkListCellId";
     [XMAVAudioPlayer sharePlayer].delegate = self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 @end

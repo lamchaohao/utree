@@ -35,7 +35,7 @@
     CGRect detailLabelFrame = CGRectMake(CGRectGetMaxX(imageFrame)+15, oldDetailLabelFrame.origin.y,oldDetailLabelFrame.size.width, oldDetailLabelFrame.size.height);
     [self.detailTextLabel setFrame:detailLabelFrame];
     
-    self.scoreLabel.frame=CGRectMake(90,43,35.5,13.5);
+    self.scoreLabel.frame=CGRectMake(detailLabelFrame.origin.x,43,35.5,13.5);
 }
 
 -(void)createCustomUI
@@ -44,7 +44,7 @@
 //    [self.detailTextLabel removeFromSuperview];
     
     UIView *rectView = [[UIView alloc] init];
-    rectView.frame = CGRectMake(90,43,35.3,13.3);
+    rectView.frame = CGRectMake(74,43,35.3,13.3);
     rectView.backgroundColor = [UIColor whiteColor];
     //    rectView.layer.cornerRadius = 7;
     rectView.myCenterX=0;
@@ -63,7 +63,7 @@
     
     _scoreLabel = [ZBPaddingLabel new];
     [_scoreLabel setText:@"34399"];
-    _scoreLabel.frame=CGRectMake(90,43,35.5,13.5);
+    _scoreLabel.frame=CGRectMake(70,43,35.5,13.5);
     _scoreLabel.myCenterX=0;
     _scoreLabel.font = [UIFont systemFontOfSize:10];
     _scoreLabel.textColor=[UIColor colorWithRed:248/255.0 green:162/255.0 blue:26/255.0 alpha:1.0];

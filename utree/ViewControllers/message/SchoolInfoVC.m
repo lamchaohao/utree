@@ -12,10 +12,13 @@
 #import "WrapNoticeMsgModel.h"
 #import "NoticeMessageModel.h"
 #import "NoticeMessageCell.h"
+#import "UTMessageDetailVC.h"
+#import "RedDotHelper.h"
 @interface SchoolInfoVC ()<UITableViewDataSource,UITableViewDelegate>
 @property(nonatomic,strong)UIView *headView;
 @property(nonatomic,strong)NotificationDC *dataController;
 @property(nonatomic,strong)NSMutableArray *datasource;
+@property(nonatomic,strong)NSIndexPath *selectedIndexpath;
 @end
 
 @implementation SchoolInfoVC
@@ -126,9 +129,29 @@ static NSString *cellID = @"schoolInfoID";
 
 //选中某个cell
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:@"https://www.qq.com"]];
-    webViewController.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:webViewController animated:YES];
+//    RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:@"https://www.qq.com"]];
+    
+    NoticeMessageModel *model = [self.datasource objectAtIndex:indexPath.row];
+    if(!model.read.boolValue){
+        model.read = [NSNumber numberWithBool:YES];
+        [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        
+        if (self.isSystemNotice) {
+            int unread = [RedDotHelper shareInstance].systemUnread;
+            unread--;
+            unread=unread<0?0:unread;
+            [[RedDotHelper shareInstance] setSystemUnread:unread];
+        }else{
+            int unread = [RedDotHelper shareInstance].schoolMsgUnread;
+            unread--;
+            unread=unread<0?0:unread;
+            [[RedDotHelper shareInstance] setSchoolMsgUnread:unread];
+        }
+        
+    }
+    UTMessageDetailVC *detailVC = [[UTMessageDetailVC alloc]initWithNoticeId:model.messageId isSystemMsg:self.isSystemNotice];
+    detailVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:detailVC animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 

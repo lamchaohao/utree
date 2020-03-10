@@ -10,8 +10,9 @@
 #import "JXCategoryIndicatorLineView.h"
 #import "ParentworkTableView.h"
 #import "WorkHeaderViewModel.h"
+#import "MMAlertView.h"
 
-@interface HomeworkDetailView ()<JXCategoryViewDelegate>
+@interface HomeworkDetailView ()<JXCategoryViewDelegate,ParentWorkDelegate>
 
 @property (nonatomic, strong) JXCategoryTitleView *categoryView;
 @property (nonatomic, strong) NSArray <NSString *> *titles;
@@ -132,6 +133,7 @@
     ParentworkTableView *listView=[[ParentworkTableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, self.frame.size.height-50)];
     listView.isNeedFooter= _isNeedFooter;
     listView.isNeedHeader = _isNeedHeader;
+    listView.delegate = self;
     if (index == 0) {
         [self.workDelegate getParentListWithCheck:[NSNumber numberWithBool:YES]];
         self.parentCheckListView = listView;
@@ -146,6 +148,7 @@
 
 -(void)setDataSourceWithCheck:(BOOL) isCheck parents:(NSArray *)parents
 {
+    [self reloadTableViewWithParents:parents];
     if (isCheck) {
         self.parentCheckListView.dataSource = parents.mutableCopy;
         self.parentCheckListView.isCheckData = YES;
@@ -167,11 +170,54 @@
     }
 }
 
+- (void)reloadTableViewWithParents:(NSArray *)parents
+{
+    if (self.parentUnCheckListView) {
+        [self.parentUnCheckListView.tableView reloadData];
+    }
+    if (self.parentCheckListView) {
+        [self.parentCheckListView.tableView reloadData];
+    }
+    if (parents.count>0) {
+        ParentCheckModel *checkModel =[parents objectAtIndex:0];
+        if(checkModel.remindTime.intValue==0){
+           [self.onekeyRemindBtn addTarget:self action:@selector(remindAllClick:) forControlEvents:UIControlEventTouchUpInside];
+           [self addSubview:self.onekeyRemindBtn];
+        }else{
+           
+        }
+    }
+
+}
+
+
 
 
 -(void)remindAllClick:(id)send
 {
-    [self.workDelegate onekeyRemindAll];
+    MMPopupItemHandler positiveHandler = ^(NSInteger index){
+         
+        [self.workDelegate onekeyRemindAll];
+    };
+    MMPopupItemHandler nagativeHandler = ^(NSInteger index){
+        
+    };
+    NSArray *items =
+    @[MMItemMake(@"发送提醒", MMItemTypeNormal, positiveHandler),
+      MMItemMake(@"取消", MMItemTypeHighlight, nagativeHandler)];
+    
+    MMAlertView *sendAlert = [[MMAlertView alloc]initWithTitle:@"短信提醒" detail:@"家长收到短信提醒，短信费用由平台承担，您无需付费" items:items];
+    
+    [sendAlert show];
+    
+}
+#pragma mark ParentWorkDelegate
+- (void)onRemindAgain:(ParentCheckModel *)parent
+{
+    if([self.workDelegate respondsToSelector:@selector(onRemindAgainClick:)]){
+        [self.workDelegate onRemindAgainClick:parent];
+    }
+    
 }
 
 #pragma mark - JXCategoryViewDelegate

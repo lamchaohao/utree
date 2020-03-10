@@ -7,13 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "IIViewDeckController.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LeftDrawerView : UINavigationController
 
 @property(nonatomic,strong) UIView *contentView;
 @property(nonatomic,strong) UITableView *tableView;
+@property(nonatomic,weak)IIViewDeckController *viewDeckController;
 
 @end
 

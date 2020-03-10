@@ -20,6 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)requestClassListById:(NSString *)workId WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 
+-(void)setTaskReadWithWorkId:(NSString *)workId;
+
+- (void)workRemindStuParentAgain:(NSString *)studentId taskId:(nonnull NSString *)taskId;
+
 @end
 
 NS_ASSUME_NONNULL_END

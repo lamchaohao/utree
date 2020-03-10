@@ -63,6 +63,7 @@
     _currentPlanLabel.backgroundColor = [UIColor myColorWithHexString:@"#FFF7F7F7"];
     [_currentPlanLabel setFont:[UIFont systemFontOfSize:13]];
     [_currentPlanLabel setTextColor:[UIColor myColorWithHexString:SecondTextColor]];
+    _currentPlanLabel.myLeft=17;
     [self.view addSubview:_currentPlanLabel];
 }
 
@@ -133,6 +134,7 @@
         GroupModel *model = [_groupList objectAtIndex:indexPath.row];
         GroupDetailVC *detail = [[GroupDetailVC alloc]initWithGroup:model];
         detail.modalPresentationStyle = UIModalPresentationOverFullScreen;
+        detail.modalTransitionStyle=UIModalTransitionStyleCrossDissolve;
         detail.delegate=self;
         [self presentViewController:detail animated:YES completion:nil];
     }

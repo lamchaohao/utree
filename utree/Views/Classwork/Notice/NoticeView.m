@@ -13,10 +13,10 @@
 #import "NoticeListDC.h"
 #import "WrapNoticeListModel.h"
 #import "AVAudioPlayer.h"
-#import "RxWebViewController.h"
 #import "NoticeDetailVC.h"
 #import "UTCache.h"
 #import "RedDotHelper.h"
+#import "UTWebViewController.h"
 @interface NoticeView ()<UITableViewDataSource,UITableViewDelegate,NoticeMediaDelegate,XMAVAudioPlayerDelegate>
 
 @property(nonatomic,strong)NoticeListDC *dataController;
@@ -51,7 +51,7 @@ static NSString *CellID = @"noticeCellID";
     self.noticeFrameArray = [[NSMutableArray alloc]init];
     [self initTableView];
     [self loadNoticeDataAtFirstTime];
-
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadNoticeDataAtFirstTime) name:PostNoticeNotifyName object:nil];
 }
 
 -(void)initTableView
@@ -86,7 +86,10 @@ static NSString *CellID = @"noticeCellID";
         
         NoticeDetailVC *detailVC = [[NoticeDetailVC alloc]initWithNoticeModel:vm.notice];
         [self.utViewDelegate pushToViewController:detailVC];
-
+        [detailVC setNoticeDeleteCallback:^(NSString * _Nonnull noticeId) {
+            [self.noticeFrameArray removeObjectAtIndex:indexPath.row];
+            [tableView reloadData];
+        }];
     }
     
 }
@@ -202,7 +205,7 @@ static NSString *CellID = @"noticeCellID";
 {
     if([self.utViewDelegate respondsToSelector:@selector(pushToViewController:)])
     {
-        RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
+        UTWebViewController* webViewController = [[UTWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
         [self.utViewDelegate pushToViewController:webViewController];
     }
 }
@@ -257,6 +260,11 @@ static NSString *CellID = @"noticeCellID";
 - (void)viewWillAppear:(BOOL)animated
 {
     [XMAVAudioPlayer sharePlayer].delegate = self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

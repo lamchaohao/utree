@@ -13,6 +13,9 @@
 #import "DeleteWorkApi.h"
 #import "WorkClassListApi.h"
 #import "UTClassModel.h"
+#import "SetReadApi.h"
+#import "RemindAgainApi.h"
+
 @implementation HomeworkDetailDC
 
 
@@ -89,6 +92,27 @@
         if (failure) {
             failure([[UTResult alloc]initWithFailure:message.message]);
         }
+    }];
+}
+
+- (void)setTaskReadWithWorkId:(NSString *)workId
+{
+    SetReadApi *api = [[SetReadApi alloc]initWithWorkId:workId type:2];
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        
+    }];
+}
+
+- (void)workRemindStuParentAgain:(NSString *)studentId taskId:(nonnull NSString *)taskId
+{
+    RemindAgainApi *api = [[RemindAgainApi alloc]initWithWorkId:taskId stuId:studentId workType:2];
+    
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        
     }];
 }
 

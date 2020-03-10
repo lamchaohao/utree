@@ -13,7 +13,7 @@
 #import "AppDelegate.h"
 #import "UTCache.h"
 #import "AVAudioPlayer.h"
-#import "RxWebViewController.h"
+#import "UTWebViewController.h"
 #import "MMAlertView.h"
 #import "UTClassModel.h"
 
@@ -93,6 +93,9 @@
     } failure:^(UTResult * _Nonnull result) {
         [self.view makeToast:result.failureResult];
     }];
+    
+    [self.dataController setNoticeReadWithWorkId:self.noticeModel.noticeId];
+    
 }
 
 - (void)getParentListWithCheck:(NSNumber *)isCheck
@@ -111,7 +114,7 @@
     MMAlertView *alertView = [[MMAlertView alloc]initWithConfirmTitle:_classListStr  detail:@""];
     [alertView show];
 }
-
+#pragma mark NoticeDataDelegate
 - (void)onekeyRemindAll
 {
     [self.dataController requestOneKeyRemind:self.noticeModel.noticeId WithSuccess:^(UTResult * _Nonnull result) {
@@ -120,12 +123,21 @@
         [self.view makeToast:result.failureResult];
     }];
 }
+#pragma mark NoticeDataDelegate
+- (void)onRemindAgainWithParent:(ParentCheckModel *)model
+{
+    [self.dataController remindStuParentAgain:model.studentId noticeId:self.noticeModel.noticeId];
+    
+}
 
 -(void)onDeleteDataClick:(id)send
 {
     
     MMPopupItemHandler positiveHandler = ^(NSInteger index){
         [self.dataController requestDeleteNoticeById:self.noticeModel.noticeId WithSuccess:^(UTResult * _Nonnull result) {
+            if (self.noticeDeleteCallback) {
+                self.noticeDeleteCallback(self.noticeModel.noticeId);
+            }
             [self.navigationController popViewControllerAnimated:YES];
         } failure:^(UTResult * _Nonnull result) {
             [self.view makeToast:result.failureResult];
@@ -147,7 +159,7 @@
 
 - (void)openWebView:(NSString *)webUrl
 {
-    RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
+    UTWebViewController* webViewController = [[UTWebViewController alloc] initWithUrl:[NSURL URLWithString:webUrl]];
     [self.navigationController pushViewController:webViewController animated:YES];
 }
 

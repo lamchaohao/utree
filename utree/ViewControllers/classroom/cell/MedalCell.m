@@ -48,12 +48,12 @@
     [self addSubview:rootLayout];
 }
 
--(void)setDataToviewWithMedalImagePath:(NSString *)medalPath progress:(CGFloat)prg needMask:(BOOL)mask
+-(void)setDataToviewWithMedalImagePath:(NSString *)medalPath metalNow:(CGFloat)usedValue metalMax:(CGFloat)maxValue needMask:(BOOL)mask
 {
     NSString *imagePath = [[NSBundle mainBundle]pathForResource:medalPath ofType:@"png"];
     UIImage *img = [UIImage imageWithContentsOfFile:imagePath];
     [self.medalImgView setImage:img];
-    [self.medalProgressView setProgressForView:prg];
+    [self.medalProgressView setProgressForViewUsedValue:usedValue maxValue:maxValue];
     [self.medalMaskView setHidden:!mask];
 }
 

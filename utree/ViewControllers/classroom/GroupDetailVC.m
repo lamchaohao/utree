@@ -11,6 +11,7 @@
 #import "UTStudent.h"
 #import "UTStudentCollectCell.h"
 #import "AwardVC.h"
+#import "GroupManagerDC.h"
 @interface GroupDetailVC ()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property(nonatomic,strong) UILabel *countLabel;
 @property(nonatomic,strong) UILabel *titleLabel;
@@ -18,6 +19,7 @@
 @property(nonatomic,strong) UIButton *awardBtn;
 @property(nonatomic,strong) UICollectionView *collectionView;
 @property(nonatomic,strong)GroupModel *group;
+@property(nonatomic,strong)GroupManagerDC *dataController;
 @property int kLineNum;
 @property int kLineSpacing ;
 @end
@@ -35,9 +37,21 @@
     _kLineSpacing=8;
     [super viewDidLoad];
     [self createView];
+    [self loadGroupStudentData];
 }
 static NSString *cellID = @"collectionID";
 
+
+-(void)loadGroupStudentData
+{
+    self.dataController = [[GroupManagerDC alloc]init];
+    [self.dataController requestGroupDetailById:self.group.groupId WithSuccess:^(UTResult * _Nonnull result) {
+        self.group = result.successResult;
+        [self.collectionView reloadData];
+    } failure:^(UTResult * _Nonnull result) {
+         [self showToastView:result.failureResult];
+    }];
+}
 
 - (void)createView
 {
@@ -246,6 +260,7 @@ static NSString *cellID = @"collectionID";
     }
     AwardVC *awardVC= [[AwardVC alloc]initByPassStuList:_group.studentDos groupId:_group.groupId];
     awardVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    awardVC.modalTransitionStyle=UIModalTransitionStyleCrossDissolve;
     [self presentViewController:awardVC animated:YES completion:nil];
     
 }

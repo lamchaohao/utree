@@ -17,7 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)NSString *createTime;
 @property(nonatomic,strong)NSNumber *recall;//是否撤回，true为撤回
 @property(nonatomic,strong)NSNumber *read;//是否已阅，false为未读
-
+@property(nonatomic,strong)NSString *content;
+@property(nonatomic,strong)NSString *sender;
+@property(nonatomic,strong)NSNumber *msgType;//消息类型，1为系统信息，2为学校通知
 @end
 
 NS_ASSUME_NONNULL_END

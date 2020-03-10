@@ -87,7 +87,24 @@
 
 -(void)initNaviBar
 {
-    self.title = self.parentModel.parentName;//标题
+    MyLinearLayout *titleViewLayout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Vert];
+    UILabel *parentNameLabel = [UILabel new];
+    [parentNameLabel setFont:[UIFont systemFontOfSize:17]];
+    [parentNameLabel setTextColor:[UIColor myColorWithHexString:@"#333333"]];
+    parentNameLabel.myCenterX=0;
+    UILabel *relationshipLabel =[UILabel new];
+    [relationshipLabel setFont:[UIFont systemFontOfSize:10]];
+    [relationshipLabel setTextColor:[UIColor myColorWithHexString:@"#666666"]];
+    relationshipLabel.myTop=3;
+    relationshipLabel.myCenterX=0;
+    [titleViewLayout addSubview:parentNameLabel];
+    [titleViewLayout addSubview:relationshipLabel];
+    parentNameLabel.text =self.parentModel.parentName;
+    [parentNameLabel sizeToFit];
+    relationshipLabel.text = [NSString stringWithFormat:@"%@家长",self.parentModel.studentName];
+    [relationshipLabel sizeToFit];
+    self.navigationItem.titleView =titleViewLayout;
+//    self.title = self.parentModel.parentName;//标题
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"data" style:UIBarButtonItemStyleDone target:self action:@selector(gotoParentDataVC:)];
 
     NSString *imagePath = [[NSBundle mainBundle]pathForResource:@"ic_parent_data" ofType:@"png"];
@@ -128,6 +145,7 @@
 {
     [super viewWillDisappear:animated];
     [self.chatView VCviewWillDisappear:animated];
+    [self.dbManager updateMessageReadStatus: self.parentModel.parentId];
 }
 
 #pragma mark dataDelegate

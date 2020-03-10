@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface RecorderView : UIView
+@interface RecorderView : MyRelativeLayout
 @property(nonatomic,strong)MyLinearLayout *contentView;
 @property(nonatomic,strong)UILabel *topLabel;
 @property(nonatomic,strong)UIButton *recordBtn;

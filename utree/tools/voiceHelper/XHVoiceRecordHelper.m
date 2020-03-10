@@ -175,7 +175,7 @@
 - (void)startRecordingWithStartRecorderCompletion:(XHStartRecorderCompletion)startRecorderCompletion {
     if ([_recorder record]) {
         [self resetTimer];
-        _timer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(updateMeters) userInfo:nil repeats:YES];
+        _timer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateMeters) userInfo:nil repeats:YES];
         if (startRecorderCompletion)
             dispatch_async(dispatch_get_main_queue(), ^{
                 startRecorderCompletion();
@@ -183,7 +183,7 @@
     }
 }
 
-- (void)resumeRecordingWithResumeRecorderCompletion:(XHResumeRecorderCompletion)resumeRecorderCompletion {
+-(void)resumeRecordingWithResumeRecorderCompletion:(XHResumeRecorderCompletion)resumeRecorderCompletion {
     _isPause = NO;
     if (_recorder) {
         if ([_recorder record]) {
@@ -209,7 +209,7 @@
     dispatch_async(dispatch_get_main_queue(), stopRecorderCompletion);
 }
 
-- (void)cancelledDeleteWithCompletion:(XHCancellRecorderDeleteFileCompletion)cancelledDeleteCompletion {
+-(void)cancelledDeleteWithCompletion:(XHCancellRecorderDeleteFileCompletion)cancelledDeleteCompletion {
     
     _isPause = NO;
     [self stopBackgroundTask];
@@ -225,16 +225,16 @@
                 DLog(@"error :%@", error.description);
             }
             dispatch_async(dispatch_get_main_queue(), ^{
-                cancelledDeleteCompletion(error);
+                cancelledDeleteCompletion();
             });
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                cancelledDeleteCompletion(nil);
+                cancelledDeleteCompletion();
             });
         }
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            cancelledDeleteCompletion(nil);
+            cancelledDeleteCompletion();
         });
     }
 }
@@ -251,8 +251,8 @@
         if (!self->_isPause) {
             float progress = self.currentTimeInterval / self.maxRecordTime * 1.0;
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (self->_recordProgress) {
-                    self->_recordProgress(progress);
+                if (self.recordProgress) {
+                    self.recordProgress(progress);
                 }
             });
         }
@@ -263,15 +263,18 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             // 更新扬声器
-            if (self->_peakPowerForChannel) {
-                self->_peakPowerForChannel(peakPowerForChannel);
+            if (self.peakPowerForChannel) {
+                self.peakPowerForChannel(peakPowerForChannel);
             }
         });
         
         if (self.currentTimeInterval > self.maxRecordTime) {
+            self->_isPause = NO;
+            [self stopBackgroundTask];
             [self stopRecord];
+            [self getVoiceDuration:self.recordPath];
             dispatch_async(dispatch_get_main_queue(), ^{
-                self->_maxTimeStopRecorderCompletion();
+                self.maxTimeStopRecorderCompletion();
             });
         }
     });
@@ -289,7 +292,7 @@
         self.recordDuration = @"";
     } else {
         DLog(@"时长:%f", play.duration);
-        self.recordDuration = [NSString stringWithFormat:@"%.1f", play.duration];
+        self.recordDuration = [NSString stringWithFormat:@"%d",(int)(play.duration)];
     }
 }
 

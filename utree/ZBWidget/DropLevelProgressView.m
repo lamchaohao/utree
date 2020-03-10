@@ -36,8 +36,9 @@
     }
     //进度条
     self.progressView.frame = CGRectMake(0, 40, self.frame.size.width*progress, 10);
-    int progressInt = (int)100*progress;
-    [self.currentScoreLabel setText:[NSString stringWithFormat:@"%d",progressInt]];
+//    int progressInt = (int)100*progress;
+    CGFloat currentScore = progress*maxValue;
+    [self.currentScoreLabel setText:[NSString stringWithFormat:@"%d",(int)currentScore]];
     self.currentScoreLabel.frame=CGRectMake(self.frame.size.width*progress-9, 20, 20, 17);
     self.indicatorView.frame=CGRectMake(self.frame.size.width*progress-5, 37, 12, 14);
     

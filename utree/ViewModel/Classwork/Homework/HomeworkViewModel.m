@@ -30,12 +30,12 @@
     self.headDataFrame = (CGRect){{0,0},{0,50}};
     //科目
     CGFloat subjectY = CGRectGetMaxY(self.headDataFrame) + circleContentTextMargin;
-    CGSize subjectSize = [self.taskModel.topic boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
+    CGSize subjectSize = [self.taskModel.subjectName boundingRectWithSize:CGSizeMake(circleCellWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
     CGRect subjectFrame = (CGRect){{0,subjectY},subjectSize};
     
     
     CGFloat topicY = CGRectGetMaxY(subjectFrame) + circleContentTextMargin;
-    CGSize topicSize = [self.taskModel.topic boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
+    CGSize topicSize = [self.taskModel.topic boundingRectWithSize:CGSizeMake(circleCellWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:circleCellTimeattributes context:nil].size;
     
     CGRect titleFrame = (CGRect){{0,topicY},topicSize};
     
@@ -59,7 +59,7 @@
         self.bodyAudioFrame = CGRectMake(0, circleContentTextMargin, 0, 40);
     }
     
-    CGFloat theLastHeight =CGRectGetMaxY(self.detailTextFrame) + circleCellMargin+ CGRectGetHeight(self.bodyAudioFrame)+circleContentTextMargin;
+    CGFloat theLastHeight =CGRectGetMaxY(self.detailTextFrame) + circleCellMargin+ CGRectGetMaxY(self.bodyAudioFrame)+circleContentTextMargin;
     //图片 (判断是否有图片)
     if ([self.taskModel.picList count] != 0) {
         CGFloat photosX = circleCellMargin;
@@ -120,7 +120,7 @@
 - (void)setCellHeight{
     CGFloat summaryHeight = circleCellMargin;
     if (self.isNeedSummaryCount) {
-        summaryHeight=circleCellToolBarHeight;
+        summaryHeight+=circleCellToolBarHeight;
     }
     self.cellHeight = CGRectGetMaxY(self.taskBodyFrame)+summaryHeight;
 }

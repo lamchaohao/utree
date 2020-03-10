@@ -15,7 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong)MedalProgressView *medalProgressView;
 @property(nonatomic,strong)UIImageView *medalMaskView;
 
--(void)setDataToviewWithMedalImagePath:(NSString *)medalPath progress:(CGFloat)prg needMask:(BOOL)mask;
+-(void)setDataToviewWithMedalImagePath:(NSString *)medalPath metalNow:(CGFloat)usedValue metalMax:(CGFloat)maxValue needMask:(BOOL)mask;
+
 @end
 
 NS_ASSUME_NONNULL_END

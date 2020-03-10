@@ -12,8 +12,8 @@
 #import "MMAlertView.h"
 #import "CommentCellViewModel.h"
 #import "ZFUtilities.h"
-
-@interface MomentDetailView()<UITableViewDelegate,UITableViewDataSource>
+#import "CHInputVC.h"
+@interface MomentDetailView()<UITableViewDelegate,UITableViewDataSource,CHInputCallBack>
 
 @property(nonatomic,strong)MyLinearLayout *headerLayout;
 @property(nonatomic,strong)MyRelativeLayout *toolbarLayout;
@@ -391,14 +391,29 @@ static NSString *CellID = @"commentID";
 
 -(void)onCommentBtnClick:(id)sender
 {
-    MMAlertView *inputView = [[MMAlertView alloc]initWithInputTitle:@"评论" detail:[NSString stringWithFormat:@"评论给%@",self.viewModel.momentModel.teacherDo.teacherName] placeholder:@"评论" handler:^(NSString *text) {
-        if (text.length>0) {
-            if ([self.delegate respondsToSelector:@selector(sendComment:)]) {
-                [self.delegate sendComment:text];
-            }
+//    MMAlertView *inputView = [[MMAlertView alloc]initWithInputTitle:@"评论" detail:[NSString stringWithFormat:@"评论给%@",self.viewModel.momentModel.teacherDo.teacherName] placeholder:@"评论" handler:^(NSString *text) {
+//        if (text.length>0) {
+//            if ([self.delegate respondsToSelector:@selector(sendComment:)]) {
+//                [self.delegate sendComment:text];
+//            }
+//        }
+//    }];
+//    [inputView show];
+    CHInputVC *inputView = [[CHInputVC alloc]init];
+    inputView.inputLengthLimit=200;
+    inputView.saveBtnStr=@"评论";
+    inputView.callback = self;
+    inputView.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    [self.delegate presentVCForDelegate:inputView];
+}
+#pragma mark CHInputCallback
+- (void)CHInputAdded:(NSString *)content
+{
+    if (content.length>0) {
+        if ([self.delegate respondsToSelector:@selector(sendComment:)]) {
+            [self.delegate sendComment:content];
         }
-    }];
-    [inputView show];
+    }
 }
 
 -(void)refreshComment

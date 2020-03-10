@@ -10,6 +10,7 @@
 #import "JXPagerView.h"
 #import "JXCategoryTitleView.h"
 #import "WorkHeaderView.h"
+#import "ParentCheckModel.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol NoticeDataDelegate <NSObject>
@@ -18,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)onekeyRemindAll;
 
-
+-(void)onRemindAgainWithParent:(ParentCheckModel *)model;
 @end
 
 @interface NoticeDetailView : UIView <JXPagerViewDelegate, JXPagerMainTableViewGestureDelegate>
@@ -36,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign)id<NoticeDataDelegate> dataDelegate;
 
+- (void)reloadTableViewWithParents:(NSArray *)parents;
 @end
 
 NS_ASSUME_NONNULL_END

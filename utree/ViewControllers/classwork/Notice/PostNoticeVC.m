@@ -19,13 +19,16 @@
 #import "PostNoticeDC.h"
 #import "FileObject.h"
 #import "SelectReadClassVC.h"
-#import "RxWebViewController.h"
-@interface PostNoticeVC ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate,DeletePicDelegate,RecorderViewDelegate,TZImagePickerControllerDelegate,UploadFileListener,ZBWebviewLoadedDelegate>
+#import "UTWebViewController.h"
+#import "CHInputVC.h"
+#import "UTAudioButton.h"
+
+@interface PostNoticeVC ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate,DeletePicDelegate,RecorderViewDelegate,TZImagePickerControllerDelegate,UploadFileListener,CHInputCallBack>
 @property(nonatomic,strong)MyLinearLayout *rootLayout;
 @property(nonatomic,strong)UISwitch *parentSwitch;
 @property(nonatomic,strong)UISwitch *needFeedbackSwitch;
 @property(nonatomic,strong)MyRelativeLayout *audioLayout;
-@property(nonatomic,strong)UIButton *audioButton;
+@property(nonatomic,strong)UTAudioButton *audioButton;
 @property(nonatomic,strong)UIButton *closeAudioButton;
 
 @property(nonatomic,strong)UICollectionView *picCollectionView;
@@ -62,17 +65,12 @@ static NSString *cellID = @"photoCell";
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishVC:) name:PostWorkNotifyName object:nil];
     self.picList = [[NSMutableArray alloc]init];
     self.dataController = [[PostNoticeDC alloc]init];
     [self initNaviBar];
     [self initMainLayout];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:PostWorkNotifyName object:nil];
-}
 
 -(void)initNaviBar
 {
@@ -157,10 +155,10 @@ static NSString *cellID = @"photoCell";
     attachLayout.myTop=5;
     attachLayout.myLeft=18;
     attachLayout.myBottom=3;
-    UIButton *audioButton = [[UIButton alloc]init];
-    [audioButton setImage:[UIImage imageNamed:@"ic_microphone"] forState:UIControlStateNormal];
-    [audioButton sizeToFit];
-    [audioButton addTarget:self action:@selector(showAudioLayout:) forControlEvents:UIControlEventTouchUpInside];
+    UIButton *addAudioButton = [[UIButton alloc]init];
+    [addAudioButton setImage:[UIImage imageNamed:@"ic_microphone"] forState:UIControlStateNormal];
+    [addAudioButton sizeToFit];
+    [addAudioButton addTarget:self action:@selector(showAudioLayout:) forControlEvents:UIControlEventTouchUpInside];
     
     UIButton *picButton = [[UIButton alloc]init];
     [picButton setImage:[UIImage imageNamed:@"ic_photo"] forState:UIControlStateNormal];
@@ -173,7 +171,7 @@ static NSString *cellID = @"photoCell";
     [urlButton sizeToFit];
     [urlButton addTarget:self action:@selector(showUrlShareDialog:) forControlEvents:UIControlEventTouchUpInside];
     
-    [attachLayout addSubview:audioButton];
+    [attachLayout addSubview:addAudioButton];
     [attachLayout addSubview:picButton];
     [attachLayout addSubview:urlButton];
     
@@ -223,11 +221,13 @@ static NSString *cellID = @"photoCell";
 {
     _audioLayout = [MyRelativeLayout new];
     _audioLayout.frame=CGRectMake(0, 0, ScreenWidth, 54);
-    _audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_audioButton setBackgroundImage:[UIImage imageNamed:@"bg_audio_record"] forState:UIControlStateNormal];
-    [_audioButton setTitle:@"58“" forState:UIControlStateNormal];
-    [_audioButton setTitleColor:[UIColor myColorWithHexString:@"#028CC3"] forState:UIControlStateNormal];
-    _audioButton.frame = CGRectMake(20,8,163,39);
+//    _audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [_audioButton setBackgroundImage:[UIImage imageNamed:@"bg_audio_record"] forState:UIControlStateNormal];
+//    [_audioButton setTitle:@"58“" forState:UIControlStateNormal];
+//    [_audioButton setTitleColor:[UIColor myColorWithHexString:@"#028CC3"] forState:UIControlStateNormal];
+//    _audioButton.frame = CGRectMake(20,8,163,39);
+    _audioButton = [[UTAudioButton alloc]initWithFrame:CGRectMake(0,0,163,40)];
+    [_audioButton addTarget:self action:@selector(playAudio:) forControlEvents:UIControlEventTouchUpInside];
     _audioButton.myLeft=18;
     _audioButton.myBottom=8;
     [_audioLayout addSubview:_audioButton];
@@ -431,7 +431,8 @@ static NSString *cellID = @"photoCell";
 
 -(void)recordOver:(NSString *)filePath duration:(NSString *)duration
 {    
-    [_audioButton setTitle:duration forState:UIControlStateNormal];
+//    [_audioButton setTitle:duration forState:UIControlStateNormal];
+    [_audioButton.second setText:duration];
     [_audioButton addTarget:self action:@selector(playAudio:) forControlEvents:UIControlEventTouchUpInside];
     [_audioLayout setHidden:NO];
     self.audioPath = filePath;
@@ -445,40 +446,45 @@ static NSString *cellID = @"photoCell";
 
 -(void)showUrlShareDialog:(id)sender
 {
-    MMPopupCompletionBlock completeBlock = ^(MMPopupView *popupView, BOOL finished){
-            NSLog(@"showUrlShareDialog complete");
-        };
-        
-    MMAlertView *alertView = [[MMAlertView alloc] initWithInputTitle:@"添加链接" detail:nil placeholder:@"请输入链接地址" handler:^(NSString *textInput) {
-        NSLog(@"input:%@",textInput);
-        [self.webButton setTitle:textInput forState:UIControlStateNormal];
-        self.urlInput =textInput;
-        if(![self.urlInput hasPrefix:@"http"]){
-            self.urlInput = [NSString stringWithFormat:@"http://%@",self.urlInput];
-           }
-        
-        if(![RegexTool checkURL:self.urlInput]) {
-            self.urlLayout.hidden=NO;
-        }else{
-            [self.view makeToast:@"链接不可用"];
-        }
-        
+
+    CHInputVC *inputView = [[CHInputVC alloc]init];
+    inputView.inputLengthLimit=400;
+    inputView.saveBtnStr=@"确定";
+    inputView.callback = self;
+    inputView.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    [self presentViewController:inputView animated:YES completion:^{
+         
     }];
-    [alertView showWithBlock:completeBlock];
     
-    
+}
+
+- (void)CHInputAdded:(NSString *)text
+{
+    [self.webButton setTitle:text forState:UIControlStateNormal];
+    self.urlInput =text;
+    if(![self.urlInput hasPrefix:@"http"]){
+        self.urlInput = [NSString stringWithFormat:@"http://%@",self.urlInput];
+       }
+
+    if(![RegexTool checkURL:self.urlInput]) {
+        self.urlLayout.hidden=NO;
+    }else{
+        [self.view makeToast:@"链接不可用"];
+    }
 }
 
 -(void)closeAudioView:(id)sender
 {
     _audioLayout.hidden=YES;
-    
+    [[XHAudioPlayerHelper shareInstance] stopAudio];
+    self.audioPath = nil;
 }
 
 
 -(void)closeUrlClick:(id)sender
 {
     _urlLayout.hidden=YES;
+    self.urlInput=@"";
 }
 
 -(void)finishVC:(id)sender
@@ -535,7 +541,9 @@ static NSString *cellID = @"photoCell";
         self.progressView.center = self.view.center;
         [self.view addSubview:self.progressView];
     }
-    
+    if (![_progressView superview]) {
+        [self.view addSubview:_progressView];
+    }
     
 }
 
@@ -577,8 +585,8 @@ static NSString *cellID = @"photoCell";
 
 - (void)onFileUploadProgress:(CGFloat)progress filePath:(NSString *)filePath fileIndex:(NSInteger)index
 {
-    NSLog(@"PostNotice onFileUploadProgress---%f",progress);
-    if (self.progressView) {
+    NSLog(@"PostNotice filePath=%@ progress---%f",filePath,progress);
+    if (progress<1.0f) {
         [self.progressView setProgress:progress];
     }
 }
@@ -603,25 +611,10 @@ static NSString *cellID = @"photoCell";
         self.urlInput = [NSString stringWithFormat:@"https://%@",self.urlInput ];
     }
     
-    RxWebViewController* webViewController = [[RxWebViewController alloc] initWithUrl:[NSURL URLWithString:self.urlInput]];
-    
+    UTWebViewController* webViewController = [[UTWebViewController alloc] initWithUrl:[NSURL URLWithString:self.urlInput]];
+    webViewController.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:webViewController animated:YES completion:nil];
-    webViewController.zbWebviewLoadDelegate = self;
 //    [self.navigationController pushViewController:webViewController animated:YES];
-}
-#pragma mark 获取到标题和icon
-- (void)didLoadDoneWithTitle:(NSString *)title icon:(NSString *)iconUrl
-{
-    NSLog(@"title=%@,icon=%@",title,iconUrl);
-    if (![self isBlankString:title]) {
-        [self.webButton setTitle:title forState:UIControlStateNormal];
-    }
-    
-    if(![iconUrl hasPrefix:@"http"]){
-        iconUrl = [NSString stringWithFormat:@"http://%@",iconUrl];
-    }
-    
-    [self.webButton sd_setImageWithURL:[NSURL URLWithString:iconUrl] forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"ic_web_url"]];
 }
 
 
@@ -646,7 +639,7 @@ static NSString *cellID = @"photoCell";
     [self.dataController publishNoticeToServerWithTopic:self.titleInput.text content:self.contentInput.text enclosureDic:enclosureDic WithSuccess:^(UTResult * _Nonnull result) {
         [self showToastView:@"发布成功"];
         [self dismissViewControllerAnimated:YES completion:^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:PostWorkNotifyName object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:PostNoticeNotifyName object:nil];
         }];
     } failure:^(UTResult * _Nonnull result) {
         

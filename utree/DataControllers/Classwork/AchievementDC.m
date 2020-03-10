@@ -11,6 +11,7 @@
 #import "WrapAchievementModel.h"
 #import "StudentScoreListApi.h"
 #import "ScoreModel.h"
+#import "SetReadApi.h"
 
 @implementation AchievementDC
 
@@ -63,6 +64,16 @@
         }
     }];
     
+}
+
+- (void)setAchievementReadWithWorkId:(NSString *)workId
+{
+    SetReadApi *api = [[SetReadApi alloc]initWithWorkId:workId type:3];
+    [api startWithValidateBlock:^(SuccessMsg * _Nonnull successMsg) {
+        
+    } onFailure:^(FailureMsg * _Nonnull message) {
+        
+    }];
 }
 
 @end

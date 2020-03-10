@@ -30,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)onCommentClickAndShowOption:(CommentModel *)comment;
 
 -(void)onMoreButtonClick;
+
+-(void)presentVCForDelegate:(UIViewController *)vc;
+
 @end
 
 @interface MomentDetailView : MyFrameLayout

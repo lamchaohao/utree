@@ -10,8 +10,10 @@
 #import <Masonry/Masonry.h>
 #import "XHVoiceRecordHelper.h"
 #import "XHAudioPlayerHelper.h"
+#import "DACircularProgressView.h"
 @interface RecorderView ()<LVRecordToolDelegate,XHAudioPlayerHelperDelegate>
 @property(nonatomic,strong)XHVoiceRecordHelper *recordHelper;
+@property(nonatomic,strong)DACircularProgressView *progressView;
 @end
 @implementation RecorderView
 
@@ -80,42 +82,82 @@
     return _contentView;
 }
 
+- (DACircularProgressView *)progressView
+{
+    if (!_progressView) {
+        _progressView = [[DACircularProgressView alloc]initWithFrame:CGRectMake(0, 0, 92, 92)];
+        _progressView.progressTintColor = [UIColor myColorWithHexString:PrimaryColor];
+        _progressView.innerTintColor = [UIColor whiteColor];
+        _progressView.trackTintColor=[UIColor myColorWithHexString:@"#E7E5E3"];
+        _progressView.backgroundColor =[UIColor whiteColor];
+//        _progressView.myTop=39;
+//        _progressView.myBottom=29;
+        _progressView.hidden = YES;
+        _progressView.myCenterX=_progressView.myCenterY=0;
+    }
+    return _progressView;
+}
+
 
 
 -(void)createView
 {
     [self createContentView];
+     __block RecorderView *strongBlock = self;
     self.recordHelper = [[XHVoiceRecordHelper alloc]init];
-
+    [self.recordHelper setRecordProgress:^(float progress) {
+        [strongBlock.progressView setProgress:progress];
+        int maxSecond = (int)(120*progress);
+        int minute = maxSecond/60;
+        int second = (maxSecond-60)>0?(maxSecond-60):maxSecond;
+        int digitalSecond = second/10;
+        int unitsSecond =maxSecond%10;
+        
+        [strongBlock.topLabel setText:[NSString stringWithFormat:@"0%d:%d%d",minute,digitalSecond,unitsSecond]];
+        [strongBlock.topLabel sizeToFit];
+    }];
+    
+    [self.recordHelper setMaxTimeStopRecorderCompletion:^{
+        NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *filePath = [path stringByAppendingPathComponent:@"utree_record.aac"];
+        [strongBlock.delegate recordOver:filePath duration:strongBlock.recordHelper.recordDuration];
+        [strongBlock dismissAlert];
+    }];
+    
     self.backgroundColor = [UIColor blackColor];
     self.alpha = 0.2;
-
+    MyFrameLayout *recordLayout = [MyFrameLayout new];
+    recordLayout.frame = CGRectMake(0, 0, 92, 92);
+    recordLayout.myCenterY=recordLayout.myCenterX=0;
+    recordLayout.myTop=39;
+    recordLayout.myBottom=29;
+    
     _topLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 40)];
     _topLabel.textColor = [UIColor myColorWithHexString:SecondTextColor];
-    _recordBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 94, 94)];
+    _recordBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 90, 90)];
     [_recordBtn setImage:[UIImage imageNamed:@"btn_record_prepared"] forState:UIControlStateNormal];
     [_recordBtn addTarget:self action:@selector(startRecordingAudio:) forControlEvents:UIControlEventTouchUpInside];
     _bottomLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 40)];
     _bottomLabel.textColor = [UIColor myColorWithHexString:SecondTextColor];
     
-    _topLabel.myCenterY=0;
-    _recordBtn.myCenterY=0;
-    _bottomLabel.myCenterY=0;
-    _topLabel.myCenterX=0;
-    _recordBtn.myCenterX=0;
-    _bottomLabel.myCenterX=0;
+    _topLabel.myCenterX=_topLabel.myCenterY=0;
+    _recordBtn.myCenterX=_recordBtn.myCenterY=0;
+    _bottomLabel.myCenterX=_bottomLabel.myCenterY=0;
     _topLabel.myTop=40;
-    _recordBtn.myTop=39;
-    _recordBtn.myBottom=29;
+//    _recordBtn.myTop=39;
+//    _recordBtn.myBottom=29;
     _bottomLabel.myBottom=53;
     
     [_topLabel setText:@"时长不超过2分钟"];
     [_topLabel sizeToFit];
     [_bottomLabel setText:@"点击开始录音"];
     [_bottomLabel sizeToFit];
-
+    
+    [recordLayout addSubview:self.progressView];
+    [recordLayout addSubview:_recordBtn];
+    
     [_contentView addSubview:_topLabel];
-    [_contentView addSubview:_recordBtn];
+    [_contentView addSubview:recordLayout];
     [_contentView addSubview:_bottomLabel];
     
 
@@ -124,16 +166,6 @@
 
 -(void)startRecordingAudio:(id)sender
 {
-//    if(![self.recordHelper checkPermission]){
-//        //跳入当前App设置界面
-//              [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-//    };
-//
-//    [self.recordHelper prepareRecordingWithPath:filePath prepareRecorderCompletion:^BOOL{
-//        NSLog(@"prepareRecordingWithPath");
-//        [self startRecordReal];
-//        return YES;
-//    }];
      
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *filePath = [path stringByAppendingPathComponent:@"utree_record.aac"];
@@ -150,7 +182,7 @@
 {
     [self.recordHelper startRecordingWithStartRecorderCompletion:^{
            NSLog(@"%s",__func__);
-           
+        self.progressView.hidden = NO;
            [self.recordBtn setImage:[UIImage imageNamed:@"btn_recorder_stop"] forState:UIControlStateNormal];
            [self.recordBtn addTarget:self action:@selector(stopRecording:) forControlEvents:UIControlEventTouchUpInside];
            [self.bottomLabel setText:@"点击结束录音"];

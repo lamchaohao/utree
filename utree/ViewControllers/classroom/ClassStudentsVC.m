@@ -90,6 +90,7 @@ static NSString *collectionCellID = @"MyCollectionViewCell";
     AwardVC *awardVC= [[AwardVC alloc]initByPassStuList:students groupId:nil];
     awardVC.vcDelegate = self;
     awardVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    awardVC.modalTransitionStyle=UIModalTransitionStyleCrossDissolve;
     [self presentViewController:awardVC animated:YES completion:nil];
     
 }

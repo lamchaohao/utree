@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)requestStudentScoreListWithExamId:(NSString *)examId WithSuccess:(UTRequestCompletionBlock)success failure:(UTRequestCompletionBlock)failure;
 
+-(void)setAchievementReadWithWorkId:(NSString *)workId;
+
 @end
 
 NS_ASSUME_NONNULL_END

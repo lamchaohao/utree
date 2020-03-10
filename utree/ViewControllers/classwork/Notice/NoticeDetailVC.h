@@ -14,6 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithNoticeModel:(NoticeModel *)notice;
 
+@property (nonatomic, copy) void(^noticeDeleteCallback)(NSString *noticeId);
+
+
 @end
 
 NS_ASSUME_NONNULL_END

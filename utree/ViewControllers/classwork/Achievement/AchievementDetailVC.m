@@ -45,6 +45,8 @@
     } failure:^(UTResult * _Nonnull result) {
         [self.view makeToast:result.failureResult];
     }];
+    
+    [self.dataController setAchievementReadWithWorkId:self.model.examId];
 }
 
 

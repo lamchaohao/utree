@@ -12,10 +12,11 @@
 {
     int _oldIndex;
     NSString *_content;
+    NSString *_saveBtnStr;
     CGFloat _keyboardHeight;
 }
-@property(atomic,strong)MyLinearLayout *mainView;
-
+@property(nonatomic,strong)MyLinearLayout *mainView;
+@property(nonatomic,strong)UIButton *saveButton;
 @end
 
 @implementation CHInputVC
@@ -26,6 +27,7 @@
     if (self) {
         _oldIndex = index;
         _content = content;
+        [self setSaveBtnStr:@"保存"];
     }
     return self;
 }
@@ -85,15 +87,18 @@
     textFiled.myTop=2.5;
     textFiled.text = _content;
     [textFiled becomeFirstResponder];
-    UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 56, 30)];
-    [button setTitle:@"保存" forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor myColorWithHexString:PrimaryColor] forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(completedEdit:) forControlEvents:UIControlEventTouchUpInside];
+    if (!_saveBtnStr||[self isBlankString:_saveBtnStr]) {
+        _saveBtnStr = @"保存";
+    }
+    self.saveButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 56, 30)];
+    [self.saveButton setTitle:_saveBtnStr forState:UIControlStateNormal];
+    [self.saveButton setTitleColor:[UIColor myColorWithHexString:PrimaryColor] forState:UIControlStateNormal];
+    [self.saveButton addTarget:self action:@selector(completedEdit:) forControlEvents:UIControlEventTouchUpInside];
     
-    button.myTop=25;
+    self.saveButton.myTop=25;
     
     [self.mainView addSubview:textFiled];
-    [self.mainView addSubview:button];
+    [self.mainView addSubview:self.saveButton];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
@@ -122,9 +127,14 @@
                 [self showToastView:@"没有输入内容"];
             }else{
                 if ([self isBlankString:_content]) {
-                    [self.callback CHInputAdded:textView.text];//添加
+                    if ([self.callback respondsToSelector:@selector(CHInputAdded:)]) {
+                        [self.callback CHInputAdded:textView.text];//添加
+                    }
                 }else{
-                    [self.callback CHInputFinishEditing:textView.text index:_oldIndex];//编辑
+                    if ([self.callback respondsToSelector:@selector(CHInputFinishEditing:index:)]) {
+                        [self.callback CHInputFinishEditing:textView.text index:_oldIndex];//编辑
+                    }
+                    
                 }
                 
                 [self dismissView:send];
@@ -168,7 +178,10 @@
 -(void)dismissView:(UIButton *)sender
 {
     [self dismissViewControllerAnimated:NO completion:nil];
-    [self.callback CHInputdialogWillClose];
+    if ([self.callback respondsToSelector:@selector(CHInputdialogWillClose)]) {
+        [self.callback CHInputdialogWillClose];
+    }
+    
 }
 
 @end
